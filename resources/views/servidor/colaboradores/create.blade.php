@@ -229,9 +229,12 @@
                             <select id="idVinculo" name="idVinculo"
                                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('idVinculo') border-red-500 @enderror">
                                 <option value="" disabled selected>Selecione...</option>
-                                {{-- @foreach ($vinculos as $vinculo)
-                                <option value="{{ $vinculo->id }}" @if (old('idVinculo') == $vinculo->id) selected @endif>{{ $vinculo->nome }}</option>
-                            @endforeach --}}
+                                <option value="Efetivo" {{ old('idVinculo') == 'Efetivo' ? 'selected' : '' }}>Efetivo
+                                </option>
+                                <option value="Comissionado" {{ old('idVinculo') == 'Comissionado' ? 'selected' : '' }}>
+                                    Comissionado</option>
+                                <option value="Voluntário" {{ old('idVinculo') == 'Voluntário' ? 'selected' : '' }}>
+                                    Voluntário</option>
                             </select>
                             @error('idVinculo')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
