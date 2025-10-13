@@ -1,9 +1,9 @@
-{{-- Sua view de login, por exemplo: resources/views/auth/login.blade.php --}}
 
-@extends('layouts.app')
 
-@section('content')
-{{-- Adicionado container para centralizar o formulário na tela --}}
+
+
+<?php $__env->startSection('content'); ?>
+
 <div class="flex items-center justify-center min-h-full py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full bg-white p-6 rounded-lg shadow-md space-y-8">
         <div>
@@ -12,10 +12,10 @@
             </h2>
         </div>
         
-        <form method="POST" action="{{ route('login') }}" class="mt-8 space-y-6">
-            @csrf
+        <form method="POST" action="<?php echo e(route('login')); ?>" class="mt-8 space-y-6">
+            <?php echo csrf_field(); ?>
             
-            {{-- Campo CPF --}}
+            
             <div class="rounded-md shadow-sm -space-y-px">
                 <div>
                     <label for="cpf" class="sr-only">CPF</label>
@@ -24,16 +24,23 @@
                            id="cpf" 
                            placeholder="000.000.000-00"
                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                           value="{{ old('cpf') }}"
+                           value="<?php echo e(old('cpf')); ?>"
                            required 
                            autofocus>
-                    @error('cpf')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['cpf'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="text-red-500 text-sm"><?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     <h2>CPF</h2>
                 </div>
 
-                {{-- Campo Senha --}}
+                
                 <div>
                     <label for="password" class="sr-only">Senha</label>
                     <input type="password" 
@@ -42,9 +49,16 @@
                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                            placeholder="Digite sua senha"
                            required>
-                    @error('password')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="text-red-500 text-sm"><?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     <h2>Senha</h2>
                 </div>
             </div>
@@ -60,10 +74,10 @@
         
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-{{-- 🔴 SCRIPT MOVIDO PARA UM @push --}}
-@push('scripts')
+
+<?php $__env->startPush('scripts'); ?>
 <script>
 document.getElementById('cpf').addEventListener('input', function(e) {
     let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não for dígito
@@ -77,4 +91,5 @@ document.getElementById('cpf').addEventListener('input', function(e) {
     e.target.value = value;
 });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /opt/lampp/htdocs/sistema-rh-layouts/resources/views/auth/login.blade.php ENDPATH**/ ?>

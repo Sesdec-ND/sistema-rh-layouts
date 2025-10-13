@@ -1,8 +1,8 @@
-@extends('layouts.app')
 
-@section('title', 'Colaboradores - RH')
 
-@section('content')
+<?php $__env->startSection('title', 'Colaboradores - RH'); ?>
+
+<?php $__env->startSection('content'); ?>
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex justify-between items-center">
@@ -10,7 +10,7 @@
             <h1 class="text-3xl font-bold text-gray-800">Gerenciar Colaboradores</h1>
             <p class="text-gray-600 mt-2">Gerencie todos os colaboradores do sistema</p>
         </div>
-            <a href="{{ route('servidores.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition duration-200 flex items-center">
+            <a href="<?php echo e(route('servidores.create')); ?>" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition duration-200 flex items-center">
             <i class="fas fa-plus mr-2"></i>
             Novo Servidor
         </a>
@@ -78,7 +78,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                    @foreach($colaboradores as $colaborador)
+                    <?php $__currentLoopData = $colaboradores; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $colaborador): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr class="hover:bg-gray-50 transition duration-150">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
@@ -86,29 +86,30 @@
                                     <i class="fas fa-user text-blue-600 text-sm"></i>
                                 </div>
                                 <div class="ml-3">
-                                    <div class="font-semibold text-gray-900">{{ $colaborador->name }}</div>
-                                    <div class="text-sm text-gray-500">RG: {{ $colaborador->rg }}</div>
+                                    <div class="font-semibold text-gray-900"><?php echo e($colaborador->name); ?></div>
+                                    <div class="text-sm text-gray-500">RG: <?php echo e($colaborador->rg); ?></div>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ $colaborador->cpf }}</div>
+                            <div class="text-sm text-gray-900"><?php echo e($colaborador->cpf); ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @php
+                            <?php
                                 $badgeColors = [
                                     'RH' => 'bg-purple-100 text-purple-800',
                                     'Diretor Executivo' => 'bg-yellow-100 text-yellow-800',
                                     'Colaborador' => 'bg-green-100 text-green-800'
                                 ];
                                 $color = $badgeColors[$colaborador->perfil->nomePerfil] ?? 'bg-gray-100 text-gray-800';
-                            @endphp
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $color }}">
-                                {{ $colaborador->perfil->nomePerfil }}
+                            ?>
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold <?php echo e($color); ?>">
+                                <?php echo e($colaborador->perfil->nomePerfil); ?>
+
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ $colaborador->email }}</div>
+                            <div class="text-sm text-gray-900"><?php echo e($colaborador->email); ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
@@ -133,7 +134,7 @@
                             </div>
                         </td>
                     </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
@@ -142,7 +143,7 @@
         <div class="bg-white px-6 py-4 border-t border-gray-200">
             <div class="flex items-center justify-between">
                 <div class="text-sm text-gray-700">
-                    Mostrando <span class="font-semibold">1</span> a <span class="font-semibold">{{ count($colaboradores) }}</span> de <span class="font-semibold">{{ count($colaboradores) }}</span> resultados
+                    Mostrando <span class="font-semibold">1</span> a <span class="font-semibold"><?php echo e(count($colaboradores)); ?></span> de <span class="font-semibold"><?php echo e(count($colaboradores)); ?></span> resultados
                 </div>
                 <div class="flex space-x-2">
                     <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50">
@@ -156,4 +157,5 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /opt/lampp/htdocs/sistema-rh-layouts/resources/views/admin/colaborador.blade.php ENDPATH**/ ?>

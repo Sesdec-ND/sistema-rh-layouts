@@ -8,7 +8,7 @@
     <div class="flex justify-between items-center">
         <div>
             <h1 class="text-3xl font-bold text-gray-800">Dashboard - Recursos Humanos</h1>
-            <p class="text-gray-600 mt-2">Bem-vindo ao painel de controle do RH</p>
+            {{-- <p class="text-gray-600 mt-2">Bem-vindo ao painel de controle do RH</p> --}}
         </div>
         <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg">
             <i class="fas fa-user-shield mr-2"></i>

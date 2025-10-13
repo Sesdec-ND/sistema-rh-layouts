@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Perfil;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin;
 
 class RhController extends Controller
 {

@@ -2,16 +2,20 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Admin\RhController;
+use App\Http\Controllers\Admin\RHController;
 use App\Http\Controllers\Admin\DiretorController;
 use App\Http\Controllers\Admin\ColaboradorController;
+use App\Http\Controllers\ServidorController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Perfil;
+
 
 // Rotas Públicas
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::resource('servidores', ServidorController::class); //Rota cadastro de servidores
 
 Route::get('/area-protegida', function () {
     return view('area_protegida');
@@ -33,6 +37,7 @@ Route::prefix('rh')->middleware(['auth', 'check.perfil:RH'])->group(function () 
 Route::prefix('diretor')->middleware(['auth', 'check.perfil:Diretor Executivo'])->group(function () {
     Route::get('/dashboard', [DiretorController::class, 'dashboard'])->name('diretor.dashboard');
     Route::get('/colaboradores', [DiretorController::class, 'visualizarColaboradores'])->name('diretor.colaboradores');
+    
 });
 
 // Rotas do Colaborador
@@ -46,7 +51,7 @@ Route::get('/dashboard', function () {
     $user = Auth::user();
 
     if (!$user->perfil) {
-        return redirect('/');
+        return redirect('/login');
     }
     
     return match($user->perfil->nomePerfil) {
