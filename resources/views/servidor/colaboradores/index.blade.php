@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {{-- resources/views/servidores/index.blade.php --}}
 @extends('layouts.app')
 
@@ -28,6 +29,13 @@
     <!-- Cards de Estatísticas -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="bg-white rounded-xl shadow-md p-6">
+=======
+{{-- No index dos servidores (resources/views/servidor/index.blade.php) --}}
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <!-- Card Total Servidores -->
+    <a href="{{ route('servidores.index') }}" class="block transform transition-transform hover:scale-105">
+        <div class="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 border-2 border-transparent hover:border-blue-500">
+>>>>>>> 068e35f (Cadastro servidores)
             <div class="flex items-center">
                 <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
                     <i class="fas fa-users text-xl"></i>
@@ -38,8 +46,16 @@
                 </div>
             </div>
         </div>
+<<<<<<< HEAD
 
         <div class="bg-white rounded-xl shadow-md p-6">
+=======
+    </a>
+
+    <!-- Card Ativos -->
+    <a href="{{ route('servidores.index') }}?status=ativo" class="block transform transition-transform hover:scale-105">
+        <div class="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 border-2 border-transparent hover:border-green-500">
+>>>>>>> 068e35f (Cadastro servidores)
             <div class="flex items-center">
                 <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
                     <i class="fas fa-user-check text-xl"></i>
@@ -50,8 +66,16 @@
                 </div>
             </div>
         </div>
+<<<<<<< HEAD
 
         <div class="bg-white rounded-xl shadow-md p-6">
+=======
+    </a>
+
+    <!-- Card Efetivos -->
+    <a href="{{ route('servidores.index') }}?vinculo=efetivo" class="block transform transition-transform hover:scale-105">
+        <div class="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 border-2 border-transparent hover:border-orange-500">
+>>>>>>> 068e35f (Cadastro servidores)
             <div class="flex items-center">
                 <div class="p-3 rounded-full bg-orange-100 text-orange-600 mr-4">
                     <i class="fas fa-user-clock text-xl"></i>
@@ -64,8 +88,16 @@
                 </div>
             </div>
         </div>
+<<<<<<< HEAD
 
         <div class="bg-white rounded-xl shadow-md p-6">
+=======
+    </a>
+
+    <!-- Card Lotação PM -->
+    <a href="{{ route('servidores.index') }}?lotacao=pm" class="block transform transition-transform hover:scale-105">
+        <div class="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 border-2 border-transparent hover:border-purple-500">
+>>>>>>> 068e35f (Cadastro servidores)
             <div class="flex items-center">
                 <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
                     <i class="fas fa-building text-xl"></i>
@@ -78,6 +110,7 @@
                 </div>
             </div>
         </div>
+<<<<<<< HEAD
     </div>
 
     <!-- Tabela de Servidores -->
@@ -185,3 +218,7 @@
     </div>
 </div>
 @endsection
+=======
+    </a>
+</div>
+>>>>>>> 068e35f (Cadastro servidores)

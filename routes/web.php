@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\RhController;
 use App\Http\Controllers\Admin\DiretorController;
 use App\Http\Controllers\Admin\ColaboradorController;
+use App\Http\Controllers\ServidorController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Perfil;
 
@@ -13,9 +14,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/area-protegida', function () {
-    return view('area_protegida');
-})->middleware('check.perfil'); // <-- USANDO O ALIAS AQUI!
+// Route::get('/area-protegida', function () {
+//     return view('area_protegida');
+// })->middleware('check.perfil'); // <-- USANDO O ALIAS AQUI!
+
+// Listagem de servidores cadastrados
+Route::get('/servidores', [ServidorController::class, 'index'])->name('servidores.index');
+Route::get('/servidores/{id}/edit', [ServidorController::class, 'edit'])->name('servidores.edit');
+Route::put('/servidores/{id}', [ServidorController::class, 'update'])->name('servidores.update');
 
 // Autenticação
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -63,3 +69,28 @@ Route::prefix('colaborador')->middleware(['auth', 'check.perfil:Colaborador'])->
 // Rota de logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+<<<<<<< HEAD
+=======
+
+    // Rotas para Servidores com middleware de autenticação
+Route::middleware(['auth'])->group(function () {
+    // Rotas principais de servidores
+    Route::get('/servidores', [ServidorController::class, 'index'])->name('servidores.index');
+    Route::get('/servidores/create', [ServidorController::class, 'create'])->name('servidores.create');
+    Route::post('/servidores', [ServidorController::class, 'store'])->name('servidores.store');
+    Route::get('/servidores/{servidor}', [ServidorController::class, 'show'])->name('servidores.show');
+    Route::get('/servidores/{servidor}/edit', [ServidorController::class, 'edit'])->name('servidores.edit');
+    Route::put('/servidores/{servidor}', [ServidorController::class, 'update'])->name('servidores.update');
+    Route::delete('/servidores/{servidor}', [ServidorController::class, 'destroy'])->name('servidores.destroy');
+    
+    // Rotas para lixeira (soft delete)
+    Route::get('/servidores/trashed', [ServidorController::class, 'trashed'])->name('servidores.trashed');
+    Route::patch('/servidores/{servidor}/restore', [ServidorController::class, 'restore'])->name('servidores.restore');
+    Route::delete('/servidores/{servidor}/force-delete', [ServidorController::class, 'forceDelete'])->name('servidores.force-delete');
+});
+
+// // Se você quiser adicionar middleware específico para admin
+// Route::middleware(['auth', 'admin'])->group(function () {
+//     // Rotas administrativas aqui (se necessário)
+// });
+>>>>>>> 068e35f (Cadastro servidores)

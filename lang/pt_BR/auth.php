@@ -13,7 +13,11 @@ return [
     |
     */
 
+<<<<<<< HEAD
     'failed' => 'Essas credenciais não foram encontradas em nossos registros.',
+=======
+    'failed' => 'Essas credenciais não foram cadastradas em nosso sistema.',
+>>>>>>> 068e35f (Cadastro servidores)
     'password' => 'A senha informada está incorreta.',
     'throttle' => 'Muitas tentativas de login. Tente novamente em :seconds segundos.',
 

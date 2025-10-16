@@ -7,7 +7,10 @@
         <!-- Header -->
         <div>
             <h1 class="text-3xl font-bold text-gray-800">Cadastrar Novo Servidor</h1>
+<<<<<<< HEAD
             {{-- <p class="text-gray-600 mt-2">Preencha os dados abaixo para adicionar um novo servidor.</p> --}}
+=======
+>>>>>>> 068e35f (Cadastro servidores)
         </div>
 
         <!-- Formulário de Cadastro -->
@@ -85,7 +88,10 @@
                                 <option value="Masculino" @if (old('genero') == 'Masculino') selected @endif>Masculino
                                 </option>
                                 <option value="Feminino" @if (old('genero') == 'Feminino') selected @endif>Feminino</option>
+<<<<<<< HEAD
                                 {{-- <option value="Outro" @if (old('genero') == 'Outro') selected @endif>Outro</option> --}}
+=======
+>>>>>>> 068e35f (Cadastro servidores)
                             </select>
                             @error('genero')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
@@ -223,7 +229,11 @@
                             @enderror
                         </div>
 
+<<<<<<< HEAD
                         <!-- Vínculo (Exemplo com select) -->
+=======
+                        <!-- Vínculo -->
+>>>>>>> 068e35f (Cadastro servidores)
                         <div>
                             <label for="idVinculo" class="block text-sm font-semibold text-gray-700 mb-2">Vínculo</label>
                             <select id="idVinculo" name="idVinculo"
@@ -235,13 +245,21 @@
                                     Comissionado</option>
                                 <option value="Voluntário" {{ old('idVinculo') == 'Voluntário' ? 'selected' : '' }}>
                                     Voluntário</option>
+<<<<<<< HEAD
+=======
+                                <option value="PVSA" {{ old('idVinculo') == 'PVSA' ? 'selected' : '' }}>PVSA</option>
+>>>>>>> 068e35f (Cadastro servidores)
                             </select>
                             @error('idVinculo')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                             @enderror
                         </div>
 
+<<<<<<< HEAD
                         <!-- Lotação (Exemplo com select) -->
+=======
+                        <!-- Lotação -->
+>>>>>>> 068e35f (Cadastro servidores)
                         <div>
                             <label for="idLotacao" @class(['block', 'text-sm', 'font-semibold', 'text-gray-700', 'mb-2'])>Lotação</label>
                             <select id="idLotacao" name="idLotacao"
@@ -261,6 +279,25 @@
                     </div>
                 </div>
 
+<<<<<<< HEAD
+=======
+                <!-- Seção de Dependentes -->
+                <div id="dependentes-section">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 border-b pb-3">Dependentes</h2>
+                        <button type="button" onclick="adicionarDependente()" 
+                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 flex items-center">
+                            <i class="fas fa-plus mr-2"></i>
+                            Adicionar Dependente
+                        </button>
+                    </div>
+
+                    <div id="dependentes-container" class="space-y-6">
+                        <!-- Dependentes serão adicionados aqui -->
+                    </div>
+                </div>
+
+>>>>>>> 068e35f (Cadastro servidores)
                 <!-- Botões de Ação -->
                 <div class="flex justify-end space-x-4 pt-6 border-t">
                     <a href="{{ route('servidores.index') }}"
@@ -276,4 +313,77 @@
             </form>
         </div>
     </div>
+<<<<<<< HEAD
 @endsection
+=======
+
+    <script>
+        let contadorDependentes = 0;
+        
+        function adicionarDependente() {
+            contadorDependentes++;
+            
+            const novoDependente = `
+                <div class="dependente-item bg-gray-50 rounded-lg p-6 border border-gray-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Dependente ${contadorDependentes}</h3>
+                        <button type="button" onclick="removerDependente(this)" 
+                            class="text-red-600 hover:text-red-800 font-semibold flex items-center">
+                            <i class="fas fa-trash mr-1"></i> Remover
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nome Completo</label>
+                            <input type="text" name="dependentes[${contadorDependentes-1}][nome]" 
+                                placeholder="Digite o nome completo"
+                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Parentesco</label>
+                            <input type="number" name="dependentes[${contadorDependentes-1}][idade]" 
+                                placeholder="Idade" min="0" max="120"
+                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Data de Nascimento</label>
+                            <input type="date" name="dependentes[${contadorDependentes-1}][data_nascimento]" 
+                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">CPF</label>
+                            <input type="text" name="dependentes[${contadorDependentes-1}][cpf]" 
+                                placeholder="000.000.000-00"
+                                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('dependentes-container').insertAdjacentHTML('beforeend', novoDependente);
+        }
+        
+        function removerDependente(botao) {
+            botao.closest('.dependente-item').remove();
+            // Atualizar números dos dependentes restantes
+            const itens = document.querySelectorAll('.dependente-item');
+            itens.forEach((item, index) => {
+                item.querySelector('h3').textContent = `Dependente ${index + 1}`;
+                // Atualizar os índices dos inputs
+                const inputs = item.querySelectorAll('input');
+                inputs.forEach(input => {
+                    const name = input.getAttribute('name');
+                    const newName = name.replace(/\[(\d+)\]/, `[${index}]`);
+                    input.setAttribute('name', newName);
+                });
+            });
+            contadorDependentes = itens.length;
+        }
+        
+        // Adicionar primeiro dependente automaticamente
+        document.addEventListener('DOMContentLoaded', function() {
+            adicionarDependente();
+        });
+    </script>
+@endsection
+>>>>>>> 068e35f (Cadastro servidores)
