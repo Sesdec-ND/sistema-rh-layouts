@@ -12,7 +12,6 @@ use App\Http\Controllers\Pessoal\PerfilPessoalController;
 use App\Http\Controllers\Admin\PerfisAcessoController;
 use App\Http\Controllers\Admin\ConfiguracoesSistemaController;
 use App\Http\Controllers\Admin\SegurancaController;
-use App\Http\Controllers\Admin\CadastroColaboradorController;
 
 // Rotas Públicas
 Route::get('/', function () {

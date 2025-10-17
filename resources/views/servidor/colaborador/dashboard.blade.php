@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 @extends('layouts.app')
 
 @section('title', 'Meu Dashboard')
@@ -197,7 +196,6 @@
     </div>
 </div>
 @endsection
-=======
 {{-- resources/views/dashboard.blade.php ou onde estiver seu card --}}
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
     <!-- Card Total Colaboradores - Agora clicável -->
@@ -256,4 +254,3 @@
         </div>
     </div>
 </div>
->>>>>>> 068e35f (Cadastro servidores)
