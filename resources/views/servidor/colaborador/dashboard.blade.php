@@ -34,7 +34,7 @@
             </div>
             <h3 class="font-semibold text-gray-800 mb-2">Dados Pessoais</h3>
             <p class="text-sm text-gray-600 mb-4">Suas informações cadastrais</p>
-            <a href="{{ route('colaborador.perfil') }}" 
+            <a href="{{ route('perfil-pessoal.show') }}" 
                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition duration-200 inline-block">
                 <i class="fas fa-eye mr-1"></i>Ver Perfil
             </a>

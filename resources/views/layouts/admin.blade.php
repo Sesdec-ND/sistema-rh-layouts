@@ -93,7 +93,7 @@
             </a>
 
             <!-- Perfis de Acesso -->
-            <a href="#" 
+            <a href="{{ route('admin.perfis-acesso')}}" 
                class="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-700 transition duration-200">
                 <i class="fas fa-user-tag w-6 text-center"></i>
                 <span id="nav-perfis">Perfis de Acesso</span>
@@ -104,12 +104,12 @@
                 <div class="text-blue-300 text-xs font-semibold px-3 py-2 uppercase tracking-wider" id="nav-config-title">
                     Configurações
                 </div>
-                <a href="#" 
+                <a href="{{ route('admin.configuracoes-sistema')}}" 
                    class="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-700 transition duration-200">
                     <i class="fas fa-cog w-6 text-center"></i>
                     <span id="nav-config">Configurações do Sistema</span>
                 </a>
-                <a href="#" 
+                <a href="{{ route('admin.seguranca')}}" 
                    class="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-700 transition duration-200">
                     <i class="fas fa-shield-alt w-6 text-center"></i>
                     <span id="nav-security">Segurança</span>
@@ -173,10 +173,10 @@
                         <div x-show="open" 
                              @click.away="open = false"
                              class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                            <a href="{{ route('colaborador.perfil') }}" 
+                            <a href="{{ route('perfil-pessoal.show') }}" 
                                class="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-gray-100">
                                 <i class="fas fa-user-circle text-gray-400"></i>
-                                <span>Meu Perfil</span>
+                                <span>Meu Perfil Pessoal</span>
                             </a>
                             <a href="#" 
                                class="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-gray-100">

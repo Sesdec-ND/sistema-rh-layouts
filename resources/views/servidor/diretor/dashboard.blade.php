@@ -70,7 +70,22 @@
     <!-- Acesso Rápido -->
     <div class="bg-white rounded-xl shadow-md p-6">
         <h2 class="text-xl font-bold text-gray-800 mb-4">Acesso Rápido</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Meu Perfil - Novo -->
+            <a href="{{ route('perfil-pessoal.show') }}" 
+               class="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 p-4 rounded-lg transition duration-200 group">
+                <div class="flex items-center">
+                    <div class="bg-indigo-100 p-3 rounded-lg group-hover:bg-indigo-200 transition duration-200">
+                        <i class="fas fa-user-circle text-indigo-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="font-semibold text-gray-800">Meu Perfil</h3>
+                        <p class="text-sm text-gray-600">Dados pessoais</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Visualizar Colaboradores -->
             <a href="{{ route('diretor.colaboradores') }}" 
                class="bg-blue-50 hover:bg-blue-100 border border-blue-200 p-4 rounded-lg transition duration-200 group">
                 <div class="flex items-center">
@@ -84,6 +99,7 @@
                 </div>
             </a>
 
+            <!-- Relatórios Detalhados - Desabilitado -->
             <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg opacity-75 cursor-not-allowed">
                 <div class="flex items-center">
                     <div class="bg-gray-200 p-3 rounded-lg">

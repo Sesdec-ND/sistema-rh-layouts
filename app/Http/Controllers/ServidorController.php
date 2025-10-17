@@ -71,7 +71,7 @@ class ServidorController extends Controller
         $validatedData['status'] = true;
 
         // 3. CRIAÇÃO DO REGISTRO NO BANCO
-        Servidor::create($validatedData);
+        ServidorController::create($validatedData);
 
         // 4. REDIRECIONAMENTO COM MENSAGEM DE SUCESSO
         return redirect()->route('servidores.index') // ou para onde você preferir

@@ -11,37 +11,55 @@ class PerfisSeeder extends Seeder
     {
         $perfis = [
             [
+                'id' => 1,
                 'nomePerfil' => 'RH',
                 'descricao' => 'Acesso completo ao sistema de RH',
                 'permissoes' => json_encode([
                     'dashboard' => true,
                     'colaboradores' => ['view', 'create', 'edit', 'delete'],
                     'relatorios' => true,
-                    'configuracoes' => true
+                    'perfis_acesso' => ['view', 'create', 'edit', 'delete', 'manage_permissions'],
+                    'configuracoes_sistema' => ['view', 'edit'],
+                    'seguranca' => ['view_logs', 'view_auditoria', 'manage_policies']
                 ])
             ],
             [
+                'id' => 2,
                 'nomePerfil' => 'Diretor Executivo',
                 'descricao' => 'Acesso de visualização aos dados',
                 'permissoes' => json_encode([
                     'dashboard' => true,
                     'colaboradores' => ['view'],
                     'relatorios' => true,
-                    'configuracoes' => false
+                    'perfis_acesso' => false,
+                    'configuracoes_sistema' => false,
+                    'seguranca' => false
                 ])
             ],
             [
+                'id' => 3,
                 'nomePerfil' => 'Colaborador',
                 'descricao' => 'Acesso limitado ao próprio perfil',
                 'permissoes' => json_encode([
                     'dashboard' => true,
                     'colaboradores' => ['view_self'],
                     'relatorios' => false,
-                    'configuracoes' => false
+                    'perfis_acesso' => false,
+                    'configuracoes_sistema' => false,
+                    'seguranca' => false
                 ])
             ]
         ];
 
-        DB::table('perfis')->insert($perfis);
+        // DB::table('perfis')->insert($perfis);
+
+        // Atualizar cada perfil existente
+        foreach ($perfis as $perfil) {
+            DB::table('perfis')
+                ->where('id', $perfil['id'])
+                ->update([
+                    'permissoes' => $perfil['permissoes']
+                ]);
+        }
     }
 }
