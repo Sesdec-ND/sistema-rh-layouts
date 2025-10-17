@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\RHController;
 use App\Http\Controllers\Admin\DiretorController;
 use App\Http\Controllers\Admin\ColaboradorController;
+use App\Http\Controllers\ServidorController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Perfil;
 use App\Http\Controllers\Pessoal\PerfilPessoalController;
@@ -21,6 +22,11 @@ Route::get('/', function () {
 Route::get('/area-protegida', function () {
     return view('area_protegida');
 })->middleware('check.perfil: RH, Diretor Executivo, Colaborador');
+
+// Listagem de servidores cadastrados
+Route::get('/servidores', [ServidorController::class, 'index'])->name('servidores.index');
+Route::get('/servidores/{id}/edit', [ServidorController::class, 'edit'])->name('servidores.edit');
+Route::put('/servidores/{id}', [ServidorController::class, 'update'])->name('servidores.update');
 
 // Autenticação
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

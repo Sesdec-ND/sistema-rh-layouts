@@ -1,0 +1,155 @@
+@extends('layouts.app')
+
+@section('title', 'Editar Colaborador')
+
+@section('content')
+<div class="container mx-auto px-4 py-6">
+    <div class="max-w-4xl mx-auto">
+        <!-- Cabeçalho -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Editar Colaborador</h1>
+            <p class="text-gray-600">Atualize as informações do colaborador</p>
+        </div>
+
+        <form action="{{ route('colaboradores.update', $colaborador->id) }}" method="POST" class="bg-white rounded-lg shadow p-6">
+            @csrf
+            @method('PUT')
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Informações Pessoais -->
+                <div class="col-span-2">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Informações Pessoais</h3>
+                </div>
+                
+                <div>
+                    <label for="nome" class="block text-sm font-semibold text-gray-700 mb-2">Nome Completo *</label>
+                    <input type="text" id="nome" name="nome" value="{{ old('nome', $colaborador->nome) }}" 
+                           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('nome') border-red-500 @enderror">
+                    @error('nome') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+                    <input type="email" id="email" name="email" value="{{ old('email', $colaborador->email) }}" 
+                           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('email') border-red-500 @enderror">
+                    @error('email') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="cpf" class="block text-sm font-semibold text-gray-700 mb-2">CPF *</label>
+                    <input type="text" id="cpf" name="cpf" value="{{ old('cpf', $colaborador->cpf) }}" 
+                           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('cpf') border-red-500 @enderror">
+                    @error('cpf') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="telefone" class="block text-sm font-semibold text-gray-700 mb-2">Telefone</label>
+                    <input type="text" id="telefone" name="telefone" value="{{ old('telefone', $colaborador->telefone) }}" 
+                           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('telefone') border-red-500 @enderror">
+                    @error('telefone') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <!-- Informações Profissionais -->
+                <div class="col-span-2 mt-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Informações Profissionais</h3>
+                </div>
+
+                <div>
+                    <label for="matricula" class="block text-sm font-semibold text-gray-700 mb-2">Matrícula *</label>
+                    <input type="text" id="matricula" name="matricula" value="{{ old('matricula', $colaborador->matricula) }}" 
+                           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('matricula') border-red-500 @enderror">
+                    @error('matricula') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="cargo" class="block text-sm font-semibold text-gray-700 mb-2">Cargo *</label>
+                    <input type="text" id="cargo" name="cargo" value="{{ old('cargo', $colaborador->cargo) }}" 
+                           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('cargo') border-red-500 @enderror">
+                    @error('cargo') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="idLotacao" class="block text-sm font-semibold text-gray-700 mb-2">Lotação</label>
+                    <select id="idLotacao" name="idLotacao" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('idLotacao') border-red-500 @enderror">
+                        <option value="" disabled>Selecione...</option>
+                        <option value="PM" {{ old('idLotacao', $colaborador->idLotacao) == 'PM' ? 'selected' : '' }}>PM</option>
+                        <option value="PC" {{ old('idLotacao', $colaborador->idLotacao) == 'PC' ? 'selected' : '' }}>PC</option>
+                        <option value="Politec" {{ old('idLotacao', $colaborador->idLotacao) == 'Politec' ? 'selected' : '' }}>Politec</option>
+                        <option value="Bombeiros" {{ old('idLotacao', $colaborador->idLotacao) == 'Bombeiros' ? 'selected' : '' }}>Bombeiros</option>
+                    </select>
+                    @error('idLotacao') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="idVinculo" class="block text-sm font-semibold text-gray-700 mb-2">Vínculo</label>
+                    <select id="idVinculo" name="idVinculo" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('idVinculo') border-red-500 @enderror">
+                        <option value="" disabled>Selecione...</option>
+                        <option value="Efetivo" {{ old('idVinculo', $colaborador->idVinculo) == 'Efetivo' ? 'selected' : '' }}>Efetivo</option>
+                        <option value="Comissionado" {{ old('idVinculo', $colaborador->idVinculo) == 'Comissionado' ? 'selected' : '' }}>Comissionado</option>
+                        <option value="Voluntário" {{ old('idVinculo', $colaborador->idVinculo) == 'Voluntário' ? 'selected' : '' }}>Voluntário</option>
+                    </select>
+                    @error('idVinculo') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <!-- Informações de Saúde -->
+                <div class="col-span-2 mt-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Informações de Saúde</h3>
+                </div>
+
+                <div>
+                    <label for="tipoSanguineo" class="block text-sm font-semibold text-gray-700 mb-2">Tipo Sanguíneo</label>
+                    <select id="tipoSanguineo" name="tipoSanguineo" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('tipoSanguineo') border-red-500 @enderror">
+                        <option value="" disabled>Selecione...</option>
+                        <option value="A+" {{ old('tipoSanguineo', $colaborador->tipoSanguineo) == 'A+' ? 'selected' : '' }}>A+</option>
+                        <option value="A-" {{ old('tipoSanguineo', $colaborador->tipoSanguineo) == 'A-' ? 'selected' : '' }}>A-</option>
+                        <option value="B+" {{ old('tipoSanguineo', $colaborador->tipoSanguineo) == 'B+' ? 'selected' : '' }}>B+</option>
+                        <option value="B-" {{ old('tipoSanguineo', $colaborador->tipoSanguineo) == 'B-' ? 'selected' : '' }}>B-</option>
+                        <option value="AB+" {{ old('tipoSanguineo', $colaborador->tipoSanguineo) == 'AB+' ? 'selected' : '' }}>AB+</option>
+                        <option value="AB-" {{ old('tipoSanguineo', $colaborador->tipoSanguineo) == 'AB-' ? 'selected' : '' }}>AB-</option>
+                        <option value="O+" {{ old('tipoSanguineo', $colaborador->tipoSanguineo) == 'O+' ? 'selected' : '' }}>O+</option>
+                        <option value="O-" {{ old('tipoSanguineo', $colaborador->tipoSanguineo) == 'O-' ? 'selected' : '' }}>O-</option>
+                    </select>
+                    @error('tipoSanguineo') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="racaCor" class="block text-sm font-semibold text-gray-700 mb-2">Raça/Cor</label>
+                    <select id="racaCor" name="racaCor" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('racaCor') border-red-500 @enderror">
+                        <option value="" disabled>Selecione...</option>
+                        <option value="Branca" {{ old('racaCor', $colaborador->racaCor) == 'Branca' ? 'selected' : '' }}>Branca</option>
+                        <option value="Preta" {{ old('racaCor', $colaborador->racaCor) == 'Preta' ? 'selected' : '' }}>Preta</option>
+                        <option value="Parda" {{ old('racaCor', $colaborador->racaCor) == 'Parda' ? 'selected' : '' }}>Parda</option>
+                        <option value="Amarela" {{ old('racaCor', $colaborador->racaCor) == 'Amarela' ? 'selected' : '' }}>Amarela</option>
+                    </select>
+                    @error('racaCor') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <!-- Status -->
+                <div class="col-span-2">
+                    <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                    <select id="status" name="status" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Ativo" {{ old('status', $colaborador->status) == 'Ativo' ? 'selected' : '' }}>Ativo</option>
+                        <option value="Inativo" {{ old('status', $colaborador->status) == 'Inativo' ? 'selected' : '' }}>Inativo</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="flex justify-end space-x-4 mt-6 pt-6 border-t border-gray-200">
+<<<<<<< HEAD
+                <a href="{{ route('colaboradores.index') }}" 
+=======
+                <a href="{{ route('servidores.index') }}" 
+>>>>>>> 068e35f (Cadastro servidores)
+                   class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200">
+                    Cancelar
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200">
+                    Atualizar Colaborador
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection
