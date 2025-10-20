@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('cpf', 14)->unique();
+            // $table->string('cpf', 14)->unique();
             $table->string('rg', 20);
             $table->string('username', 50)->unique();
             $table->foreignId('perfil_id')->constrained('perfis')->onDelete('cascade');

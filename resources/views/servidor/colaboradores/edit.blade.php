@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Editar Colaborador')
 
@@ -136,11 +136,7 @@
 
             <!-- Botões -->
             <div class="flex justify-end space-x-4 mt-6 pt-6 border-t border-gray-200">
-<<<<<<< HEAD
-                <a href="{{ route('colaboradores.index') }}" 
-=======
                 <a href="{{ route('servidores.index') }}" 
->>>>>>> 068e35f (Cadastro servidores)
                    class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200">
                     Cancelar
                 </a>

@@ -4,22 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\Servidor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth;
 
 class ServidorController extends Controller
 {
     public function index()
     {
-        {
-    // Verifica se o usuário é RH (administrador)
-    if (Auth::user()->tipo !== 'rh') {
-        return redirect()->route('dashboard')->with('error', 'Acesso não autorizado.');
-    }
 
-    $servidores = Servidor::all();
-    return view('servidores.index', compact('servidores'));
-}
+        // Verifica se o usuário é RH (administrador)
+        if (auth()->user()->tipo !== 'rh') {
+            return redirect()->route('dashboard')->with('error', 'Acesso não autorizado.');
+        }
+
+        $servidores = Servidor::all();
+
+        return view('servidor.colaboradores.index', compact('servidores'));
+
         $servidores = Servidor::latest()->paginate(10);
 
         return view('servidor.colaboradores.index', compact('servidores'));
@@ -32,81 +33,77 @@ class ServidorController extends Controller
 
     public function store(Request $request)
     {
-        // Validação dos dados principais
+        // Validação (os nomes aqui são os do formulário, em camelCase)
         $validated = $request->validate([
-        'matricula' => 'required|max:20|unique:servidores,matricula,' . $servidor->id,
-        'nomeCompleto' => 'required|max:255',
-        'cpf' => 'required|max:14|unique:servidores,cpf,' . $servidor->id,
-        'rg' => 'required|max:20',
-        'dataNascimento' => 'required|date',
-        'genero' => 'required|in:Masculino,Feminino',
-        'estadoCivil' => 'required',
-        'telefone' => 'required|max:20',
-        'endereco' => 'required|max:500',
-        'racaCor' => 'required',
-        'tipoSanguineo' => 'required',
-        'foto' => 'nullable|image|max:2048',
-        'formacao' => 'required|max:255',
-        'pisPasep' => 'required|max:50',
-        'dataNomeacao' => 'required|date',
-        'idVinculo' => 'required',
-        'idLotacao' => 'required',
-    ]);
+            'matricula' => 'required|max:20|unique:servidores',
+            'nomeCompleto' => 'required|max:255',
+            'cpf' => 'required|max:14|unique:servidores',
+            'rg' => 'required|max:20',
+            'dataNascimento' => 'required|date',
+            'genero' => 'required|in:Masculino,Feminino,Outro',
+            'estadoCivil' => 'required',
+            'telefone' => 'nullable|max:20',
+            'endereco' => 'nullable|max:500',
+            'racaCor' => 'nullable',
+            'tipoSanguineo' => 'nullable',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'formacao' => 'nullable|string|max:255',
+            'pisPasep' => 'nullable|string|max:50',
+            'dataNomeacao' => 'nullable|date',
+            'idVinculo' => 'nullable|string|max:50',
+            'idLotacao' => 'nullable|string|max:50',
+            'dependentes' => 'nullable|array',
+            'dependentes.*.nome' => 'required_with:dependentes|string|max:255',
+            'dependentes.*.data_nascimento' => 'required_with:dependentes|date',
+            'dependentes.*.cpf' => 'nullable|string|max:14',
+        ]);
 
-        // Mapear nomes dos campos para o banco de dados
+        // Mapeia os nomes do formulário (camelCase) para os nomes do banco (snake_case)
         $servidorData = [
-        'matricula' => $validated['matricula'],
-        'nome_completo' => $validated['nomeCompleto'],
-        'cpf' => $validated['cpf'],
-        'rg' => $validated['rg'],
-        'data_nascimento' => $validated['dataNascimento'],
-        'genero' => $validated['genero'],
-        'estado_civil' => $validated['estadoCivil'],
-        'telefone' => $validated['telefone'],
-        'endereco' => $validated['endereco'],
-        'raca_cor' => $validated['racaCor'],
-        'tipo_sanguineo' => $validated['tipoSanguineo'],
-        'formacao' => $validated['formacao'],
-        'pis_pasep' => $validated['pisPasep'],
-        'data_nomeacao' => $validated['dataNomeacao'],
-        'id_vinculo' => $validated['idVinculo'],
-        'id_lotacao' => $validated['idLotacao'],
-    ];
+            'matricula' => $validated['matricula'],
+            'nome_completo' => $validated['nomeCompleto'],
+            'cpf' => $validated['cpf'],
+            'rg' => $validated['rg'],
+            'data_nascimento' => $validated['dataNascimento'],
+            'genero' => $validated['genero'],
+            'estado_civil' => $validated['estadoCivil'],
+            'telefone' => $validated['telefone'] ?? null,
+            'endereco' => $validated['endereco'] ?? null,
+            'raca_cor' => $validated['racaCor'] ?? null,
+            'tipo_sanguineo' => $validated['tipoSanguineo'] ?? null,
+            'formacao' => $validated['formacao'] ?? null,
+            'pis_pasep' => $validated['pisPasep'] ?? null,
+            'data_nomeacao' => $validated['dataNomeacao'] ?? null,
+            'id_vinculo' => $validated['idVinculo'] ?? null,
+            'id_lotacao' => $validated['idLotacao'] ?? null,
+        ];
 
-        // Upload da foto
-        if ($request->hasFile('foto')) {
-        if ($servidor->foto) {
-            Storage::disk('public')->delete($servidor->foto);
-        }
-        $servidorData['foto'] = $request->file('foto')->store('servidores', 'public');
-    }
-
-        // Criar servidor
-        $servidor = Servidor::create($servidorData);
-
-        // Processar dependentes se existirem
-        $servidor = Servidor::create($request->except('dependentes'));
-
-        // Processar dependentes
-        if ($request->has('dependentes')) {
-        // Primeiro remover todos os dependentes existentes
-        $servidor->dependentes()->delete();
-        
-        // Depois adicionar os novos
-        foreach ($request->dependentes as $dependenteData) {
-            if (!empty($dependenteData['nome'])) {
-                $servidor->dependentes()->create([
-                    'nome' => $dependenteData['nome'],
-                    'idade' => $dependenteData['idade'] ?? null,
-                    'data_nascimento' => $dependenteData['data_nascimento'] ?? null,
-                    'cpf' => $dependenteData['cpf'] ?? null,
-                ]);
+        DB::beginTransaction();
+        try {
+            // Upload da foto
+            if ($request->hasFile('foto')) {
+                $path = $request->file('foto')->store('servidores', 'public');
+                $servidorData['foto'] = $path; // Salva o caminho relativo
             }
-            }
-        }
 
-        return redirect()->route('servidores.index')
+            // Cria o servidor (agora vai funcionar por causa do $fillable no Model)
+            $servidor = Servidor::create($servidorData);
+
+            // Salva os dependentes
+            if (isset($validated['dependentes'])) {
+                $servidor->dependentes()->createMany($validated['dependentes']);
+            }
+
+            DB::commit();
+
+            return redirect()->route('dashboard')
             ->with('success', 'Servidor cadastrado com sucesso!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return back()->with('error', 'Falha ao cadastrar o servidor: '.$e->getMessage())->withInput();
+        }
     }
 
     public function show(Servidor $servidor)
@@ -116,42 +113,43 @@ class ServidorController extends Controller
 
     public function edit(Servidor $servidor, $id)
     {
-        {
-    if (auth()->user()->tipo !== 'rh') {
-        return redirect()->route('dashboard')->with('error', 'Acesso não autorizado.');
-    }
 
-    $servidor = Servidor::findOrFail($id);
-    return view('servidores.edit', compact('servidor'));
-}
+        if (auth()->user()->tipo !== 'rh') {
+            return redirect()->route('dashboard')->with('error', 'Acesso não autorizado.');
+        }
+
+        $servidor = Servidor::findOrFail($id);
+
+        return view('servidor.colaboradores.edit', compact('servidor'));
 
         return view('servidor.colaboradores.edit', compact('servidor'));
     }
 
     public function update(Request $request, Servidor $servidor, $id)
     {
-        {
-    if (auth()->user()->tipo !== 'rh') {
-        return redirect()->route('dashboard')->with('error', 'Acesso não autorizado.');
-    }
 
-    $servidor = Servidor::findOrFail($id);
-    
-    $request->validate([
-        'nome' => 'required|string|max:255',
-        'email' => 'required|email|unique:servidores,email,' . $id,
-        // adicione outros campos conforme necessário
-    ]);
+        if (auth()->user()->tipo !== 'rh') {
+            return redirect()->route('dashboard')->with('error', 'Acesso não autorizado.');
+        }
 
-    $servidor->update($request->all());
+        $servidor = Servidor::findOrFail($id);
 
-    return redirect()->route('servidores.index')->with('success', 'Servidor atualizado com sucesso!');
-}
+        $request->validate([
+            'matricula' => 'required|max:20|unique:servidores,matricula,'.$servidor->id,
+            'nomeCompleto' => 'required|max:255',
+            'cpf' => 'required|max:14|unique:servidores,cpf,'.$servidor->id,
+            // adicione outros campos conforme necessário
+        ]);
+
+        $servidor->update($request->all());
+
+        return redirect()->route('servidores.index')->with('success', 'Servidor atualizado com sucesso!');
+
         $validated = $request->validate([
             'matricula' => 'required|max:20|unique:servidores,matricula,'.$servidor->id,
             'nomeCompleto' => 'required|max:255',
             'cpf' => 'required|max:14|unique:servidores,cpf,'.$servidor->id,
-            'rg' => 'required|max:20',
+            'rg' => 'nullable|required|max:20',
             'dataNascimento' => 'required|date',
             'genero' => 'required|in:Masculino,Feminino',
             'estadoCivil' => 'required',
@@ -223,8 +221,8 @@ class ServidorController extends Controller
         $servidor = Servidor::onlyTrashed()->findOrFail($id);
         $servidor->restore();
 
-        return redirect()->route('servidores.trashed')
-            ->with('success', 'Servidor restaurado com sucesso!');
+        // return redirect()->route('servidor.trashed')
+        //     ->with('success', 'Servidor restaurado com sucesso!');
     }
 
     public function forceDelete($id)
@@ -238,7 +236,7 @@ class ServidorController extends Controller
 
         $servidor->forceDelete();
 
-        return redirect()->route('servidores.trashed')
-            ->with('success', 'Servidor excluído permanentemente!');
+        // return redirect()->route('servidores.trashed')
+        //     ->with('success', 'Servidor excluído permanentemente!');
     }
 }

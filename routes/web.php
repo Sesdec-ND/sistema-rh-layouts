@@ -22,7 +22,9 @@ Route::get('/area-protegida', function () {
     return view('area_protegida');
 })->middleware('check.perfil: RH, Diretor Executivo, Colaborador');
 
-// Listagem de servidores cadastrados
+// Listagem e criação servidores cadastrados
+Route::post('/servidores', [ServidorController::class, 'store'])->name('servidor.store');
+Route::get('/servidores/create', [ServidorController::class, 'create'])->name('servidores.create');
 Route::get('/servidores', [ServidorController::class, 'index'])->name('servidores.index');
 Route::get('/servidores/{id}/edit', [ServidorController::class, 'edit'])->name('servidores.edit');
 Route::put('/servidores/{id}', [ServidorController::class, 'update'])->name('servidores.update');

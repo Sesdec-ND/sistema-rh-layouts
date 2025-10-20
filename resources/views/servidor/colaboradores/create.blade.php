@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Cadastrar Novo Servidor')
 
@@ -7,15 +7,11 @@
         <!-- Header -->
         <div>
             <h1 class="text-3xl font-bold text-gray-800">Cadastrar Novo Servidor</h1>
-<<<<<<< HEAD
-            {{-- <p class="text-gray-600 mt-2">Preencha os dados abaixo para adicionar um novo servidor.</p> --}}
-=======
->>>>>>> 068e35f (Cadastro servidores)
         </div>
 
         <!-- Formulário de Cadastro -->
         <div class="bg-white rounded-xl shadow-md p-8">
-            <form action="{{ route('servidores.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+            <form action="{{ route('servidor.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
                 @csrf
 
                 <!-- Seção de Dados Pessoais -->
@@ -88,10 +84,6 @@
                                 <option value="Masculino" @if (old('genero') == 'Masculino') selected @endif>Masculino
                                 </option>
                                 <option value="Feminino" @if (old('genero') == 'Feminino') selected @endif>Feminino</option>
-<<<<<<< HEAD
-                                {{-- <option value="Outro" @if (old('genero') == 'Outro') selected @endif>Outro</option> --}}
-=======
->>>>>>> 068e35f (Cadastro servidores)
                             </select>
                             @error('genero')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
@@ -229,11 +221,7 @@
                             @enderror
                         </div>
 
-<<<<<<< HEAD
-                        <!-- Vínculo (Exemplo com select) -->
-=======
                         <!-- Vínculo -->
->>>>>>> 068e35f (Cadastro servidores)
                         <div>
                             <label for="idVinculo" class="block text-sm font-semibold text-gray-700 mb-2">Vínculo</label>
                             <select id="idVinculo" name="idVinculo"
@@ -245,21 +233,14 @@
                                     Comissionado</option>
                                 <option value="Voluntário" {{ old('idVinculo') == 'Voluntário' ? 'selected' : '' }}>
                                     Voluntário</option>
-<<<<<<< HEAD
-=======
                                 <option value="PVSA" {{ old('idVinculo') == 'PVSA' ? 'selected' : '' }}>PVSA</option>
->>>>>>> 068e35f (Cadastro servidores)
                             </select>
                             @error('idVinculo')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                             @enderror
                         </div>
 
-<<<<<<< HEAD
-                        <!-- Lotação (Exemplo com select) -->
-=======
                         <!-- Lotação -->
->>>>>>> 068e35f (Cadastro servidores)
                         <div>
                             <label for="idLotacao" @class(['block', 'text-sm', 'font-semibold', 'text-gray-700', 'mb-2'])>Lotação</label>
                             <select id="idLotacao" name="idLotacao"
@@ -279,8 +260,6 @@
                     </div>
                 </div>
 
-<<<<<<< HEAD
-=======
                 <!-- Seção de Dependentes -->
                 <div id="dependentes-section">
                     <div class="flex justify-between items-center mb-6">
@@ -297,7 +276,6 @@
                     </div>
                 </div>
 
->>>>>>> 068e35f (Cadastro servidores)
                 <!-- Botões de Ação -->
                 <div class="flex justify-end space-x-4 pt-6 border-t">
                     <a href="{{ route('servidores.index') }}"
@@ -313,9 +291,6 @@
             </form>
         </div>
     </div>
-<<<<<<< HEAD
-@endsection
-=======
 
     <script>
         let contadorDependentes = 0;
@@ -386,4 +361,3 @@
         });
     </script>
 @endsection
->>>>>>> 068e35f (Cadastro servidores)

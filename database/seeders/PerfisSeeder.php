@@ -21,7 +21,9 @@ class PerfisSeeder extends Seeder
                     'perfis_acesso' => ['view', 'create', 'edit', 'delete', 'manage_permissions'],
                     'configuracoes_sistema' => ['view', 'edit'],
                     'seguranca' => ['view_logs', 'view_auditoria', 'manage_policies']
-                ])
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'id' => 2,
@@ -34,7 +36,9 @@ class PerfisSeeder extends Seeder
                     'perfis_acesso' => false,
                     'configuracoes_sistema' => false,
                     'seguranca' => false
-                ])
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'id' => 3,
@@ -47,19 +51,24 @@ class PerfisSeeder extends Seeder
                     'perfis_acesso' => false,
                     'configuracoes_sistema' => false,
                     'seguranca' => false
-                ])
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
             ]
         ];
 
-        // DB::table('perfis')->insert($perfis);
+        // DESCOMENTE esta linha - inserir os perfis
+        DB::table('perfis')->insert($perfis);
 
-        // Atualizar cada perfil existente
-        foreach ($perfis as $perfil) {
-            DB::table('perfis')
-                ->where('id', $perfil['id'])
-                ->update([
-                    'permissoes' => $perfil['permissoes']
-                ]);
-        }
+        // REMOVA ou COMENTE esta parte do update
+        // foreach ($perfis as $perfil) {
+        //     DB::table('perfis')
+        //         ->where('id', $perfil['id'])
+        //         ->update([
+        //             'permissoes' => $perfil['permissoes']
+        //         ]);
+        // }
+
+        $this->command->info('Perfis criados com sucesso!');
     }
 }
