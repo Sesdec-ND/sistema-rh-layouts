@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de RH</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-100">
     <nav class="bg-blue-600 text-white p-4">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold">Sistema de RH</h1>
+            <a href="/dashboard" class="text-xl font-bold hover:text-blue-200 transition duration-200">
+                Sistema de RH
+            </a>
+
             <div class="flex items-center space-x-4">
                 <?php if(auth()->guard()->check()): ?>
                     <span>Olá, <?php echo e(auth()->user()->name); ?></span>
@@ -30,4 +35,5 @@
     </main>
 </body>
 
-</html><?php /**PATH /opt/lampp/htdocs/sistema-rh-layouts/resources/views/layouts/app.blade.php ENDPATH**/ ?>
+</html>
+<?php /**PATH /opt/lampp/htdocs/sistema-rh-layouts/resources/views/layouts/app.blade.php ENDPATH**/ ?>

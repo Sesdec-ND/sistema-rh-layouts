@@ -551,7 +551,7 @@ unset($__errorArgs, $__bag); ?>
                                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Parentesco</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">idade</label>
                             <input type="number" name="dependentes[${contadorDependentes-1}][idade]" 
                                 placeholder="Idade" min="0" max="120"
                                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -596,7 +596,7 @@ unset($__errorArgs, $__bag); ?>
             adicionarDependente();
         });
     </script>
-    
+
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /opt/lampp/htdocs/sistema-rh-layouts/resources/views/servidor/colaboradores/create.blade.php ENDPATH**/ ?>

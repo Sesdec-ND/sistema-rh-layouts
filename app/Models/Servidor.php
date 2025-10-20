@@ -11,9 +11,12 @@ class Servidor extends Model
 {
     use HasFactory, SoftDeletes;
 
+    // ESPECIFIQUE O NOME CORRETO DA TABELA
+    protected $table = 'servidores';
+
     protected $fillable = [
         'matricula',
-        'nome_completo',
+        'nome_completo', 
         'cpf',
         'rg',
         'data_nascimento',
@@ -23,17 +26,21 @@ class Servidor extends Model
         'endereco',
         'raca_cor',
         'tipo_sanguineo',
-        'foto',
         'formacao',
         'pis_pasep',
         'data_nomeacao',
         'id_vinculo',
-        'id_lotacao'
+        'id_lotacao',
+        'foto'
     ];
 
-    protected $casts = [
+    
+
+
+    protected $casts, $dates = [
         'data_nascimento' => 'date',
         'data_nomeacao' => 'date',
+        'deleted_at' => 'date'
     ];
 
     public function dependentes()
