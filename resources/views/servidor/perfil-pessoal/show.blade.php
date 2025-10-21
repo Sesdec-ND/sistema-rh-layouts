@@ -72,21 +72,21 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Telefone</label>
                         <div class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800">
-                            {{ $dadosPessoais['telefone'] }}
+                            {{ $dadosPessoais['telefone'] ?? 'Não informado' }}
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Data de Nascimento</label>
                         <div class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800">
-                            {{ $dadosPessoais['data_nascimento'] }}
+                            {{ $dadosPessoais['data_nascimento'] ?? 'Não informada' }}
                         </div>
                     </div>
 
                     <div class="md:col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Endereço</label>
                         <div class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800">
-                            {{ $dadosPessoais['endereco'] }}
+                            {{ $dadosPessoais['endereco'] ?? 'Não informado' }}
                         </div>
                     </div>
                 </div>

@@ -1,4 +1,5 @@
 <?php
+// [file name]: UsuarioController.php
 
 namespace App\Http\Controllers\Admin;
 
@@ -9,35 +10,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
-use Exception;
 
 class UsuarioController extends Controller
 {
     /**
-     * Lista todos os colaboradores para gerenciar acesso (NOVO MÉTODO)
+     * Lista todos os colaboradores para gerenciar acesso
      */
     public function indexAcessoSistema()
     {
-        try {
-            $servidores = Servidor::with(['user', 'user.perfil'])->get();
-            $perfis = Perfil::all();
+        // Use paginate() em vez de get() para ter paginação
+        $servidores = Servidor::with(['user', 'user.perfil'])->paginate(10); // 10 itens por página
+        $perfis = Perfil::all();
         
-        return view('admin.acesso-sistema', compact('servidores', 'perfis'));
-        } catch (\Exception $e) {
-            // Fallback: buscar sem relacionamentos
-            $servidores = Servidor::all();
-            $perfis = Perfil::all();
-        
-            // Log do erro para debug
-            \Log::error('Erro no indexAcessoSistema: ' . $e->getMessage());
-
-            // Fallback mínimo
-            $servidores = [];
-            $perfis = [];
-        
-        return view('admin.acesso-sistema', compact('servidores', 'perfis'))
-        ->with('error', 'Erro ao carregar dados');
-        }
+        return view('admin.acesso-sistema.acesso-sistema', compact('servidores', 'perfis'));
     }
 
     /**
@@ -48,9 +33,13 @@ class UsuarioController extends Controller
         $perfis = Perfil::all();
         
         // Verificar se já existe usuário para este servidor
-        $usuarioExistente = User::where('cpf', $servidor->cpf)->first();
+        // $usuarioExistente = User::where('cpf', $servidor->cpf)->first();
+
+        // 🔴 POR esta (busca flexível):
+        $cpfBusca = preg_replace('/[^0-9]/', '', $servidor->cpf);
+        $usuarioExistente = User::whereRaw("REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') = ?", [$cpfBusca])->first();
         
-        return view('admin.atribuir-perfil', compact('servidor', 'perfis', 'usuarioExistente'));
+        return view('admin.acesso-sistema.atribuir-perfil', compact('servidor', 'perfis', 'usuarioExistente'));
     }
     
     /**
@@ -66,7 +55,11 @@ class UsuarioController extends Controller
         ]);
         
         // Verificar se já existe usuário com este CPF
-        $usuarioExistente = User::where('cpf', $servidor->cpf)->first();
+        // $usuarioExistente = User::where('cpf', $servidor->cpf)->first();
+
+        // 🔴 POR esta (busca flexível):
+        $cpfBusca = preg_replace('/[^0-9]/', '', $servidor->cpf);
+        $usuarioExistente = User::whereRaw("REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') = ?", [$cpfBusca])->first();
         
         if ($usuarioExistente) {
             return redirect()->back()
@@ -74,7 +67,7 @@ class UsuarioController extends Controller
                 ->withInput();
         }
         
-        // Criar usuário
+        // Criar usuário - O CPF será usado como login
         $user = User::create([
             'name' => $servidor->nome_completo,
             'email' => $request->email,
@@ -86,8 +79,8 @@ class UsuarioController extends Controller
             'status' => 'ativo',
         ]);
         
-        return redirect()->route('admin.colaborador')
-            ->with('success', 'Perfil de acesso atribuído com sucesso! O colaborador agora pode acessar o sistema.');
+        return redirect()->route('admin.acesso-sistema')
+        ->with('success', 'Acesso criado com sucesso! O colaborador pode fazer login usando o CPF: ' . $servidor->cpf);
     }
     
     /**
@@ -103,12 +96,12 @@ class UsuarioController extends Controller
             'perfil_id' => $request->perfil_id,
         ]);
         
-        return redirect()->route('admin.colaborador')
+        return redirect()->route('admin.acesso-sistema')
             ->with('success', 'Perfil de acesso atualizado com sucesso!');
     }
 
     /**
-     * Revogar acesso do usuário ao sistema (NOVO MÉTODO)
+     * Revogar acesso do usuário ao sistema
      */
     public function revogarAcesso(User $user)
     {

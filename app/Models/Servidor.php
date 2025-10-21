@@ -1,23 +1,19 @@
 <?php
-// app/Models/Servidor.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 
 class Servidor extends Model
 {
-    use HasFactory, SoftDeletes;
-
-    // ESPECIFIQUE O NOME CORRETO DA TABELA
-    protected $table = 'servidores';
+    use HasFactory;
 
     protected $fillable = [
         'matricula',
-        'nome_completo', 
+        'foto',
+        'nome_completo',
         'cpf',
         'rg',
         'data_nascimento',
@@ -25,24 +21,83 @@ class Servidor extends Model
         'estado_civil',
         'telefone',
         'endereco',
-        'raca_cor',
-        'tipo_sanguineo',
         'formacao',
-        'pis_pasep',
+        'status',
+        'tracador',
+        'tipo_sanguineo',
+        'pispasep',
         'data_nomeacao',
         'id_vinculo',
-        'id_lotacao',
-        'foto'
+        'id_lotacao'
     ];
+    protected $table = 'servidores';
 
-    
-
-
-    protected $casts, $dates = [
+    // Adicionar casts para datas
+    protected $casts = [
         'data_nascimento' => 'date',
         'data_nomeacao' => 'date',
-        'deleted_at' => 'date'
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
+
+    // 🔴 **MUTATOR para padronizar CPF**
+    public function setCpfAttribute($value)
+    {
+        // Remove qualquer formatação existente
+        $cpf = preg_replace('/[^0-9]/', '', $value);
+        
+        // Aplica a formatação padrão: 000.000.000-00
+        if (strlen($cpf) === 11) {
+            $this->attributes['cpf'] = substr($cpf, 0, 3) . '.' . 
+                                     substr($cpf, 3, 3) . '.' . 
+                                     substr($cpf, 6, 3) . '-' . 
+                                     substr($cpf, 9, 2);
+        } else {
+            $this->attributes['cpf'] = $value;
+        }
+    }
+
+    // 🔴 **ACCESSOR para garantir exibição consistente**
+    public function getCpfAttribute($value)
+    {
+        return $value; // Já estará formatado pelo mutator
+    }
+ 
+    // Relacionamentos
+    public function vinculo()
+    {
+        return $this->belongsTo(Vinculo::class, 'id_vinculo', 'idVinculo');
+    }
+
+    public function lotacao()
+    {
+        return $this->belongsTo(Lotacao::class, 'id_lotacao', 'idLotacao');
+    }
+
+     // Accessor para nome (para compatibilidade)
+    public function getNomeAttribute()
+    {
+        return $this->nome_completo;
+    }
+    
+    // Accessor para status (baseado na data de nomeação)
+    public function getStatusAttribute()
+    {
+        // Considera ativo se tem data de nomeação e não foi deletado
+        return !empty($this->data_nomeacao) && empty($this->deleted_at);
+    }
+    
+    // Accessor para lotacao_id (para compatibilidade)
+    public function getLotacaoIdAttribute()
+    {
+        return $this->idLotacao;
+    }
+    
+    // Accessor para vinculo_id (para compatibilidade)
+    public function getVinculoIdAttribute()
+    {
+        return $this->idVinculo;
+    }
 
     // Adicione um atributo para garantir arrays vazios
     protected $attributes = [
@@ -53,7 +108,32 @@ class Servidor extends Model
     // Relacionamento com dependentes
     public function dependentes()
     {
-        return $this->hasMany(Dependente::class);
+        return $this->hasMany(Dependente::class, 'id_servidor');
+    }
+
+    public function ocorrencias()
+    {
+        return $this->hasMany(Ocorrencia::class, 'id_servidor');
+    }
+
+    public function historicosPagamento()
+    {
+        return $this->hasMany(HistoricoPagamento::class, 'id_servidor');
+    }
+
+    public function ferias()
+    {
+        return $this->hasMany(Ferias::class, 'id_servidor');
+    }
+
+    public function formacoes()
+    {
+        return $this->hasMany(Formacao::class, 'id_servidor');
+    }
+
+    public function cursos()
+    {
+        return $this->hasMany(Curso::class, 'id_servidor');
     }
 
     // Acessor para idade
@@ -86,13 +166,13 @@ class Servidor extends Model
     // Scope por lotação
     public function scopePorLotacao($query, $lotacao)
     {
-        return $query->where('id_lotacao', $lotacao);
+        return $query->where('idLotacao', $lotacao);
     }
 
     // Scope por vínculo
     public function scopePorVinculo($query, $vinculo)
     {
-        return $query->where('id_vinculo', $vinculo);
+        return $query->where('idVinculo', $vinculo);
     }
 
     // Relacionamento com User (se existir)

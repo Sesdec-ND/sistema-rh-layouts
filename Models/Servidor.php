@@ -34,7 +34,32 @@ class Servidor extends Model
     protected $casts = [
         'data_nascimento' => 'date',
         'data_nomeacao' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
+
+    // 🔴 **MUTATOR para padronizar CPF**
+    public function setCpfAttribute($value)
+    {
+        // Remove qualquer formatação existente
+        $cpf = preg_replace('/[^0-9]/', '', $value);
+        
+        // Aplica a formatação padrão: 000.000.000-00
+        if (strlen($cpf) === 11) {
+            $this->attributes['cpf'] = substr($cpf, 0, 3) . '.' . 
+                                     substr($cpf, 3, 3) . '.' . 
+                                     substr($cpf, 6, 3) . '-' . 
+                                     substr($cpf, 9, 2);
+        } else {
+            $this->attributes['cpf'] = $value;
+        }
+    }
+
+    // 🔴 **ACCESSOR para garantir exibição consistente**
+    public function getCpfAttribute($value)
+    {
+        return $value; // Já estará formatado pelo mutator
+    }
 
     public function dependentes()
     {

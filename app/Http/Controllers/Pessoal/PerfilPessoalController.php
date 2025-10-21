@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Pessoal;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Models\Servidor;
 
 class PerfilPessoalController extends Controller
 {
@@ -19,20 +21,26 @@ class PerfilPessoalController extends Controller
         $user = Auth::user();
         $layout = $this->getLayoutByPerfil($user);
         
-        // Dados fictícios - em sistema real, viriam do banco
+        // Buscar dados reais do servidor
+        $servidor = Servidor::where('cpf', $user->cpf)->first();
+        
+        if (!$servidor) {
+            return redirect()->back()->with('error', 'Dados do servidor não encontrados.');
+        }
+
         $dadosPessoais = [
-            'data_admissao' => '15/03/2020',
+            'data_admissao' => $servidor->data_nomeacao ? $servidor->data_nomeacao->format('d/m/Y') : 'Não informada',
             'cargo' => $this->getCargoPorPerfil($user),
-            'departamento' => $this->getDepartamentoPorPerfil($user),
-            'salario' => 'R$ 5.500,00',
-            'telefone' => '(11) 99999-9999',
-            'endereco' => 'Rua Exemplo, 123 - São Paulo/SP',
-            'data_nascimento' => '15/08/1985',
-            'estado_civil' => 'Casado(a)',
-            'escolaridade' => 'Ensino Superior Completo',
+            'departamento' => $servidor->lotacao ? $servidor->lotacao->nome : 'Não informado',
+            'salario' => $this->getSalario($servidor),
+            'telefone' => $servidor->telefone ?? 'Não informado',
+            'endereco' => $servidor->endereco ?? 'Não informado',
+            'data_nascimento' => $servidor->data_nascimento ? $servidor->data_nascimento->format('d/m/Y') : 'Não informada',
+            'estado_civil' => $servidor->estado_civil ?? 'Não informado',
+            'escolaridade' => $servidor->formacao ?? 'Não informado',
         ];
 
-        return view('servidor.perfil-pessoal.show', compact('user', 'dadosPessoais', 'layout'));
+        return view('servidor.perfil-pessoal.show', compact('user', 'dadosPessoais', 'layout', 'servidor'));
     }
 
     public function edit()
@@ -40,19 +48,25 @@ class PerfilPessoalController extends Controller
         $user = Auth::user();
         $layout = $this->getLayoutByPerfil($user);
         
-        $dadosPessoais = [
-        'data_admissao' => '15/03/2020',
-        'cargo' => $this->getCargoPorPerfil($user),
-        'departamento' => $this->getDepartamentoPorPerfil($user),
-        'salario' => 'R$ 5.500,00',
-        'telefone' => '(11) 99999-9999',
-        'endereco' => 'Rua Exemplo, 123 - São Paulo/SP',
-        'data_nascimento' => '1985-08-15', // formato YYYY-MM-DD para input date
-        'estado_civil' => 'Casado(a)',
-        'escolaridade' => 'Ensino Superior Completo',
-    ];
+        $servidor = Servidor::where('cpf', $user->cpf)->first();
+        
+        if (!$servidor) {
+            return redirect()->back()->with('error', 'Dados do servidor não encontrados.');
+        }
 
-        return view('servidor.perfil-pessoal.edit', compact('user', 'dadosPessoais', 'layout'));
+        $dadosPessoais = [
+            'data_admissao' => $servidor->data_nomeacao ? $servidor->data_nomeacao->format('d/m/Y') : 'Não informada',
+            'cargo' => $this->getCargoPorPerfil($user),
+            'departamento' => $servidor->lotacao ? $servidor->lotacao->nome : 'Não informado',
+            'salario' => $this->getSalario($servidor),
+            'telefone' => $servidor->telefone ?? '',
+            'endereco' => $servidor->endereco ?? '',
+            'data_nascimento' => $servidor->data_nascimento ? $servidor->data_nascimento->format('Y-m-d') : '',
+            'estado_civil' => $servidor->estado_civil ?? '',
+            'escolaridade' => $servidor->formacao ?? 'Não informado',
+        ];
+
+        return view('servidor.perfil-pessoal.edit', compact('user', 'dadosPessoais', 'layout', 'servidor'));
     }
 
     public function update(Request $request)
@@ -66,8 +80,17 @@ class PerfilPessoalController extends Controller
             'estado_civil' => 'required|string|max:50',
         ]);
 
-        // Em sistema real, salvaria no banco
-        // Por enquanto, apenas redireciona com mensagem
+        // Atualizar dados no banco
+        $servidor = Servidor::where('cpf', $user->cpf)->first();
+        
+        if ($servidor) {
+            $servidor->update([
+                'telefone' => $validated['telefone'],
+                'endereco' => $validated['endereco'],
+                'data_nascimento' => $validated['data_nascimento'],
+                'estado_civil' => $validated['estado_civil'],
+            ]);
+        }
 
         return redirect()->route('perfil-pessoal.show')
             ->with('success', 'Dados pessoais atualizados com sucesso!');
@@ -78,6 +101,7 @@ class PerfilPessoalController extends Controller
         $user = Auth::user();
         $layout = $this->getLayoutByPerfil($user);
         
+        // Buscar documentos reais do banco (se tiver tabela de documentos)
         $documentos = [
             [
                 'nome' => 'Contrato de Trabalho',
@@ -101,26 +125,42 @@ class PerfilPessoalController extends Controller
         $user = Auth::user();
         $layout = $this->getLayoutByPerfil($user);
         
-        $contracheques = [
-            [
-                'mes' => 'Novembro 2024',
-                'data_emissao' => '05/12/2024',
-                'valor_liquido' => 'R$ 5.200,00'
-            ],
-            [
-                'mes' => 'Outubro 2024',
-                'data_emissao' => '05/11/2024',
-                'valor_liquido' => 'R$ 5.200,00'
-            ]
-        ];
+        // Buscar contracheques reais do banco
+        $servidor = Servidor::where('cpf', $user->cpf)->first();
+        $contracheques = [];
+
+        if ($servidor && $servidor->historicosPagamento) {
+            foreach ($servidor->historicosPagamento as $historico) {
+                $contracheques[] = [
+                    'mes' => $historico->mes_referencia,
+                    'data_emissao' => $historico->created_at->format('d/m/Y'),
+                    'valor_liquido' => 'R$ ' . number_format($historico->valor_liquido, 2, ',', '.'),
+                    'id' => $historico->id
+                ];
+            }
+        }
+
+        // Se não houver dados reais, usar os fictícios
+        if (empty($contracheques)) {
+            $contracheques = [
+                [
+                    'mes' => 'Novembro 2024',
+                    'data_emissao' => '05/12/2024',
+                    'valor_liquido' => 'R$ 5.200,00'
+                ],
+                [
+                    'mes' => 'Outubro 2024',
+                    'data_emissao' => '05/11/2024',
+                    'valor_liquido' => 'R$ 5.200,00'
+                ]
+            ];
+        }
 
         return view('servidor.perfil-pessoal.contracheque', compact('user', 'contracheques', 'layout'));
     }
 
     /**
      * Determina qual layout usar baseado no perfil do usuário
-     * RH e Diretor usam layout.admin
-     * Colaborador usa layout.app
      */
     private function getLayoutByPerfil($user)
     {
@@ -141,6 +181,12 @@ class PerfilPessoalController extends Controller
     // Métodos auxiliares privados
     private function getCargoPorPerfil($user)
     {
+        $servidor = Servidor::where('cpf', $user->cpf)->first();
+        
+        if ($servidor && $servidor->vinculo) {
+            return $servidor->vinculo->cargo ?? 'Colaborador';
+        }
+
         $perfil = $user->perfil->nomePerfil;
         
         return match($perfil) {
@@ -153,6 +199,12 @@ class PerfilPessoalController extends Controller
 
     private function getDepartamentoPorPerfil($user)
     {
+        $servidor = Servidor::where('cpf', $user->cpf)->first();
+        
+        if ($servidor && $servidor->lotacao) {
+            return $servidor->lotacao->nome;
+        }
+
         $perfil = $user->perfil->nomePerfil;
         
         return match($perfil) {
@@ -161,5 +213,18 @@ class PerfilPessoalController extends Controller
             'Colaborador' => 'Tecnologia da Informação',
             default => 'Administrativo'
         };
+    }
+
+    private function getSalario($servidor)
+    {
+        // Buscar salário do histórico de pagamento mais recente
+        if ($servidor && $servidor->historicosPagamento) {
+            $ultimoPagamento = $servidor->historicosPagamento->sortByDesc('created_at')->first();
+            if ($ultimoPagamento) {
+                return 'R$ ' . number_format($ultimoPagamento->valor_liquido, 2, ',', '.');
+            }
+        }
+
+        return 'R$ 5.500,00'; // Valor padrão caso não encontre
     }
 }

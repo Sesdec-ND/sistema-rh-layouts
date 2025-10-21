@@ -1,68 +1,55 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold mb-6 text-center">Login - Sistema RH</h2>
-    
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
-        
-        {{-- 🔴 **ALTERAÇÃO:** Campo CPF em vez de username --}}
-        <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="cpf">
-                CPF
-            </label>
-            <input type="text" 
-                   name="cpf" 
-                   id="cpf" 
-                   placeholder="000.000.000-00"
-                   class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
-                   value="{{ old('cpf') }}"
-                   required 
-                   autofocus>
-            @error('cpf')
-                <span class="text-red-500 text-sm">{{ $message }}</span>
-            @enderror
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                Acessar o Sistema
+            </h2>
         </div>
+        <form class="mt-8 space-y-6" action="{{ route('login') }}" method="POST">
+            @csrf
+            <div>
+                <label for="cpf" class="block text-sm font-medium text-gray-700">CPF</label>
+                <input id="cpf" name="cpf" type="text" required 
+                       class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                       placeholder="000.000.000-00"
+                       value="{{ old('cpf') }}">
+                @error('cpf')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
 
-        <div class="mb-6">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
-                Senha
-            </label>
-            <input type="password" 
-                   name="password" 
-                   id="password" 
-                   class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
-                   placeholder="Digite sua senha"
-                   required>
-            @error('password')
-                <span class="text-red-500 text-sm">{{ $message }}</span>
-            @enderror
-        </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
+                <input id="password" name="password" type="password" required 
+                       class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                       placeholder="Sua senha">
+                @error('password')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
 
-        <button type="submit" 
-                class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:shadow-outline">
-            Entrar
-        </button>
-    </form>
-
-    {{-- 🔴 **ALTERAÇÃO:** Informação adicional sobre o login --}}
-    <div class="mt-4 text-center text-sm text-gray-600">
-        <p>Use seu CPF e senha para acessar o sistema</p>
+            <div>
+                <button type="submit" 
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Entrar
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-{{-- 🔴 **ALTERAÇÃO:** Script para formatação do CPF --}}
 <script>
+// Máscara para CPF
 document.getElementById('cpf').addEventListener('input', function(e) {
     let value = e.target.value.replace(/\D/g, '');
-    
     if (value.length <= 11) {
         value = value.replace(/(\d{3})(\d)/, '$1.$2');
         value = value.replace(/(\d{3})(\d)/, '$1.$2');
         value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
     }
-    
     e.target.value = value;
 });
 </script>

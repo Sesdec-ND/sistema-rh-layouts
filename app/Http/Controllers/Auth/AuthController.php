@@ -23,8 +23,12 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        // 🔴 **ALTERAÇÃO:** Buscar usuário pelo CPF
-        $user = User::where('cpf', $request->cpf)->first();
+        // **ALTERAÇÃO:** Buscar usuário pelo CPF
+        // $user = User::where('cpf', $request->cpf)->first();
+
+        // 🔴 **BUSCA FLEXIVEL:** Aceita CPF com ou sem formatação
+        $cpfBusca = preg_replace('/[^0-9]/', '', $request->cpf);
+        $user = User::whereRaw("REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') = ?", [$cpfBusca])->first();
 
         // 🔴 **ALTERAÇÃO:** Verificar se usuário existe e senha está correta
         if ($user && Hash::check($request->password, $user->password)) {

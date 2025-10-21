@@ -9,6 +9,8 @@ use App\Models\Servidor;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Lotacao;
+use App\Models\Vinculo;
 
 class RHController extends Controller
 {
@@ -22,6 +24,17 @@ class RHController extends Controller
             return $next($request);
         });
     }
+
+    public function index()
+{
+    // // $servidores = Servidor::with('perfil')->get();
+    // // $lotacoes = Lotacao::where('status', true)->get();
+
+    $vinculos = Vinculo::all();
+    $servidores = Servidor::all();
+    $lotacoes   = Lotacao::all();
+    return view('admin.colaborador', compact('servidores', 'lotacoes', 'vinculos'));
+}
 
     public function dashboard()
     {
@@ -37,19 +50,18 @@ class RHController extends Controller
     public function colaboradores()
     {
         if (!Auth::user()->hasPermission('colaboradores', 'view')) {
-            abort(403, 'Acesso não autorizado');
-        }
-        // Buscar apenas dados cadastrais, sem informações de acesso
-        $colaboradores = Servidor::all()->map(function ($servidor)
-        {
-            // Garantir que atributos nulos sejam tratados
-            return $servidor;
-        });
-        // $colaboradores = User::with('perfil')->get();
-        // $colaboradores = Servidor::with('user')->paginate(10);
-        return view('admin.colaborador', compact('colaboradores'));
+        abort(403, 'Acesso não autorizado');
     }
 
+    // 2. Busque TODOS os dados que a view precisa
+    $servidores = Servidor::all(); // A view espera '$servidores', não '$colaboradores'
+    $lotacoes   = Lotacao::all();
+    $vinculos   = Vinculo::all();
+
+    // 3. Retorne a view e passe TODAS as variáveis necessárias
+    return view('admin.colaborador', compact('servidores', 'lotacoes', 'vinculos'));
+}
+    /*
     public function relatorios()
     {
         if (!Auth::user()->hasPermission('relatorios')) {
@@ -58,6 +70,7 @@ class RHController extends Controller
 
         return view('admin.relatorios');
     }
+        */
 
     public function perfisAcesso()
     {

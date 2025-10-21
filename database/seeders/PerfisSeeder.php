@@ -18,7 +18,7 @@ class PerfisSeeder extends Seeder
                 'permissoes' => json_encode([
                     'dashboard' => true,
                     'colaboradores' => ['view', 'create', 'edit', 'delete'],
-                    'relatorios' => true,
+                    'relatorios' => ['view', 'generate', 'download', 'export'],
                     'perfis_acesso' => ['view', 'create', 'edit', 'delete', 'manage_permissions'],
                     'configuracoes_sistema' => ['view', 'edit'],
                     'seguranca' => ['view_logs', 'view_auditoria', 'manage_policies']
@@ -33,7 +33,7 @@ class PerfisSeeder extends Seeder
                 'permissoes' => json_encode([
                     'dashboard' => true,
                     'colaboradores' => ['view'],
-                    'relatorios' => true,
+                    'relatorios' => ['view', 'download'],
                     'perfis_acesso' => false,
                     'configuracoes_sistema' => false,
                     'seguranca' => false

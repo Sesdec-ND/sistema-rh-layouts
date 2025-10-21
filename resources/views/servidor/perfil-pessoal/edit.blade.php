@@ -34,7 +34,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Telefone *</label>
                     <input type="text" 
                            name="telefone" 
-                           value="{{ old('telefone', $dadosPessoais['telefone']) }}"
+                           value="{{ old('telefone', $dadosPessoais['telefone'] ?? '') }}"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                            required>
                     @error('telefone')
@@ -46,7 +46,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Data de Nascimento *</label>
                     <input type="date" 
                            name="data_nascimento" 
-                           value="{{ old('data_nascimento', $dadosPessoais['data_nascimento']) }}"
+                           value="{{ old('data_nascimento', $dadosPessoais['data_nascimento'] ?? '') }}"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                            required>
                     @error('data_nascimento')
@@ -59,7 +59,7 @@
                     <textarea name="endereco" 
                               rows="3"
                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              required>{{ old('endereco', $dadosPessoais['endereco']) }}</textarea>
+                              required>{{ old('endereco', $dadosPessoais['endereco'] ?? '') }}</textarea>
                     @error('endereco')
                         <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                     @enderror

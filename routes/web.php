@@ -1,23 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Admin\RHController;
-use App\Http\Controllers\Admin\DiretorController;
 use App\Http\Controllers\Admin\ColaboradorController;
-use App\Http\Controllers\ServidorController;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Perfil;
-use App\Http\Controllers\Pessoal\PerfilPessoalController;
-use App\Http\Controllers\Admin\PerfisAcessoController;
 use App\Http\Controllers\Admin\ConfiguracoesSistemaController;
+use App\Http\Controllers\Admin\DiretorController;
+use App\Http\Controllers\Admin\PerfisAcessoController;
+use App\Http\Controllers\Admin\RHController;
 use App\Http\Controllers\Admin\SegurancaController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Pessoal\PerfilPessoalController;
+use App\Http\Controllers\ServidorController;
 use App\Http\Controllers\Admin\UsuarioController;
+use App\Http\Controllers\Admin\RelatoriosController;
+use App\Models\Perfil;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
-// Rotas Públicas
-Route::get('/', function () {
-    return view('welcome');
-});
+
 
 Route::get('/area-protegida', function () {
     return view('area_protegida');
@@ -30,16 +28,16 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // INÍCIO DO GRUPO DE ROTAS PROTEGIDAS
 Route::middleware('auth')->group(function () {
-    
+
     // Rota padrão após login
     Route::get('/dashboard', function () {
         $user = Auth::user();
 
-        if (!$user->perfil) {
+        if (! $user->perfil) {
             return redirect('/');
         }
-        
-        return match($user->perfil->nomePerfil) {
+
+        return match ($user->perfil->nomePerfil) {
             'RH' => redirect()->route('admin.dashboard'),
             'Diretor Executivo' => redirect()->route('diretor.dashboard'),
             'Colaborador' => redirect()->route('colaborador.dashboard'),
@@ -52,7 +50,27 @@ Route::middleware('auth')->group(function () {
         // Dashboard e recursos básicos
         Route::get('/dashboard', [RHController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/colaboradores', [RHController::class, 'colaboradores'])->name('admin.colaborador');
-        Route::get('/relatorios', [RHController::class, 'relatorios'])->name('admin.relatorios');
+        // Route::get('/relatorios', [RHController::class, 'relatorios'])->name('admin.relatorios');
+
+        // Servidores (CRUD Completo)
+        Route::prefix('servidores')->group(function () {
+        Route::get('/', [ServidorController::class, 'index'])->name('servidores.index');
+        Route::get('/create', [ServidorController::class, 'create'])->name('servidores.create');
+        Route::post('/', [ServidorController::class, 'store'])->name('servidores.store');
+        Route::get('/{id}', [ServidorController::class, 'show'])->name('servidores.show');
+        Route::get('/{id}/edit', [ServidorController::class, 'edit'])->name('servidores.edit');
+        Route::put('/{id}', [ServidorController::class, 'update'])->name('servidores.update');
+        Route::delete('/{id}', [ServidorController::class, 'destroy'])->name('servidores.destroy');
+        });
+
+        // Rotas de Relatórios
+        Route::prefix('relatorios')->name('admin.relatorios.')->group(function () {
+        Route::get('/', [RelatoriosController::class, 'index'])->name('index');
+        Route::get('/colaboradores', [RelatoriosController::class, 'relatorioColaboradores'])->name('colaboradores');
+        Route::get('/folha-pagamento', [RelatoriosController::class, 'relatorioFolhaPagamento'])->name('folha-pagamento');
+        Route::get('/performance', [RelatoriosController::class, 'relatorioPerformance'])->name('performance');
+        Route::get('/gerados', [RelatoriosController::class, 'relatoriosGerados'])->name('gerados');
+        });
 
         // Acesso ao Sistema (nova seção)
         Route::get('/acesso-sistema', [UsuarioController::class, 'indexAcessoSistema'])->name('admin.acesso-sistema');
@@ -61,24 +79,17 @@ Route::middleware('auth')->group(function () {
         Route::put('/acesso-sistema/atualizar-perfil/{user}', [UsuarioController::class, 'updateUserPerfil'])->name('admin.acesso-sistema.atualizar-perfil');
         Route::post('/acesso-sistema/revogar-acesso/{user}', [UsuarioController::class, 'revogarAcesso'])->name('admin.acesso-sistema.revogar');
 
-        // Listagem e criação servidores cadastrados
-        Route::post('/servidores', [ServidorController::class, 'store'])->name('servidor.store');
-        Route::get('/servidores/create', [ServidorController::class, 'create'])->name('servidores.create');
-        Route::get('/servidores', [ServidorController::class, 'index'])->name('servidores.index');
-        Route::get('/servidores/{id}/edit', [ServidorController::class, 'edit'])->name('servidores.edit');
-        Route::put('/servidores/{id}', [ServidorController::class, 'update'])->name('servidores.update');
-
         // Perfis de Acesso
         Route::get('/perfis-acesso', [PerfisAcessoController::class, 'index'])->name('admin.perfis-acesso');
         Route::get('/perfis-acesso/{id}/edit', [PerfisAcessoController::class, 'edit'])->name('admin.perfis-acesso.edit');
         Route::put('/perfis-acesso/{id}', [PerfisAcessoController::class, 'update'])->name('admin.perfis-acesso.update');
         Route::get('/perfis-acesso/{id}/permissoes', [PerfisAcessoController::class, 'managePermissions'])->name('admin.perfis-acesso.permissoes');
-        Route::put('/perfis-acesso/{id}/permissoes', [PerfisAcessoController::class, 'updatePermissions'])->name('admin.perfis-acesso.permissoes.update');
-        
+        Route::post('/perfis-acesso/{id}/permissoes', [PerfisAcessoController::class, 'updatePermissions'])->name('admin.perfis-acesso.permissoes.update');
+
         // Configurações do Sistema
         Route::get('/configuracoes-sistema', [ConfiguracoesSistemaController::class, 'index'])->name('admin.configuracoes-sistema');
         Route::post('/configuracoes-sistema', [ConfiguracoesSistemaController::class, 'update'])->name('admin.configuracoes-sistema.update');
-        
+
         // Segurança
         Route::get('/seguranca', [SegurancaController::class, 'index'])->name('admin.seguranca');
         Route::get('/seguranca/politicas', [SegurancaController::class, 'politicas'])->name('admin.seguranca.politicas');
@@ -96,7 +107,6 @@ Route::middleware('auth')->group(function () {
     // Rotas do Colaborador - Views na pasta servidor/colaborador/
     Route::prefix('colaborador')->middleware(['auth', 'check.perfil:Colaborador'])->group(function () {
         Route::get('/dashboard', [ColaboradorController::class, 'dashboard'])->name('colaborador.dashboard');
-        Route::get('/perfil', [ColaboradorController::class, 'perfil'])->name('colaborador.perfil');
     });
 
     // Rota de logout
