@@ -12,7 +12,7 @@
             <button type="button" onclick="location.href='{{ route('servidores.create') }}'"
                 class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition duration-200 flex items-center">
                 <i class="fas fa-plus mr-2"></i>
-                Novo Colaborador
+                Novo Servidor
             </button>
         </div>
 
@@ -87,7 +87,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                            @foreach ($colaboradores as $colaborador)
+                            @foreach ($colaboradores as $servidor)
                                 <tr class="hover:bg-gray-50 transition duration-150">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
@@ -95,36 +95,29 @@
                                                 <i class="fas fa-user text-blue-600 text-sm"></i>
                                             </div>
                                             <div class="ml-3">
-                                                <div class="font-semibold text-gray-900">{{ $colaborador->name }}</div>
-                                                <div class="text-sm text-gray-500">RG: {{ $colaborador->rg }}</div>
+                                                <div class="font-semibold text-gray-900">{{ $servidor->nome_completo }}
+                                                </div>
+                                                <div class="text-sm text-gray-500">RG: {{ $servidor->rg }}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">{{ $colaborador->cpf }}</div>
+                                        <div class="text-sm text-gray-900">{{ $servidor->cpf }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        @php
-                                            $badgeColors = [
-                                                'RH' => 'bg-purple-100 text-purple-800',
-                                                'Diretor Executivo' => 'bg-yellow-100 text-yellow-800',
-                                                'Colaborador' => 'bg-green-100 text-green-800',
-                                            ];
-                                            $color =
-                                                $badgeColors[$colaborador->perfil->nomePerfil] ??
-                                                'bg-gray-100 text-gray-800';
-                                        @endphp
-                                        <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $color }}">
-                                            {{ $colaborador->perfil->nomePerfil }}
+                                        {{-- Perfil não disponível em Servidor --}}
+                                        <span
+                                            class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                                            Não definido
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">{{ $colaborador->email }}</div>
+                                        <div class="text-sm text-gray-900">{{ $servidor->email ?? 'Não informado' }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span
                                             class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                                            <i class="fas fa-circle mr-1 text-xs"></i>
+                                            <i class="fas fa-check-circle mr-1"></i>
                                             Ativo
                                         </span>
                                     </td>

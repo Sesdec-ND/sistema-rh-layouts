@@ -6,6 +6,7 @@ use App\Models\Servidor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class ServidorController extends Controller
 {
@@ -13,7 +14,7 @@ class ServidorController extends Controller
     {
 
         // Verifica se o usuário é RH (administrador)
-        if (auth()->user()->tipo !== 'rh') {
+        if (Auth::user()->tipo !== 'rh') {
             return redirect()->route('dashboard')->with('error', 'Acesso não autorizado.');
         }
 
@@ -21,16 +22,20 @@ class ServidorController extends Controller
 
         return view('servidor.colaboradores.index', compact('servidores'));
 
-        $servidores = Servidor::latest()->paginate(10);
+        // $servidores = Servidor::latest()->paginate(10);
 
-        return view('servidor.colaboradores.index', compact('servidores'));
+        // return view('servidor.colaboradores.index', compact('servidores'));
     }
-
+    /**
+     * Mostrar formulário de criação
+     */
     public function create()
     {
         return view('servidor.colaboradores.create');
     }
-
+    /**
+     * Salvar novo servidor
+     */
     public function store(Request $request)
     {
         // Validação (os nomes aqui são os do formulário, em camelCase)
@@ -110,25 +115,27 @@ class ServidorController extends Controller
     {
         return view('servidor.colaboradores.show', compact('servidor'));
     }
-
+    /**
+     * Editar servidor
+     */
     public function edit(Servidor $servidor, $id)
     {
 
-        if (auth()->user()->tipo !== 'rh') {
+        if (Auth::user()->tipo !== 'rh') {
             return redirect()->route('dashboard')->with('error', 'Acesso não autorizado.');
         }
 
         $servidor = Servidor::findOrFail($id);
 
         return view('servidor.colaboradores.edit', compact('servidor'));
-
-        return view('servidor.colaboradores.edit', compact('servidor'));
     }
-
+    /**
+     * Atualizar servidor
+     */
     public function update(Request $request, Servidor $servidor, $id)
     {
 
-        if (auth()->user()->tipo !== 'rh') {
+        if (Auth::user()->tipo !== 'rh') {
             return redirect()->route('dashboard')->with('error', 'Acesso não autorizado.');
         }
 
@@ -238,5 +245,15 @@ class ServidorController extends Controller
 
         // return redirect()->route('servidores.trashed')
         //     ->with('success', 'Servidor excluído permanentemente!');
+    }
+    /**
+     * Inativar/desligar servidor (NOVO MÉTODO OU EXISTENTE)
+     */
+    public function inativar(Servidor $servidor)
+    {
+        $servidor->update(['status' => 'inativo']);
+        
+        return redirect()->route('servidores.index')
+            ->with('success', 'Colaborador inativado com sucesso!');
     }
 }

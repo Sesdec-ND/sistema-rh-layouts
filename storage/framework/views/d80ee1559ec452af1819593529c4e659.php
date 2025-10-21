@@ -1,12 +1,20 @@
 <?php $__env->startSection('title', 'Dashboard - RH'); ?>
 
 <?php $__env->startSection('content'); ?>
+
+    <?php if(session('success')): ?>
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg shadow-md" role="alert">
+            <p class="font-bold">Sucesso!</p>
+            <p><?php echo e(session('success')); ?></p>
+        </div>
+    <?php endif; ?>
+
     <div class="space-y-6">
         <!-- Header -->
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-bold text-gray-800">Dashboard - Recursos Humanos</h1>
-                <p class="text-gray-600 mt-2">Bem-vindo ao painel de controle do RH</p>
+                <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+                <p>Bem-vindo ao seu painel!</p>
             </div>
             <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg">
                 <i class="fas fa-user-shield mr-2"></i>
@@ -124,6 +132,19 @@
                         <div class="ml-4">
                             <h3 class="font-semibold text-gray-800">Configurações</h3>
                             <p class="text-sm text-gray-600">Sistema e permissões</p>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="<?php echo e(route('admin.acesso-sistema')); ?>"
+                    class="bg-purple-50 hover:bg-purple-100 border border-purple-200 p-4 rounded-lg transition duration-200 group">
+                    <div class="flex items-center">
+                        <div class="bg-purple-100 p-3 rounded-lg group-hover:bg-purple-200 transition duration-200">
+                            <i class="fas fa-key text-purple-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="font-semibold text-gray-800">Gerenciar Acesso</h3>
+                            <p class="text-sm text-gray-600">Atribuir perfis de acesso</p>
                         </div>
                     </div>
                 </a>

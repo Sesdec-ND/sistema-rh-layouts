@@ -9,6 +9,7 @@ class PerfisSeeder extends Seeder
 {
     public function run(): void
     {
+        // Array de perfis, exatamente como você já tinha.
         $perfis = [
             [
                 'id' => 1,
@@ -57,18 +58,14 @@ class PerfisSeeder extends Seeder
             ]
         ];
 
-        // DESCOMENTE esta linha - inserir os perfis
-        DB::table('perfis')->insert($perfis);
-
-        // REMOVA ou COMENTE esta parte do update
-        // foreach ($perfis as $perfil) {
-        //     DB::table('perfis')
-        //         ->where('id', $perfil['id'])
-        //         ->update([
-        //             'permissoes' => $perfil['permissoes']
-        //         ]);
-        // }
-
-        $this->command->info('Perfis criados com sucesso!');
+        // =================================================================
+        // CÓDIGO CORRIGIDO - Use um loop com updateOrInsert
+        // =================================================================
+        foreach ($perfis as $perfil) {
+            DB::table('perfis')->updateOrInsert(
+                ['id' => $perfil['id']], // Condição para encontrar o registro (o identificador único)
+                $perfil                  // Dados para inserir ou atualizar
+            );
+        }
     }
 }

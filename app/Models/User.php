@@ -41,6 +41,16 @@ class User extends Authenticatable
         return $this->belongsTo(Perfil::class, 'perfil_id');
     }
 
+    /**
+     * Relacionamento com Servidor
+     */
+    public function servidor()
+    {
+        return $this->belongsTo(Servidor::class, 'cpf', 'cpf');
+        // Ou se tiver uma coluna servidor_id:
+        // return $this->belongsTo(Servidor::class, 'servidor_id');
+    }
+
     public function hasPermission($permission, $action = null)
     {
         $permissoes = $this->perfil->permissoes ?? [];

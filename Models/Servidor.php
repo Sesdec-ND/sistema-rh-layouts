@@ -40,4 +40,9 @@ class Servidor extends Model
     {
         return $this->hasMany(Dependente::class);
     }
+    
+    public function user()
+    {
+        return $this->hasOne(User::class, 'cpf', 'cpf');
+    }
 }

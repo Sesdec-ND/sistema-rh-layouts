@@ -5,11 +5,13 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User; // É uma boa prática usar o Model
 
 class UsersSeeder extends Seeder
 {
     public function run(): void
     {
+        // O array de usuários está perfeito. Nenhuma mudança aqui.
         $users = [
             [
                 'name' => 'Administrador RH',
@@ -19,8 +21,6 @@ class UsersSeeder extends Seeder
                 'username' => 'admin_rh',
                 'password' => Hash::make('senha123'),
                 'perfil_id' => 1, // RH
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'name' => 'Diretor Executivo',
@@ -30,8 +30,6 @@ class UsersSeeder extends Seeder
                 'username' => 'diretor',
                 'password' => Hash::make('senha123'),
                 'perfil_id' => 2, // Diretor Executivo
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'name' => 'Colaborador Exemplo',
@@ -41,11 +39,20 @@ class UsersSeeder extends Seeder
                 'username' => 'colaborador',
                 'password' => Hash::make('senha123'),
                 'perfil_id' => 3, // Colaborador
-                'created_at' => now(),
-                'updated_at' => now(),
             ]
         ];
 
-        DB::table('users')->insert($users);
+        // =================================================================
+        // CÓDIGO MELHORADO - Use um loop com updateOrInsert
+        // =================================================================
+        foreach ($users as $userData) {
+            // Usando o Model User, que é a forma mais "Eloquent" de fazer.
+            User::updateOrInsert(
+                // Condição para encontrar o usuário (um campo único como email ou cpf)
+                ['email' => $userData['email']],
+                // Dados para inserir ou atualizar
+                $userData
+            );
+        }
     }
 }

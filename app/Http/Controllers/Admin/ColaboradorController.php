@@ -27,9 +27,9 @@ class ColaboradorController extends Controller
         return view('servidor.colaborador.dashboard', compact('user'));
     }
 
-    // public function perfil()
-    // {
-    //     $user = Auth::user();
-    //     return view('servidor.colaborador.perfil', compact('user'));
-    // }
 }
+// public function perfil()
+// {
+//     $user = Auth::user();
+//     return view('servidor.colaborador.perfil', compact('user'));
+// }

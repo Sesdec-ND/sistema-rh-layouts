@@ -12,6 +12,7 @@ use App\Http\Controllers\Pessoal\PerfilPessoalController;
 use App\Http\Controllers\Admin\PerfisAcessoController;
 use App\Http\Controllers\Admin\ConfiguracoesSistemaController;
 use App\Http\Controllers\Admin\SegurancaController;
+use App\Http\Controllers\Admin\UsuarioController;
 
 // Rotas Públicas
 Route::get('/', function () {
@@ -21,13 +22,6 @@ Route::get('/', function () {
 Route::get('/area-protegida', function () {
     return view('area_protegida');
 })->middleware('check.perfil: RH, Diretor Executivo, Colaborador');
-
-// Listagem e criação servidores cadastrados
-Route::post('/servidores', [ServidorController::class, 'store'])->name('servidor.store');
-Route::get('/servidores/create', [ServidorController::class, 'create'])->name('servidores.create');
-Route::get('/servidores', [ServidorController::class, 'index'])->name('servidores.index');
-Route::get('/servidores/{id}/edit', [ServidorController::class, 'edit'])->name('servidores.edit');
-Route::put('/servidores/{id}', [ServidorController::class, 'update'])->name('servidores.update');
 
 // Autenticação
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -59,7 +53,21 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [RHController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/colaboradores', [RHController::class, 'colaboradores'])->name('admin.colaborador');
         Route::get('/relatorios', [RHController::class, 'relatorios'])->name('admin.relatorios');
-        
+
+        // Acesso ao Sistema (nova seção)
+        Route::get('/acesso-sistema', [UsuarioController::class, 'indexAcessoSistema'])->name('admin.acesso-sistema');
+        Route::get('/acesso-sistema/atribuir/{servidor}', [UsuarioController::class, 'createUserFromServidor'])->name('admin.acesso-sistema.atribuir');
+        Route::post('/acesso-sistema/criar-usuario/{servidor}', [UsuarioController::class, 'storeUserFromServidor'])->name('admin.acesso-sistema.criar-usuario');
+        Route::put('/acesso-sistema/atualizar-perfil/{user}', [UsuarioController::class, 'updateUserPerfil'])->name('admin.acesso-sistema.atualizar-perfil');
+        Route::post('/acesso-sistema/revogar-acesso/{user}', [UsuarioController::class, 'revogarAcesso'])->name('admin.acesso-sistema.revogar');
+
+        // Listagem e criação servidores cadastrados
+        Route::post('/servidores', [ServidorController::class, 'store'])->name('servidor.store');
+        Route::get('/servidores/create', [ServidorController::class, 'create'])->name('servidores.create');
+        Route::get('/servidores', [ServidorController::class, 'index'])->name('servidores.index');
+        Route::get('/servidores/{id}/edit', [ServidorController::class, 'edit'])->name('servidores.edit');
+        Route::put('/servidores/{id}', [ServidorController::class, 'update'])->name('servidores.update');
+
         // Perfis de Acesso
         Route::get('/perfis-acesso', [PerfisAcessoController::class, 'index'])->name('admin.perfis-acesso');
         Route::get('/perfis-acesso/{id}/edit', [PerfisAcessoController::class, 'edit'])->name('admin.perfis-acesso.edit');

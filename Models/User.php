@@ -57,4 +57,12 @@ class User extends Authenticatable
     {
         return $this->where('cpf', $cpf)->first();
     }
+
+    /**
+     * Relacionamento com Servidor
+     */
+    public function servidor()
+    {
+        return $this->hasOne(Servidor::class, 'cpf', 'cpf');
+    }
 }

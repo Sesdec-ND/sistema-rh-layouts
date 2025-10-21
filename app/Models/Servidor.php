@@ -12,13 +12,12 @@ class Servidor extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'servidores'; // ← Especificar a tabela
-    protected $primaryKey = 'id';
-    public $timestamps = true;
+    // ESPECIFIQUE O NOME CORRETO DA TABELA
+    protected $table = 'servidores';
 
     protected $fillable = [
         'matricula',
-        'nome_completo',
+        'nome_completo', 
         'cpf',
         'rg',
         'data_nascimento',
@@ -28,17 +27,27 @@ class Servidor extends Model
         'endereco',
         'raca_cor',
         'tipo_sanguineo',
-        'foto',
         'formacao',
         'pis_pasep',
         'data_nomeacao',
         'id_vinculo',
-        'id_lotacao'
+        'id_lotacao',
+        'foto'
     ];
 
-    protected $casts = [
+    
+
+
+    protected $casts, $dates = [
         'data_nascimento' => 'date',
         'data_nomeacao' => 'date',
+        'deleted_at' => 'date'
+    ];
+
+    // Adicione um atributo para garantir arrays vazios
+    protected $attributes = [
+    'foto' => '[]',
+    'deleted_at' => '[]'
     ];
 
     // Relacionamento com dependentes
@@ -84,6 +93,12 @@ class Servidor extends Model
     public function scopePorVinculo($query, $vinculo)
     {
         return $query->where('id_vinculo', $vinculo);
+    }
+
+    // Relacionamento com User (se existir)
+    public function user()
+    {
+        return $this->hasOne(User::class, 'cpf', 'cpf');
     }
 
     // Método para verificar se está próximo da aposentadoria (exemplo)

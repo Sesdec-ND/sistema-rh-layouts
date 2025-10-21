@@ -315,7 +315,7 @@
                                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Parentesco</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">idade</label>
                             <input type="number" name="dependentes[${contadorDependentes-1}][idade]" 
                                 placeholder="Idade" min="0" max="120"
                                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -360,4 +360,5 @@
             adicionarDependente();
         });
     </script>
+
 @endsection
