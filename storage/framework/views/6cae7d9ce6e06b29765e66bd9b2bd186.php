@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Relatórios - RH'); ?>
 
 <?php $__env->startSection('content'); ?>
@@ -217,4 +215,4 @@
     </div>
 </div>
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /opt/lampp/htdocs/sistema-rh-layouts/resources/views/admin/relatorios.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /opt/lampp/htdocs/sistema-rh-layouts/resources/views/admin/relatorios.blade.php ENDPATH**/ ?>

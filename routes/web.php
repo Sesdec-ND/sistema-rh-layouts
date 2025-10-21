@@ -1,23 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Admin\RHController;
-use App\Http\Controllers\Admin\DiretorController;
 use App\Http\Controllers\Admin\ColaboradorController;
-use App\Http\Controllers\ServidorController;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Perfil;
-use App\Http\Controllers\Pessoal\PerfilPessoalController;
-use App\Http\Controllers\Admin\PerfisAcessoController;
 use App\Http\Controllers\Admin\ConfiguracoesSistemaController;
+use App\Http\Controllers\Admin\DiretorController;
+use App\Http\Controllers\Admin\PerfisAcessoController;
+use App\Http\Controllers\Admin\RHController;
 use App\Http\Controllers\Admin\SegurancaController;
-use App\Http\Controllers\Admin\CadastroColaboradorController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Pessoal\PerfilPessoalController;
+use App\Http\Controllers\ServidorController;
+use App\Models\Perfil;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
-// Rotas Públicas
-Route::get('/', function () {
-    return view('welcome');
-});
+
 
 Route::get('/area-protegida', function () {
     return view('area_protegida');
@@ -37,16 +33,16 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // INÍCIO DO GRUPO DE ROTAS PROTEGIDAS
 Route::middleware('auth')->group(function () {
-    
+
     // Rota padrão após login
     Route::get('/dashboard', function () {
         $user = Auth::user();
 
-        if (!$user->perfil) {
+        if (! $user->perfil) {
             return redirect('/');
         }
-        
-        return match($user->perfil->nomePerfil) {
+
+        return match ($user->perfil->nomePerfil) {
             'RH' => redirect()->route('admin.dashboard'),
             'Diretor Executivo' => redirect()->route('diretor.dashboard'),
             'Colaborador' => redirect()->route('colaborador.dashboard'),
@@ -57,21 +53,28 @@ Route::middleware('auth')->group(function () {
     // Rotas do Admin (RH) - Views na pasta admin/
     Route::prefix('rh')->middleware(['auth', 'check.perfil:RH'])->group(function () {
         // Dashboard e recursos básicos
+        Route::resource('servidores', ServidorController::class);
         Route::get('/dashboard', [RHController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/colaboradores', [RHController::class, 'colaboradores'])->name('admin.colaborador');
         Route::get('/relatorios', [RHController::class, 'relatorios'])->name('admin.relatorios');
-        
+        Route::get('/admin/colaboradores', [RHController::class, 'index'])->name('servidores.index');
+        Route::get('/admin/colaboradores/{id}', [RHController::class, 'show'])->name('servidores.show');
+        Route::get('/admin/colaboradores/{id}/edit', [RHController::class, 'edit'])->name('servidores.edit');
+        Route::get('/servidores/create', [ServidorController::class, 'create'])->name('servidores.create');
+        Route::post('/servidores', [ServidorController::class, 'store'])->name('servidores.store');
+
+
         // Perfis de Acesso
         Route::get('/perfis-acesso', [PerfisAcessoController::class, 'index'])->name('admin.perfis-acesso');
         Route::get('/perfis-acesso/{id}/edit', [PerfisAcessoController::class, 'edit'])->name('admin.perfis-acesso.edit');
         Route::put('/perfis-acesso/{id}', [PerfisAcessoController::class, 'update'])->name('admin.perfis-acesso.update');
         Route::get('/perfis-acesso/{id}/permissoes', [PerfisAcessoController::class, 'managePermissions'])->name('admin.perfis-acesso.permissoes');
         Route::put('/perfis-acesso/{id}/permissoes', [PerfisAcessoController::class, 'updatePermissions'])->name('admin.perfis-acesso.permissoes.update');
-        
+
         // Configurações do Sistema
         Route::get('/configuracoes-sistema', [ConfiguracoesSistemaController::class, 'index'])->name('admin.configuracoes-sistema');
         Route::post('/configuracoes-sistema', [ConfiguracoesSistemaController::class, 'update'])->name('admin.configuracoes-sistema.update');
-        
+
         // Segurança
         Route::get('/seguranca', [SegurancaController::class, 'index'])->name('admin.seguranca');
         Route::get('/seguranca/politicas', [SegurancaController::class, 'politicas'])->name('admin.seguranca.politicas');

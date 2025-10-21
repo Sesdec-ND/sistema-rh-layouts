@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Perfil;
+use App\Models\Servidor;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Lotacao;
+use App\Models\Vinculo;
 
 class RHController extends Controller
 {
@@ -22,6 +25,17 @@ class RHController extends Controller
         });
     }
 
+    public function index()
+{
+    // // $servidores = Servidor::with('perfil')->get();
+    // // $lotacoes = Lotacao::where('status', true)->get();
+
+    $vinculos = Vinculo::all();
+    $servidores = Servidor::all();
+    $lotacoes   = Lotacao::all();
+    return view('admin.colaborador', compact('servidores', 'lotacoes', 'vinculos'));
+}
+
     public function dashboard()
     {
         $totalColaboradores = User::count();
@@ -33,12 +47,17 @@ class RHController extends Controller
     public function colaboradores()
     {
         if (!Auth::user()->hasPermission('colaboradores', 'view')) {
-            abort(403, 'Acesso não autorizado');
-        }
-
-        $colaboradores = User::with('perfil')->get();
-        return view('admin.colaborador', compact('colaboradores'));
+        abort(403, 'Acesso não autorizado');
     }
+
+    // 2. Busque TODOS os dados que a view precisa
+    $servidores = Servidor::all(); // A view espera '$servidores', não '$colaboradores'
+    $lotacoes   = Lotacao::all();
+    $vinculos   = Vinculo::all();
+
+    // 3. Retorne a view e passe TODAS as variáveis necessárias
+    return view('admin.colaborador', compact('servidores', 'lotacoes', 'vinculos'));
+}
 
     public function relatorios()
     {

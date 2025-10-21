@@ -1,22 +1,18 @@
 <?php
-// app/Models/Servidor.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Servidor extends Model
 {
-    use HasFactory, SoftDeletes;
-
-    // ESPECIFIQUE O NOME CORRETO DA TABELA
-    protected $table = 'servidores';
+    use HasFactory;
 
     protected $fillable = [
         'matricula',
-        'nome_completo', 
+        'foto',
+        'nome_completo',
         'cpf',
         'rg',
         'data_nascimento',
@@ -24,27 +20,55 @@ class Servidor extends Model
         'estado_civil',
         'telefone',
         'endereco',
-        'raca_cor',
-        'tipo_sanguineo',
         'formacao',
-        'pis_pasep',
+        'status',
+        'tracador',
+        'tipo_sanguineo',
+        'pispasep',
         'data_nomeacao',
         'id_vinculo',
-        'id_lotacao',
-        'foto'
+        'id_lotacao'
     ];
+    protected $table = 'servidores';
 
-    
+    // Relacionamentos
+    public function vinculo()
+    {
+        return $this->belongsTo(Vinculo::class, 'id_vinculo');
+    }
 
-
-    protected $casts, $dates = [
-        'data_nascimento' => 'date',
-        'data_nomeacao' => 'date',
-        'deleted_at' => 'date'
-    ];
+    public function lotacao()
+    {
+        return $this->belongsTo(Lotacao::class, 'id_lotacao');
+    }
 
     public function dependentes()
     {
-        return $this->hasMany(Dependente::class);
+        return $this->hasMany(Dependente::class, 'id_servidor');
+    }
+
+    public function ocorrencias()
+    {
+        return $this->hasMany(Ocorrencia::class, 'id_servidor');
+    }
+
+    public function historicosPagamento()
+    {
+        return $this->hasMany(HistoricoPagamento::class, 'id_servidor');
+    }
+
+    public function ferias()
+    {
+        return $this->hasMany(Ferias::class, 'id_servidor');
+    }
+
+    public function formacoes()
+    {
+        return $this->hasMany(Formacao::class, 'id_servidor');
+    }
+
+    public function cursos()
+    {
+        return $this->hasMany(Curso::class, 'id_servidor');
     }
 }
