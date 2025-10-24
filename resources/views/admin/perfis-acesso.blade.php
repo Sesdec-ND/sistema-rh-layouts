@@ -116,7 +116,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex space-x-2">
-                                <a href="{{ route('admin.perfis-acesso.edit', $perfil->id) }}" 
+                                <a href="{{ route('admin.perfis-acesso', $perfil->id) }}" 
                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center">
                                     <i class="fas fa-edit mr-2"></i>
                                     Editar

@@ -11,8 +11,10 @@ return new class extends Migration
         Schema::create('servidores', function (Blueprint $table) {
             $table->id();
             $table->string('nome_completo');
+            $table->string('email')->unique();
             $table->string('matricula')->unique();
             $table->string('cpf', 14)->unique();
+            $table->string('rg', 6)->nullable();
             $table->string('formacao')->nullable();
             $table->string('telefone')->nullable();
             $table->string('id_vinculo')->nullable();
@@ -24,6 +26,9 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('servidores');
+        Schema::table('servidores', function (Blueprint $table) {
+            $table->dropColumn('foto');
+        });
     }
+    
 };
