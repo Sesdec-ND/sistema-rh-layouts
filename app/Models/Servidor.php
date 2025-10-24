@@ -4,11 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-<<<<<<< HEAD
-use Carbon\Carbon;
-=======
 use App\Models\Ocorrencia;
->>>>>>> 63240714e901e04b4112207e53b8967f9bee30ee
 
 class Servidor extends Model
 {

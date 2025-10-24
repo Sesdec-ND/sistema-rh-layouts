@@ -5,38 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Servidor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-<<<<<<< HEAD
-use Illuminate\Support\Facades\Auth;
-
-class ServidorController extends Controller
-{
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            // Middleware para verificar se é RH ou Admin
-            $user = Auth::user();
-            $perfil = $user->perfil->nomePerfil ?? '';
-            
-            if (!in_array($perfil, ['RH', 'Administrador'])) {
-                abort(403, 'Acesso não autorizado.');
-            }
-            
-            return $next($request);
-        });
-    }
-
-    public function index()
-    {
-        $servidores = Servidor::with(['lotacao', 'vinculo', 'dependentes'])
-                            ->latest()
-                            ->paginate(10);
-
-        // return view('servidor.colaboradores.index', compact('servidores'));
-    }
-    /**
-     * Mostrar formulário de criação
-=======
 use Illuminate\Support\Facades\DB;
 
 class ServidorController extends Controller
@@ -52,7 +20,6 @@ class ServidorController extends Controller
 
     /**
      * Show the form for creating a new resource.
->>>>>>> 63240714e901e04b4112207e53b8967f9bee30ee
      */
     public function create()
     {
@@ -64,14 +31,9 @@ class ServidorController extends Controller
         // Ou se está usando modal, redirecione para index
         // return redirect()->route('servidores.index');
     }
-<<<<<<< HEAD
-    /**
-     * Salvar novo servidor
-=======
 
     /**
      * Store a newly created resource in storage.
->>>>>>> 63240714e901e04b4112207e53b8967f9bee30ee
      */
     public function store(Request $request)
     {

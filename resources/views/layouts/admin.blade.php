@@ -96,7 +96,7 @@
             </a>
 
             <!-- Relatórios -->
-            <a href="{{ route('admin.relatorios') }}"
+            <a href="{{ route('admin.relatorios.index') }}"
                 class="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-700 transition duration-200 {{ request()->routeIs('rh.relatorios') ? 'bg-blue-700' : '' }}">
                 <i class="fas fa-chart-bar w-6 text-center"></i>
                 <span id="nav-relatorios">Relatórios</span>
