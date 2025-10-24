@@ -1,5 +1,4 @@
 <?php
-// app/Models/Dependente.php
 
 namespace App\Models;
 
@@ -10,10 +9,12 @@ class Dependente extends Model
 {
     use HasFactory;
 
+    protected $table = 'dependentes';
+
     protected $fillable = [
-        'servidor_id',
+        'id_servidor',
         'nome',
-        'idade',
+        'parentesco',
         'data_nascimento',
         'cpf'
     ];
@@ -24,6 +25,6 @@ class Dependente extends Model
 
     public function servidor()
     {
-        return $this->belongsTo(Servidor::class);
+        return $this->belongsTo(Servidor::class, 'id_servidor');
     }
 }

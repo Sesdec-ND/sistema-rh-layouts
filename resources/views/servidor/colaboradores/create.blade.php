@@ -11,7 +11,7 @@
 
         <!-- Formulário de Cadastro -->
         <div class="bg-white rounded-xl shadow-md p-8">
-            <form action="{{ route('servidor.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+            <form action="{{ route('servidores.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
                 @csrf
 
                 <!-- Seção de Dados Pessoais -->

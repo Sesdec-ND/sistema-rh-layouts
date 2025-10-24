@@ -4,16 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+<<<<<<< HEAD
 use Carbon\Carbon;
+=======
+use App\Models\Ocorrencia;
+>>>>>>> 63240714e901e04b4112207e53b8967f9bee30ee
 
 class Servidor extends Model
 {
     use HasFactory;
 
+    protected $table = 'servidores';
+
     protected $fillable = [
         'matricula',
         'foto',
         'nome_completo',
+        'email',
         'cpf',
         'rg',
         'data_nascimento',
@@ -30,7 +37,7 @@ class Servidor extends Model
         'id_vinculo',
         'id_lotacao'
     ];
-    protected $table = 'servidores';
+    
 
     // Adicionar casts para datas
     protected $casts = [

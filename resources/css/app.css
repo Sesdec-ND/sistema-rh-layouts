@@ -30,3 +30,27 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     background-color: #f8f9fa;
 }
+
+/* Animações suaves para o modal */
+#modalCadastro {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Scroll personalizado */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
