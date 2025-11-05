@@ -121,7 +121,7 @@
                                     <i class="fas fa-edit mr-2"></i>
                                     Editar
                                 </a>
-                                <a href="{{ route('admin.perfis-acesso.permissoes', $perfil->id) }}" 
+                                <a href="{{ route('admin.perfis-acesso', $perfil->id) }}" 
                                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center">
                                     <i class="fas fa-key mr-2"></i>
                                     Permissões

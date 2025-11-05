@@ -67,7 +67,7 @@
         </div>
     </div>
 
-    <form action="{{ route('admin.seguranca.politicas.update') }}" method="POST">
+    <form action="{{ route('admin.seguranca.politicas') }}" method="POST">
         @csrf
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

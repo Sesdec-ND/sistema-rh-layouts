@@ -90,7 +90,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{{ $servidor->matricula }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    @if ($servidor->status)
+                                    @if ($servidor->status == 1 || $servidor->status === true)
                                         <span
                                             class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Ativo</span>
                                     @else
@@ -101,14 +101,12 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex space-x-2">
                                         <!-- Botão Visualizar -->
-                                        <a href="{{ route('servidores.show', $servidor->id) }}"
-                                            {{-- class="bg-green-100 hover:bg-green-200 text-green-600 p-2 rounded-lg transition duration-200"
+                                        <a href="{{ route('servidores.show', $servidor->id) }}" {{-- class="bg-green-100 hover:bg-green-200 text-green-600 p-2 rounded-lg transition duration-200"
                                             title="Visualizar">
                                             <i class="fas fa-eye"></i> --}}
-
                                             <button onclick="abrirModalServidor({{ $servidor->id }})"
-                                                class="bg-green-100 hover:bg-green-200 text-green-600 p-2 rounded-lg transition duration-200">
-                                                <i class="fas fa-eye"></i>
+                                            class="bg-green-100 hover:bg-green-200 text-green-600 p-2 rounded-lg transition duration-200">
+                                            <i class="fas fa-eye"></i>
                                             </button>
                                         </a>
 
@@ -306,6 +304,17 @@
                                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                                     </div>
                                     <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Raça/Cor</label>
+                                        <select name="raca_cor"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="">Selecione</option>
+                                            <option value="Branca">Branca</option>
+                                            <option value="Preta">Preta</option>
+                                            <option value="Parda">Parda</option>
+                                            <option value="Amarela">Amarela</option>
+                                        </select>
+                                    </div>
+                                    <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Sanguíneo</label>
                                         <select name="tipo_sanguineo"
                                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -390,27 +399,29 @@
                     <div id="aba-vinculo" class="aba-conteudo hidden">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Vínculo</label>
-                                <select name="vinculo_tipo"
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Vínculo</label>
+                                <select name="idVinculo"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="">Selecione</option>
-                                    <option value="Efetivo">EFETIVO</option>
-                                    <option value="Comissionado">COMISSIONADO</option>
-                                    <option value="Temporário">TEMPORÁRIO</option>
-                                    <option value="Estagiário">ESTAGIÁRIO</option>
+                                    <option value="">Selecione um vínculo...</option>
+                                    @foreach (\App\Models\Vinculo::all() as $vinculo)
+                                        <option value="{{ $vinculo->idVinculo }}"
+                                            {{ old('idVinculo') == $vinculo->idVinculo ? 'selected' : '' }}>
+                                            {{ $vinculo->nomeVinculo }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Regime</label>
-                                <select name="vinculo_regime"
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Lotação</label>
+                                <select name="idLotacao"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="">Selecione</option>
-                                    <option value="Estatutário">ESTATUTÁRIO</option>
-                                    <option value="Autônomo">VOLUNTÁRIO</option>
-                                    <option value="Autônomo">COMISSIONADO</option>
-                                    <option value="Autônomo">PVSA</option>
-
-
+                                    <option value="">Selecione uma lotação...</option>
+                                    @foreach (\App\Models\Lotacao::where('status', true)->get() as $lotacao)
+                                        <option value="{{ $lotacao->idLotacao }}"
+                                            {{ old('idLotacao') == $lotacao->idLotacao ? 'selected' : '' }}>
+                                            {{ $lotacao->nomeLotacao }} ({{ $lotacao->sigla }})
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div>

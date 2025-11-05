@@ -28,12 +28,12 @@ class Vinculo extends Model
         return $this->nomeVinculo;
     }
 
-    protected $casts = [
-        'status' => 'boolean'
-    ];
+    // protected $casts = [
+        // 'status' => 'boolean'
+    // ];
 
     public function servidores()
     {
-        return $this->hasMany(Servidor::class, 'vinculo_id');
+        return $this->hasMany(Servidor::class, 'id_vinculo', 'idVinculo');
     }
 }

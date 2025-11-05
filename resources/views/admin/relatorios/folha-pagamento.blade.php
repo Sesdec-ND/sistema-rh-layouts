@@ -16,7 +16,7 @@
                 <i class="fas fa-download mr-2"></i>
                 Baixar PDF
             </a>
-            <a href="{{ route('admin.relatorios') }}" 
+            <a href="{{ route('admin.relatorios.index') }}" 
                class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold transition duration-200 flex items-center">
                 <i class="fas fa-arrow-left mr-2"></i>
                 Voltar

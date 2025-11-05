@@ -68,7 +68,7 @@
     </div>
 
     <!-- Formulário de Configurações -->
-    <form action="{{ route('admin.configuracoes-sistema.update') }}" method="POST">
+    <form action="{{ route('admin.configuracoes-sistema') }}" method="POST">
         @csrf
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

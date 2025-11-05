@@ -23,11 +23,11 @@ class ServidorController extends Controller
      */
     public function create()
     {
-         $perfis = \App\Models\Perfil::all();
-         return view('servidor.colaboradores.create', compact('perfis'));
+        $perfis = \App\Models\Perfil::all();
+        return view('servidor.colaboradores.create', compact('perfis'));
         // Se você quiser uma página separada para criar
         // return view('servidor.colaboradores.create');
-        
+
         // Ou se está usando modal, redirecione para index
         // return redirect()->route('servidores.index');
     }
@@ -38,7 +38,6 @@ class ServidorController extends Controller
     public function store(Request $request)
     {
         \Log::info('Dados recebidos no request:', $request->all());
-        \Log::info('Arquivos recebidos:', $request->allFiles());
 
         $validated = $request->validate([
             'matricula' => 'required|string|max:20|unique:servidores,matricula',
@@ -51,54 +50,61 @@ class ServidorController extends Controller
             'estado_civil' => 'nullable|string|max:50',
             'telefone' => 'nullable|string|max:20',
             'endereco' => 'nullable|string|max:255',
+            'raca_cor' => 'nullable|string|max:50',
             'tipo_sanguineo' => 'nullable|string|max:5',
-            'pispasep' => 'nullable|string|max:20',
+            'pispasep' => 'nullable|string|max:20', // CORRIGIDO: usar apenas pispasep
             'data_nomeacao' => 'nullable|date',
             'status' => 'required|boolean',
+            'idVinculo' => 'nullable|exists:vinculos,idVinculo',
+            'idLotacao' => 'nullable|exists:lotacoes,idLotacao',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         DB::beginTransaction();
-        
+
         try {
+            // 🔥 MAPEAMENTO CORRIGIDO - nomes dos campos devem bater com o banco
+            $servidorData = [
+                'matricula' => $validated['matricula'],
+                'nome_completo' => $validated['nome_completo'],
+                'email' => $validated['email'],
+                'cpf' => $validated['cpf'],
+                'rg' => $validated['rg'],
+                'data_nascimento' => $validated['data_nascimento'],
+                'genero' => $validated['genero'],
+                'estado_civil' => $validated['estado_civil'] ?? null,
+                'telefone' => $validated['telefone'] ?? null,
+                'endereco' => $validated['endereco'] ?? null,
+                'raca_cor' => $validated['raca_cor'] ?? null,
+                'tipo_sanguineo' => $validated['tipo_sanguineo'] ?? null,
+                'pispasep' => $validated['pispasep'] ?? null,
+                'data_nomeacao' => $validated['data_nomeacao'] ?? null,
+                'status' => $validated['status'],
+                'idVinculo' => $validated['idVinculo'] ?? null,
+                'idLotacao' => $validated['idLotacao'] ?? null,
+            ];
+
             // Processar foto
             if ($request->hasFile('foto')) {
                 $foto = $request->file('foto');
-                \Log::info('Processando foto:', [
-                    'nome' => $foto->getClientOriginalName(),
-                    'tamanho' => $foto->getSize(),
-                    'mime' => $foto->getMimeType()
-                ]);
-
-                // Nome único para a foto
                 $fotoNome = time() . '_' . uniqid() . '.' . $foto->getClientOriginalExtension();
-                
-                // Salvar no storage
                 $fotoPath = $foto->storeAs('servidores/fotos', $fotoNome, 'public');
-                $validated['foto'] = $fotoPath;
-                
-                \Log::info('Foto salva com sucesso: ' . $fotoPath);
+                $servidorData['foto'] = $fotoPath;
             }
 
             // Criar servidor
-            $servidor = Servidor::create($validated);
-            
-            DB::commit();
+            $servidor = Servidor::create($servidorData);
 
-            \Log::info('Servidor criado com sucesso. ID: ' . $servidor->id);
+            // Processar dados das abas dinâmicas
+            $this->processarAbasDinamicas($request, $servidor);
+
+            DB::commit();
 
             return redirect()->route('servidores.index')
                 ->with('success', 'Servidor cadastrado com sucesso!');
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
-            \Log::error('ERRO no cadastro:', [
-                'mensagem' => $e->getMessage(),
-                'arquivo' => $e->getFile(),
-                'linha' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            \Log::error('ERRO no cadastro: ' . $e->getMessage());
 
             return redirect()->back()
                 ->with('error', 'Erro ao cadastrar servidor: ' . $e->getMessage())
@@ -106,23 +112,54 @@ class ServidorController extends Controller
         }
     }
 
+    private function processarAbasDinamicas(Request $request, Servidor $servidor)
+    {
+        // Processar formações
+        if ($request->has('formacoes')) {
+            foreach ($request->formacoes as $formacaoData) {
+                if (!empty($formacaoData['curso']) || !empty($formacaoData['instituicao'])) {
+                    $servidor->formacoes()->create([
+                        'curso' => $formacaoData['curso'] ?? null,
+                        'instituicao' => $formacaoData['instituicao'] ?? null,
+                        'nivel' => $formacaoData['nivel'] ?? null,
+                        'ano_conclusao' => $formacaoData['ano_conclusao'] ?? null,
+                    ]);
+                }
+            }
+        }
+
+        // Processar dependentes
+        if ($request->has('dependentes')) {
+            foreach ($request->dependentes as $dependenteData) {
+                if (!empty($dependenteData['nome'])) {
+                    $servidor->dependentes()->create([
+                        'nome' => $dependenteData['nome'],
+                        'parentesco' => $dependenteData['parentesco'] ?? null,
+                        'data_nascimento' => $dependenteData['data_nascimento'] ?? null,
+                        'cpf' => $dependenteData['cpf'] ?? null,
+                    ]);
+                }
+            }
+        }
+    }   
+
     /**
      * Display the specified resource.
      */
     public function show($id)
     {
         $servidor = Servidor::with([
-        'ocorrencias',
-        'lotacao', 
-        'vinculo',
-        'dependentes',
-        'historicosPagamento',
-        'ferias',
-        'formacoes',
-        'cursos'
-    ])->findOrFail($id);
+            'ocorrencias',
+            'lotacao',
+            'vinculo',
+            'dependentes',
+            'historicosPagamento',
+            'ferias',
+            'formacoes',
+            'cursos'
+        ])->findOrFail($id);
 
-    return view('servidor.colaboradores.show', compact('servidor'));
+        return view('servidor.colaboradores.show', compact('servidor'));
 
         try {
             $servidor = Servidor::findOrFail($id);
@@ -140,11 +177,11 @@ class ServidorController extends Controller
     {
         try {
             $servidor = Servidor::findOrFail($id);
-            
+
             // Se você tiver lotações e vínculos
             $lotacoes = \App\Models\Lotacao::all() ?? [];
             $vinculos = \App\Models\Vinculo::all() ?? [];
-            
+
             return view('servidor.colaboradores.edit', compact('servidor', 'lotacoes', 'vinculos'));
         } catch (\Exception $e) {
             return redirect()->route('servidores.index')
@@ -186,7 +223,7 @@ class ServidorController extends Controller
                 if ($servidor->foto && Storage::disk('public')->exists($servidor->foto)) {
                     Storage::disk('public')->delete($servidor->foto);
                 }
-                
+
                 $fotoPath = $request->file('foto')->store('servidores/fotos', 'public');
                 $validated['foto'] = $fotoPath;
             }
@@ -197,10 +234,9 @@ class ServidorController extends Controller
 
             return redirect()->route('servidores.index')
                 ->with('success', 'Servidor atualizado com sucesso!');
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return redirect()->back()
                 ->with('error', 'Erro ao atualizar servidor: ' . $e->getMessage())
                 ->withInput();
@@ -215,13 +251,12 @@ class ServidorController extends Controller
     {
         try {
             $servidor = Servidor::findOrFail($id);
-            
+
             // Use soft delete (se estiver usando SoftDeletes)
             $servidor->delete();
 
             return redirect()->route('servidores.index')
                 ->with('success', 'Servidor movido para a lixeira com sucesso!');
-
         } catch (\Exception $e) {
             return redirect()->route('servidores.index')
                 ->with('error', 'Erro ao excluir servidor: ' . $e->getMessage());
@@ -230,7 +265,7 @@ class ServidorController extends Controller
     public function lixeira()
     {
         $servidores = Servidor::onlyTrashed()->with('perfil')->paginate(10);
-        
+
         return view('servidor.colaboradores.delete', compact('servidores'));
     }
 
@@ -245,7 +280,6 @@ class ServidorController extends Controller
 
             return redirect()->route('servidores.lixeira')
                 ->with('success', 'Servidor restaurado com sucesso!');
-
         } catch (\Exception $e) {
             return redirect()->route('servidores.lixeira')
                 ->with('error', 'Erro ao restaurar servidor: ' . $e->getMessage());
@@ -259,17 +293,16 @@ class ServidorController extends Controller
     {
         try {
             $servidor = Servidor::onlyTrashed()->findOrFail($id);
-            
+
             // Remove a foto se existir
             if ($servidor->foto) {
                 Storage::disk('public')->delete($servidor->foto);
             }
-            
+
             $servidor->forceDelete();
 
             return redirect()->route('servidores.lixeira')
                 ->with('success', 'Servidor excluído permanentemente com sucesso!');
-
         } catch (\Exception $e) {
             return redirect()->route('servidores.lixeira')
                 ->with('error', 'Erro ao excluir servidor: ' . $e->getMessage());
@@ -283,7 +316,7 @@ class ServidorController extends Controller
     {
         try {
             $servidores = Servidor::onlyTrashed()->get();
-            
+
             foreach ($servidores as $servidor) {
                 if ($servidor->foto) {
                     Storage::disk('public')->delete($servidor->foto);
@@ -293,7 +326,6 @@ class ServidorController extends Controller
 
             return redirect()->route('servidores.lixeira')
                 ->with('success', 'Lixeira esvaziada com sucesso!');
-
         } catch (\Exception $e) {
             return redirect()->route('servidores.lixeira')
                 ->with('error', 'Erro ao esvaziar lixeira: ' . $e->getMessage());

@@ -26,22 +26,43 @@ class RHController extends Controller
     }
 
     public function index()
-{
-    // // $servidores = Servidor::with('perfil')->get();
-    // // $lotacoes = Lotacao::where('status', true)->get();
+    {
+        $user = Auth::user();
 
-    $vinculos = Vinculo::all();
-    $servidores = Servidor::all();
-    $lotacoes   = Lotacao::all();
-    return view('admin.colaborador', compact('servidores', 'lotacoes', 'vinculos'));
-}
+        // Buscar dados do RH como servidor também
+        $servidorRH = Servidor::where('email', $user->email)
+            ->orWhere('cpf', $user->cpf)
+            ->first();
+
+        $vinculos = Vinculo::all();
+        $servidores = Servidor::with(['lotacao', 'vinculo'])->get();
+        $lotacoes = Lotacao::all();
+
+        return view('admin.colaborador', compact('servidores', 'lotacoes', 'vinculos', 'servidorRH'));
+    }
 
     public function dashboard()
     {
-        $totalColaboradores = User::count();
-        $totalPerfis = Perfil::count();
+        $user = Auth::user();
         
-        return view('admin.dashboard', compact('totalColaboradores', 'totalPerfis'));
+        // Buscar dados do RH como servidor
+        $servidor = Servidor::where('email', $user->email)
+                           ->orWhere('cpf', $user->cpf)
+                           ->first();
+
+        $totalColaboradores = Servidor::count();
+        $totalPerfis = Perfil::count();
+        $colaboradoresAtivos = Servidor::where('status', true)->count();
+        $colaboradoresInativos = Servidor::where('status', false)->count();
+        
+        return view('admin.dashboard', compact(
+            'user',
+            'servidor',
+            'totalColaboradores', 
+            'totalPerfis',
+            'colaboradoresAtivos',
+            'colaboradoresInativos'
+        ));
     }
 
     /**
@@ -50,17 +71,17 @@ class RHController extends Controller
     public function colaboradores()
     {
         if (!Auth::user()->hasPermission('colaboradores', 'view')) {
-        abort(403, 'Acesso não autorizado');
+            abort(403, 'Acesso não autorizado');
+        }
+
+        // 2. Busque TODOS os dados que a view precisa
+        $servidores = Servidor::all(); // A view espera '$servidores', não '$colaboradores'
+        $lotacoes   = Lotacao::all();
+        $vinculos   = Vinculo::all();
+
+        // 3. Retorne a view e passe TODAS as variáveis necessárias
+        return view('admin.colaborador', compact('servidores', 'lotacoes', 'vinculos'));
     }
-
-    // 2. Busque TODOS os dados que a view precisa
-    $servidores = Servidor::all(); // A view espera '$servidores', não '$colaboradores'
-    $lotacoes   = Lotacao::all();
-    $vinculos   = Vinculo::all();
-
-    // 3. Retorne a view e passe TODAS as variáveis necessárias
-    return view('admin.colaborador', compact('servidores', 'lotacoes', 'vinculos'));
-}
     /*
     public function relatorios()
     {

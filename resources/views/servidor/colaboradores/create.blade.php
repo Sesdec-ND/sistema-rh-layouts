@@ -33,7 +33,7 @@
                         <div class="md:col-span-2">
                             <label for="nomeCompleto" class="block text-sm font-semibold text-gray-700 mb-2">Nome
                                 Completo</label>
-                            <input type="text" id="nomeCompleto" name="nomeCompleto" value="{{ old('nomeCompleto') }}"
+                            <input type="text" id="nomeCompleto" name="nome_completo" value="{{ old('nome_completo') }}"
                                 placeholder="Digite o nome completo"
                                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('nomeCompleto') border-red-500 @enderror">
                             @error('nomeCompleto')
@@ -67,8 +67,8 @@
                         <div>
                             <label for="dataNascimento" class="block text-sm font-semibold text-gray-700 mb-2">Data de
                                 Nascimento</label>
-                            <input type="date" id="dataNascimento" name="dataNascimento"
-                                value="{{ old('dataNascimento') }}"
+                            <input type="date" id="dataNascimento" name="data_nascimento"
+                                value="{{ old('data_nascimento') }}"
                                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('dataNascimento') border-red-500 @enderror">
                             @error('dataNascimento')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
@@ -94,7 +94,7 @@
                         <div>
                             <label for="estadoCivil" class="block text-sm font-semibold text-gray-700 mb-2">Estado
                                 Civil</label>
-                            <select id="estadoCivil" name="estadoCivil"
+                            <select id="estadoCivil" name="estado_civil"
                                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('estadoCivil') border-red-500 @enderror">
                                 <option value="" disabled selected>Selecione...</option>
                                 <option value="Solteiro(a)" @if (old('estadoCivil') == 'Solteiro(a)') selected @endif>Solteiro(a)
@@ -136,7 +136,7 @@
                         <!-- Raça/Cor -->
                         <div>
                             <label for="racaCor" class="block text-sm font-semibold text-gray-700 mb-2">Raça/Cor</label>
-                            <select id="racaCor" name="racaCor"
+                            <select id="racaCor" name="raca_cor"
                                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('racaCor') border-red-500 @enderror">
                                 <option value="">Selecione a raça/cor</option>
                                 <option value="Branca" {{ old('racaCor') == 'Branca' ? 'selected' : '' }}>Branca</option>
@@ -154,7 +154,7 @@
                         <div>
                             <label for="tipoSanguineo" class="block text-sm font-semibold text-gray-700 mb-2">Tipo
                                 Sanguíneo</label>
-                            <select id="tipoSanguineo" name="tipoSanguineo"
+                            <select id="tipoSanguineo" name="tipo_sanguineo"
                                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('tipoSanguineo') border-red-500 @enderror">
                                 <option value="">Selecione o tipo sanguíneo</option>
                                 <option value="A+" {{ old('tipoSanguineo') == 'A+' ? 'selected' : '' }}>A+</option>
@@ -201,7 +201,7 @@
                         <!-- PIS/PASEP -->
                         <div>
                             <label for="pisPasep" class="block text-sm font-semibold text-gray-700 mb-2">PIS/PASEP</label>
-                            <input type="text" id="pisPasep" name="pisPasep" value="{{ old('pisPasep') }}"
+                            <input type="text" id="pisPasep" name="pispasep" value="{{ old('pispasep') }}"
                                 placeholder="Digite o número do PIS/PASEP"
                                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('pisPasep') border-red-500 @enderror">
                             @error('pisPasep')
@@ -213,8 +213,8 @@
                         <div>
                             <label for="dataNomeacao" class="block text-sm font-semibold text-gray-700 mb-2">Data de
                                 Nomeação</label>
-                            <input type="date" id="dataNomeacao" name="dataNomeacao"
-                                value="{{ old('dataNomeacao') }}"
+                            <input type="date" id="dataNomeacao" name="data_nomeacao"
+                                value="{{ old('data_nomeacao') }}"
                                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('dataNomeacao') border-red-500 @enderror">
                             @error('dataNomeacao')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
@@ -227,13 +227,12 @@
                             <select id="idVinculo" name="idVinculo"
                                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('idVinculo') border-red-500 @enderror">
                                 <option value="" disabled selected>Selecione...</option>
-                                <option value="Efetivo" {{ old('idVinculo') == 'Efetivo' ? 'selected' : '' }}>Efetivo
-                                </option>
-                                <option value="Comissionado" {{ old('idVinculo') == 'Comissionado' ? 'selected' : '' }}>
-                                    Comissionado</option>
-                                <option value="Voluntário" {{ old('idVinculo') == 'Voluntário' ? 'selected' : '' }}>
-                                    Voluntário</option>
-                                <option value="PVSA" {{ old('idVinculo') == 'PVSA' ? 'selected' : '' }}>PVSA</option>
+                                @foreach (\App\Models\Vinculo::all() as $vinculo)
+                                    <option value="{{ $vinculo->idVinculo }}"
+                                        {{ old('idVinculo') == $vinculo->idVinculo ? 'selected' : '' }}>
+                                        {{ $vinculo->nomeVinculo }}
+                                    </option>
+                                @endforeach
                             </select>
                             @error('idVinculo')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
@@ -246,12 +245,12 @@
                             <select id="idLotacao" name="idLotacao"
                                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('idLotacao') border-red-500 @enderror">
                                 <option value="" disabled selected>Selecione...</option>
-                                <option value="PM" {{ old('idLotacao') == 'PM' ? 'selected' : '' }}>PM</option>
-                                <option value="PC" {{ old('idLotacao') == 'PC' ? 'selected' : '' }}>PC</option>
-                                <option value="Politec" {{ old('idLotacao') == 'Politec' ? 'selected' : '' }}>Politec
-                                </option>
-                                <option value="Bombeiros" {{ old('idLotacao') == 'Bombeiros' ? 'selected' : '' }}>
-                                    Bombeiros</option>
+                                @foreach (\App\Models\Lotacao::all() as $lotacao)
+                                    <option value="{{ $lotacao->idLotacao }}"
+                                        {{ old('idLotacao') == $lotacao->idLotacao ? 'selected' : '' }}>
+                                        {{ $lotacao->nomeLotacao }}
+                                    </option>
+                                @endforeach
                             </select>
                             @error('idLotacao')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
@@ -264,7 +263,7 @@
                 <div id="dependentes-section">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-semibold text-gray-800 border-b pb-3">Dependentes</h2>
-                        <button type="button" onclick="adicionarDependente()" 
+                        <button type="button" onclick="adicionarDependente()"
                             class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 flex items-center">
                             <i class="fas fa-plus mr-2"></i>
                             Adicionar Dependente
@@ -294,10 +293,10 @@
 
     <script>
         let contadorDependentes = 0;
-        
+
         function adicionarDependente() {
             contadorDependentes++;
-            
+
             const novoDependente = `
                 <div class="dependente-item bg-gray-50 rounded-lg p-6 border border-gray-200">
                     <div class="flex justify-between items-center mb-4">
@@ -334,10 +333,10 @@
                     </div>
                 </div>
             `;
-            
+
             document.getElementById('dependentes-container').insertAdjacentHTML('beforeend', novoDependente);
         }
-        
+
         function removerDependente(botao) {
             botao.closest('.dependente-item').remove();
             // Atualizar números dos dependentes restantes
@@ -354,7 +353,7 @@
             });
             contadorDependentes = itens.length;
         }
-        
+
         // Adicionar primeiro dependente automaticamente
         document.addEventListener('DOMContentLoaded', function() {
             adicionarDependente();

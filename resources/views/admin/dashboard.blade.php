@@ -112,7 +112,7 @@
                     </div>
                 </a>
 
-                <a href="{{ route('admin.relatorios') }}"
+                <a href="{{ route('admin.relatorios.index') }}"
                     class="bg-green-50 hover:bg-green-100 border border-green-200 p-4 rounded-lg transition duration-200 group">
                     <div class="flex items-center">
                         <div class="bg-green-100 p-3 rounded-lg group-hover:bg-green-200 transition duration-200">

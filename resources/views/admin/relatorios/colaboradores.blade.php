@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin') {{-- Corrigido de layouts.admin para admin --}}
 
 @section('title', 'Relatório de Colaboradores - RH')
 
@@ -16,7 +16,7 @@
                     <i class="fas fa-download mr-2"></i>
                     Baixar PDF
                 </a>
-                <a href="{{ route('admin.relatorios') }}"
+                <a href="{{ route('admin.relatorios.index') }}"
                     class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold transition duration-200 flex items-center">
                     <i class="fas fa-arrow-left mr-2"></i>
                     Voltar
@@ -29,24 +29,24 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div class="bg-blue-50 p-4 rounded-lg">
                     <div class="text-blue-600 font-semibold">Total de Colaboradores</div>
-                    <div class="text-2xl font-bold text-gray-800">{{ $total_colaboradores }}</div>
+                    <div class="text-2xl font-bold text-gray-800">{{ $estatisticas['total_colaboradores'] ?? 0 }}</div>
                 </div>
                 <div class="bg-green-50 p-4 rounded-lg">
-                    <div class="text-green-600 font-semibold">Data de Geração</div>
-                    <div class="text-lg font-semibold text-gray-800">{{ $data_geracao }}</div>
+                    <div class="text-green-600 font-semibold">Ativos</div>
+                    <div class="text-2xl font-bold text-gray-800">{{ $estatisticas['total_ativos'] ?? 0 }}</div>
                 </div>
                 <div class="bg-purple-50 p-4 rounded-lg">
-                    <div class="text-purple-600 font-semibold">Gerado por</div>
-                    <div class="text-lg font-semibold text-gray-800">{{ $usuario_gerador }}</div>
+                    <div class="text-purple-600 font-semibold">Data de Geração</div>
+                    <div class="text-lg font-semibold text-gray-800">{{ $data_geracao ?? now()->format('d/m/Y H:i') }}</div>
                 </div>
                 <div class="bg-orange-50 p-4 rounded-lg">
-                    <div class="text-orange-600 font-semibold">Status</div>
-                    <div class="text-lg font-semibold text-gray-800">Ativos</div>
+                    <div class="text-orange-600 font-semibold">Gerado por</div>
+                    <div class="text-lg font-semibold text-gray-800">{{ $usuario_gerador ?? 'Sistema' }}</div>
                 </div>
             </div>
 
             <!-- Filtros Aplicados -->
-            @if (!empty(array_filter($filtros_aplicados)))
+            @if (!empty(array_filter($filtros_aplicados ?? [])))
                 <div class="mb-6">
                     <h3 class="text-lg font-semibold text-gray-800 mb-3">Filtros Aplicados</h3>
                     <div class="flex flex-wrap gap-2">
@@ -61,6 +61,26 @@
                 </div>
             @endif
 
+            <!-- Estatísticas Detalhadas -->
+            <div class="mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center p-4 border border-gray-200 rounded-lg">
+                    <div class="text-2xl font-bold text-blue-600">{{ $estatisticas['total_masculino'] ?? 0 }}</div>
+                    <div class="text-sm text-gray-600">Masculino</div>
+                </div>
+                <div class="text-center p-4 border border-gray-200 rounded-lg">
+                    <div class="text-2xl font-bold text-pink-600">{{ $estatisticas['total_feminino'] ?? 0 }}</div>
+                    <div class="text-sm text-gray-600">Feminino</div>
+                </div>
+                <div class="text-center p-4 border border-gray-200 rounded-lg">
+                    <div class="text-2xl font-bold text-green-600">{{ $estatisticas['media_idade'] ?? 0 }}</div>
+                    <div class="text-sm text-gray-600">Idade Média</div>
+                </div>
+                <div class="text-center p-4 border border-gray-200 rounded-lg">
+                    <div class="text-2xl font-bold text-purple-600">{{ count($colaboradores ?? []) }}</div>
+                    <div class="text-sm text-gray-600">Resultados</div>
+                </div>
+            </div>
+
             <!-- Tabela de Colaboradores -->
             <div class="overflow-x-auto">
                 <table class="w-full table-auto">
@@ -74,20 +94,20 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        @forelse($colaboradores as $colaborador)
+                        @forelse($colaboradores ?? [] as $colaborador)
                             <tr class="hover:bg-gray-50 transition duration-150">
-                                <td class="px-4 py-3 text-sm text-gray-900">{{ $colaborador->nome }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-900">{{ $colaborador->matricula }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">{{ $colaborador->nome_completo ?? 'N/A' }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">{{ $colaborador->matricula ?? 'N/A' }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-900">
-                                    {{ $colaborador->lotacao->nome ?? ($colaborador->lotacao->nome_completo ?? 'N/A') }}
+                                    {{ $colaborador->lotacao->nomeLotacao ?? 'N/A' }}
                                 </td>
                                 <td class="px-4 py-3 text-sm text-gray-900">
-                                    {{ $colaborador->vinculo->nome ?? ($colaborador->vinculo->nome_completo ?? 'N/A') }}
+                                    {{ $colaborador->vinculo->nomeVinculo ?? 'N/A' }}
                                 </td>
                                 <td class="px-4 py-3">
                                     <span
-                                        class="px-2 py-1 text-xs rounded-full {{ $colaborador->status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                        {{ $colaborador->status ? 'Ativo' : 'Inativo' }}
+                                        class="px-2 py-1 text-xs rounded-full {{ ($colaborador->status ?? false) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                        {{ ($colaborador->status ?? false) ? 'Ativo' : 'Inativo' }}
                                     </span>
                                 </td>
                             </tr>
@@ -109,7 +129,7 @@
                         <strong>Sistema de RH</strong> - Relatório gerado automaticamente
                     </div>
                     <div>
-                        Página 1 de 1 - {{ $data_geracao }}
+                        Página 1 de 1 - {{ $data_geracao ?? now()->format('d/m/Y H:i') }}
                     </div>
                 </div>
             </div>

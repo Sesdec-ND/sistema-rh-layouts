@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\SegurancaController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Pessoal\PerfilPessoalController;
 use App\Http\Controllers\ServidorController;
+use App\Http\Controllers\Admin\UsuarioController;
+use App\Http\Controllers\Admin\RelatoriosController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -41,7 +43,7 @@ Route::middleware('auth')->group(function () {
         // Dashboards
         Route::get('/dashboard', [RHController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/colaboradores', [RHController::class, 'colaboradores'])->name('admin.colaborador');
-        Route::get('/relatorios', [RHController::class, 'relatorios'])->name('admin.relatorios');
+        // Route::get('/relatorios', [RHController::class, 'relatorios'])->name('admin.relatorios');
         
         // Servidores (CRUD Completo)
         Route::prefix('servidores')->group(function () {
@@ -64,6 +66,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('relatorios')->group(function () {
         Route::get('/', [RelatoriosController::class, 'index'])->name('admin.relatorios.index');
         Route::get('/colaboradores', [RelatoriosController::class, 'relatorioColaboradores'])->name('admin.relatorios.colaboradores');
+        Route::get('/analitico', [RelatoriosController::class, 'relatorioAnalitico'])->name('admin.relatorios.analitico');
         Route::get('/folha-pagamento', [RelatoriosController::class, 'relatorioFolhaPagamento'])->name('admin.relatorios.folha-pagamento');
         Route::get('/performance', [RelatoriosController::class, 'relatorioPerformance'])->name('admin.relatorios.performance');
         Route::get('/gerados', [RelatoriosController::class, 'relatoriosGerados'])->name('admin.relatorios.gerados');
@@ -79,7 +82,15 @@ Route::middleware('auth')->group(function () {
         // Outras rotas do RH...
         Route::get('/perfis-acesso', [PerfisAcessoController::class, 'index'])->name('admin.perfis-acesso');
         Route::get('/configuracoes-sistema', [ConfiguracoesSistemaController::class, 'index'])->name('admin.configuracoes-sistema');
-        Route::get('/seguranca', [SegurancaController::class, 'index'])->name('admin.seguranca');
+
+        // Segurança (ROTAS CORRIGIDAS)
+        Route::prefix('seguranca')->group(function () {
+            Route::get('/', [SegurancaController::class, 'index'])->name('admin.seguranca');
+            Route::get('/politicas', [SegurancaController::class, 'politicas'])->name('admin.seguranca.politicas');
+            Route::get('/logs', [SegurancaController::class, 'logs'])->name('admin.seguranca.logs');
+            Route::get('/auditoria', [SegurancaController::class, 'auditoria'])->name('admin.seguranca.auditoria');
+            Route::put('/politicas', [SegurancaController::class, 'updatePoliticas'])->name('admin.seguranca.update-politicas');
+        });
     });
 
     // Área do Diretor
@@ -97,5 +108,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('meu-perfil')->name('perfil-pessoal.')->group(function () {
         Route::get('/', [PerfilPessoalController::class, 'show'])->name('show');
         Route::get('/editar', [PerfilPessoalController::class, 'edit'])->name('edit');
+        Route::put('/atualizar', [PerfilPessoalController::class, 'update'])->name('update');
+        Route::get('/documentos', [PerfilPessoalController::class, 'documentos'])->name('documentos');
+        Route::get('/contracheque', [PerfilPessoalController::class, 'contracheque'])->name('contracheque');
     });
 });

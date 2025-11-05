@@ -37,6 +37,6 @@ class Lotacao extends Model
 
     public function servidores()
     {
-        return $this->hasMany(Servidor::class, 'lotacao_id');
+        return $this->hasMany(Servidor::class, 'id_lotacao', 'idLotacao');
     }
 }

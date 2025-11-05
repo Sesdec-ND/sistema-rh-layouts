@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Ocorrencia;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Servidor extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'servidores';
 
@@ -39,9 +41,24 @@ class Servidor extends Model
     protected $casts = [
         'data_nascimento' => 'date',
         'data_nomeacao' => 'date',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'status' => 'boolean',
+        // 'created_at' => 'datetime',
+        // 'updated_at' => 'datetime'
     ];
+     
+    // 🔥 MUTATOR para estado_civil - garante valor correto
+    public function setEstadoCivilAttribute($value)
+    {
+        // Mapeia valores do formulário para valores do ENUM
+        $map = [
+            'Solteiro' => 'Solteiro(a)',
+            'Casado' => 'Casado(a)', 
+            'Divorciado' => 'Divorciado(a)',
+            'Viúvo' => 'Viúvo(a)'
+        ];
+        
+        $this->attributes['estado_civil'] = $map[$value] ?? $value;
+    }
 
     // 🔴 **MUTATOR para padronizar CPF**
     public function setCpfAttribute($value)
@@ -104,8 +121,8 @@ class Servidor extends Model
 
     // Adicione um atributo para garantir arrays vazios
     protected $attributes = [
-    'foto' => '[]',
-    'deleted_at' => '[]'
+        'status' => true,
+        'foto' => null
     ];
 
     // Relacionamento com dependentes

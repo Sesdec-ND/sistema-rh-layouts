@@ -34,7 +34,7 @@
             </div>
             <h3 class="font-semibold text-gray-800 mb-2">Dados Pessoais</h3>
             <p class="text-sm text-gray-600 mb-4">Suas informações cadastrais</p>
-            <a href="{{ route('colaborador.perfil') }}" 
+            <a href="{{ route('perfil-pessoal.show') }}" 
                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition duration-200 inline-block">
                 <i class="fas fa-eye mr-1"></i>Ver Perfil
             </a>
@@ -82,7 +82,8 @@
     <div class="bg-white rounded-xl shadow-md p-6">
         <h2 class="text-xl font-bold text-gray-800 mb-4">Ações Disponíveis</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <a href="{{ route('colaborador.perfil') }}" 
+            <!-- Meu Perfil -->
+            <a href="{{ route('perfil-pessoal.show') }}" 
                class="bg-blue-50 hover:bg-blue-100 border border-blue-200 p-4 rounded-lg transition duration-200 text-center group">
                 <div class="bg-blue-100 p-3 rounded-full inline-block group-hover:bg-blue-200 transition duration-200">
                     <i class="fas fa-user-edit text-blue-600 text-xl"></i>
@@ -91,28 +92,33 @@
                 <p class="text-sm text-gray-600">Visualizar e atualizar</p>
             </a>
 
-            <div class="bg-green-50 hover:bg-green-100 border border-green-200 p-4 rounded-lg transition duration-200 text-center group cursor-pointer">
+            <!-- Documentos -->
+            <a href="{{ route('perfil-pessoal.documentos') }}" 
+               class="bg-green-50 hover:bg-green-100 border border-green-200 p-4 rounded-lg transition duration-200 text-center group">
                 <div class="bg-green-100 p-3 rounded-full inline-block group-hover:bg-green-200 transition duration-200">
                     <i class="fas fa-file-contract text-green-600 text-xl"></i>
                 </div>
                 <h3 class="font-semibold text-gray-800 mt-2">Documentos</h3>
                 <p class="text-sm text-gray-600">Acessar meus docs</p>
-            </div>
+            </a>
 
-            <div class="bg-purple-50 hover:bg-purple-100 border border-purple-200 p-4 rounded-lg transition duration-200 text-center group cursor-pointer">
+            <!-- Contracheques -->
+            <a href="{{ route('perfil-pessoal.contracheque') }}" 
+               class="bg-purple-50 hover:bg-purple-100 border border-purple-200 p-4 rounded-lg transition duration-200 text-center group">
                 <div class="bg-purple-100 p-3 rounded-full inline-block group-hover:bg-purple-200 transition duration-200">
-                    <i class="fas fa-calendar-day text-purple-600 text-xl"></i>
+                    <i class="fas fa-file-invoice-dollar text-purple-600 text-xl"></i>
                 </div>
-                <h3 class="font-semibold text-gray-800 mt-2">Ponto</h3>
-                <p class="text-sm text-gray-600">Registro de horas</p>
-            </div>
+                <h3 class="font-semibold text-gray-800 mt-2">Contracheques</h3>
+                <p class="text-sm text-gray-600">Holerites mensais</p>
+            </a>
 
-            <div class="bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 p-4 rounded-lg transition duration-200 text-center group cursor-pointer">
+            <!-- Ajuda (Em breve) -->
+            <div class="bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 p-4 rounded-lg transition duration-200 text-center group cursor-not-allowed opacity-60">
                 <div class="bg-yellow-100 p-3 rounded-full inline-block group-hover:bg-yellow-200 transition duration-200">
-                    <i class="fas fa-question-circle text-yellow-600 text-xl"></i>
+                    <i class="fas fa-clock text-yellow-600 text-xl"></i>
                 </div>
-                <h3 class="font-semibold text-gray-800 mt-2">Ajuda</h3>
-                <p class="text-sm text-gray-600">Suporte e FAQ</p>
+                <h3 class="font-semibold text-gray-800 mt-2">Ponto Eletrônico</h3>
+                <p class="text-sm text-gray-600">Em breve</p>
             </div>
         </div>
     </div>

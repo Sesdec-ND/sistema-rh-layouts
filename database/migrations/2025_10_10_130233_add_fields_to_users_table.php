@@ -31,12 +31,26 @@ return new class extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            // Recria as colunas se necessário (para rollback)
-            $table->string('cpf', 14)->nullable();
-            $table->string('rg', 20)->nullable();
-            $table->string('username')->nullable();
-            $table->string('senha')->nullable();
-            $table->foreignId('perfil_id')->nullable();
+            // Remover APENAS as colunas que existem
+            $columnsToDrop = [];
+
+            $possibleColumns = [
+                'cpf',
+                'rg',
+                'username',
+                'senha',
+                'perfil_id'
+            ];
+
+            foreach ($possibleColumns as $column) {
+                if (Schema::hasColumn('users', $column)) {
+                    $columnsToDrop[] = $column;
+                }
+            }
+
+            if (!empty($columnsToDrop)) {
+                $table->dropColumn($columnsToDrop);
+            }
         });
     }
 };
