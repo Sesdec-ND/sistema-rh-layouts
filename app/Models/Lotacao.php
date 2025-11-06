@@ -19,9 +19,6 @@ class Lotacao extends Model
         'status'
     ];
 
-    // Se a chave primária for diferente
-    protected $primaryKey = 'idLotacao';
-
     // Se não usar timestamps
     public $timestamps = true;
 
@@ -37,6 +34,6 @@ class Lotacao extends Model
 
     public function servidores()
     {
-        return $this->hasMany(Servidor::class, 'id_lotacao', 'idLotacao');
+        return $this->hasMany(Servidor::class, 'id_lotacao');
     }
 }

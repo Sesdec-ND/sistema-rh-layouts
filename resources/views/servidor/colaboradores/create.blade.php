@@ -223,36 +223,38 @@
 
                         <!-- Vínculo -->
                         <div>
-                            <label for="idVinculo" class="block text-sm font-semibold text-gray-700 mb-2">Vínculo</label>
-                            <select id="idVinculo" name="idVinculo"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('idVinculo') border-red-500 @enderror">
+                            <label for="id_vinculo" class="block text-sm font-semibold text-gray-700 mb-2">Vínculo</label>
+                            <select id="id_vinculo" name="id_vinculo"
+                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('id_vinculo') border-red-500 @enderror">
                                 <option value="" disabled selected>Selecione...</option>
                                 @foreach (\App\Models\Vinculo::all() as $vinculo)
-                                    <option value="{{ $vinculo->idVinculo }}"
-                                        {{ old('idVinculo') == $vinculo->idVinculo ? 'selected' : '' }}>
+                                    <option value="{{ $vinculo->id }}"
+                                        {{ old('id_vinculo') == $vinculo->id ? 'selected' : '' }}>
                                         {{ $vinculo->nomeVinculo }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('idVinculo')
+                            @error('id_vinculo')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <!-- Lotação -->
                         <div>
-                            <label for="idLotacao" @class(['block', 'text-sm', 'font-semibold', 'text-gray-700', 'mb-2'])>Lotação</label>
-                            <select id="idLotacao" name="idLotacao"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('idLotacao') border-red-500 @enderror">
+                            <label for="id_lotacao" @class(['block', 'text-sm', 'font-semibold', 'text-gray-700', 'mb-2'])>Lotação</label>
+                            <select id="id_lotacao" name="id_lotacao"
+                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('id_lotacao') border-red-500 @enderror">
                                 <option value="" disabled selected>Selecione...</option>
                                 @foreach (\App\Models\Lotacao::all() as $lotacao)
-                                    <option value="{{ $lotacao->idLotacao }}"
-                                        {{ old('idLotacao') == $lotacao->idLotacao ? 'selected' : '' }}>
-                                        {{ $lotacao->nomeLotacao }}
+                                    <option value="{{ $lotacao->id }}"
+                                        {{ old('id_lotacao') == $lotacao->id ? 'selected' : '' }}>
+                                        {{ $lotacao->nomeLotacao }} @if ($lotacao->sigla)
+                                            ({{ $lotacao->sigla }})
+                                        @endif
                                     </option>
                                 @endforeach
                             </select>
-                            @error('idLotacao')
+                            @error('id_lotacao')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                             @enderror
                         </div>

@@ -16,9 +16,6 @@ class Vinculo extends Model
         'descricao',
     ];
 
-    // Se a chave primária for diferente
-    protected $primaryKey = 'idVinculo';
-
     // Se não usar timestamps
     public $timestamps = true;
 
@@ -34,6 +31,6 @@ class Vinculo extends Model
 
     public function servidores()
     {
-        return $this->hasMany(Servidor::class, 'id_vinculo', 'idVinculo');
+        return $this->hasMany(Servidor::class, 'id_vinculo');
     }
 }

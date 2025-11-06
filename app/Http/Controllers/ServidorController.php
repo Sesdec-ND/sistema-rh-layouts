@@ -55,8 +55,8 @@ class ServidorController extends Controller
             'pispasep' => 'nullable|string|max:20', // CORRIGIDO: usar apenas pispasep
             'data_nomeacao' => 'nullable|date',
             'status' => 'required|boolean',
-            'idVinculo' => 'nullable|exists:vinculos,idVinculo',
-            'idLotacao' => 'nullable|exists:lotacoes,idLotacao',
+            'id_vinculo' => 'nullable|exists:vinculos,id',
+            'id_lotacao' => 'nullable|exists:lotacoes,id',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
@@ -80,8 +80,8 @@ class ServidorController extends Controller
                 'pispasep' => $validated['pispasep'] ?? null,
                 'data_nomeacao' => $validated['data_nomeacao'] ?? null,
                 'status' => $validated['status'],
-                'idVinculo' => $validated['idVinculo'] ?? null,
-                'idLotacao' => $validated['idLotacao'] ?? null,
+                'id_vinculo' => $validated['id_inculo'] ?? null,
+                'id_lotacao' => $validated['id_lotacao'] ?? null,
             ];
 
             // Processar foto
@@ -141,7 +141,94 @@ class ServidorController extends Controller
                 }
             }
         }
-    }   
+
+        // 🔥 CORREÇÃO: Processar Ocorrências com campo 'tipo_ocorrencia'
+        if ($request->has('ocorrencias')) {
+            foreach ($request->ocorrencias as $ocorrenciaData) {
+                if (!empty($ocorrenciaData['descricao'])) {
+                    $servidor->ocorrencias()->create([
+                        'tipo_ocorrencia' => $ocorrenciaData['tipo_ocorrencia'] ?? 'INREG', // ✅ CAMPO OBRIGATÓRIO
+                        'descricao' => $ocorrenciaData['descricao'] ?? null,
+                        'data_ocorrencia' => $ocorrenciaData['data_ocorrencia'] ?? now(),
+                        'status' => $ocorrenciaData['status'] ?? 'Ativa',
+                    ]);
+                }
+            }
+        }
+
+        // 🔥 NOVO: Processar Histórico de Pagamento
+        if ($request->has('historicos_pagamento')) {
+            foreach ($request->historicos_pagamento as $pagamentoData) {
+                if (!empty($pagamentoData['mes_ano']) || !empty($pagamentoData['valor'])) {
+                    $servidor->historicosPagamento()->create([
+                        'mes_ano' => $pagamentoData['mes_ano'] ?? null,
+                        'valor' => $pagamentoData['valor'] ?? 0,
+                        'status' => $pagamentoData['status'] ?? 'Pendente',
+                        'data_pagamento' => $pagamentoData['data_pagamento'] ?? null,
+                    ]);
+                }
+            }
+        }
+
+        // 🔥 NOVO: Processar Férias
+        if ($request->has('ferias')) {
+            foreach ($request->ferias as $feriasData) {
+                if (!empty($feriasData['data_inicio']) || !empty($feriasData['data_fim'])) {
+                    $servidor->ferias()->create([
+                        'data_inicio' => $feriasData['data_inicio'] ?? null,
+                        'data_fim' => $feriasData['data_fim'] ?? null,
+                        'dias' => $feriasData['dias'] ?? 30,
+                        'status' => $feriasData['status'] ?? 'Programada',
+                        'observacoes' => $feriasData['observacoes'] ?? null,
+                    ]);
+                }
+            }
+        }
+
+        // 🔥 NOVO: Processar Cursos
+        if ($request->has('cursos')) {
+            foreach ($request->cursos as $cursoData) {
+                if (!empty($cursoData['nome']) || !empty($cursoData['instituicao'])) {
+                    $servidor->cursos()->create([
+                        'nome' => $cursoData['nome'] ?? null,
+                        'instituicao' => $cursoData['instituicao'] ?? null,
+                        'carga_horaria' => $cursoData['carga_horaria'] ?? null,
+                        'data_conclusao' => $cursoData['data_conclusao'] ?? null,
+                        'certificado' => $cursoData['certificado'] ?? null,
+                    ]);
+                }
+            }
+        }
+
+        // 🔥 NOVO: Processar Lotação (se for dinâmica)
+        if ($request->has('lotacoes')) {
+            foreach ($request->lotacoes as $lotacaoData) {
+                if (!empty($lotacaoData['nomeLotacao']) || !empty($lotacaoData['departamento'])) {
+                    // Aqui você pode criar uma nova lotação ou apenas registrar o histórico
+                    \App\Models\Lotacao::create([
+                        'nomeLotacao' => $lotacaoData['nomeLotacao'] ?? null,
+                        'sigla' => $lotacaoData['sigla'] ?? null,
+                        'departamento' => $lotacaoData['departamento'] ?? null,
+                        'localizacao' => $lotacaoData['localizacao'] ?? null,
+                        'status' => $lotacaoData['status'] ?? true,
+                    ]);
+                }
+            }
+        }
+
+        // 🔥 NOVO: Processar Vínculo (se for dinâmico)
+        if ($request->has('vinculos')) {
+            foreach ($request->vinculos as $vinculoData) {
+                if (!empty($vinculoData['nomeVinculo']) || !empty($vinculoData['descricao'])) {
+                    // Aqui você pode criar um novo vínculo ou apenas registrar o histórico
+                    \App\Models\Vinculo::create([
+                        'nomeVinculo' => $vinculoData['nomeVinculo'] ?? null,
+                        'descricao' => $vinculoData['descricao'] ?? null,
+                    ]);
+                }
+            }
+        }
+    }
 
     /**
      * Display the specified resource.
@@ -212,6 +299,8 @@ class ServidorController extends Controller
                 'pispasep' => 'nullable|string|max:20',
                 'data_nomeacao' => 'nullable|date',
                 'status' => 'required|boolean',
+                'id_vinculo' => 'nullable|exists:vinculos,id',
+                'id_lotacao' => 'nullable|exists:lotacoes,id',
                 'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
             ]);
 

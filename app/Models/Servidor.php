@@ -26,7 +26,6 @@ class Servidor extends Model
         'estado_civil',
         'telefone',
         'endereco',
-        'formacao',
         'status',
         'tracador',
         'tipo_sanguineo',
@@ -42,8 +41,6 @@ class Servidor extends Model
         'data_nascimento' => 'date',
         'data_nomeacao' => 'date',
         'status' => 'boolean',
-        // 'created_at' => 'datetime',
-        // 'updated_at' => 'datetime'
     ];
      
     // 🔥 MUTATOR para estado_civil - garante valor correto
@@ -86,12 +83,12 @@ class Servidor extends Model
     // Relacionamentos
     public function vinculo()
     {
-        return $this->belongsTo(Vinculo::class, 'id_vinculo', 'idVinculo');
+        return $this->belongsTo(Vinculo::class, 'id_vinculo');
     }
 
     public function lotacao()
     {
-        return $this->belongsTo(Lotacao::class, 'id_lotacao', 'idLotacao');
+        return $this->belongsTo(Lotacao::class, 'id_lotacao');
     }
 
      // Accessor para nome (para compatibilidade)
@@ -200,20 +197,4 @@ class Servidor extends Model
     {
         return $this->hasOne(User::class, 'cpf', 'cpf');
     }
-
-    // Método para verificar se está próximo da aposentadoria (exemplo)
-    //public function verificarProximidadeAposentadoria()
-    // {
-        // $idade = $this->idade;
-        // $tempoServico = $this->tempo_servico;
-
-        // Lógica simplificada para aposentadoria
-        // if ($idade >= 65 || $tempoServico >= 35) {
-           // return 'Elegível para aposentadoria';
-        // } elseif ($idade >= 60 || $tempoServico >= 30) {
-          //  return 'Próximo da aposentadoria';
-        //}
-
-        //return 'Não elegível no momento';
-    //}
 }
