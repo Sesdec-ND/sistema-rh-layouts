@@ -42,7 +42,7 @@ Route::middleware('auth')->group(function () {
         
         // Dashboards
         Route::get('/dashboard', [RHController::class, 'dashboard'])->name('admin.dashboard');
-        Route::get('/colaboradores', [RHController::class, 'colaboradores'])->name('admin.colaborador');
+        // Route::get('/colaboradores', [RHController::class, 'colaboradores'])->name('admin.colaborador');
         // Route::get('/relatorios', [RHController::class, 'relatorios'])->name('admin.relatorios');
         
         // Servidores (CRUD Completo)

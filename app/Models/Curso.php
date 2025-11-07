@@ -17,14 +17,14 @@ class Curso extends Model
         'instituicao',
         'carga_horaria',
         'data_conclusao',
-        'tipo',
-        'certificado',
-        'descricao'
+        'certificado'
     ];
 
-    protected $casts = [
-        'data_conclusao' => 'date'
-    ];
+    public $timestamps = true;
+
+    // protected $casts = [
+        // 'data_conclusao' => 'date'
+    // ];
 
     public function servidor()
     {

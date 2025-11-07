@@ -30,10 +30,6 @@
                         class="aba py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600 whitespace-nowrap">
                         <i class="fas fa-user mr-2"></i>Servidor
                     </button>
-                    <button type="button" onclick="abrirAba('ocorrencias')"
-                        class="aba py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
-                        <i class="fas fa-exclamation-circle mr-2"></i>Ocorrências
-                    </button>
                     <button type="button" onclick="abrirAba('lotacao')"
                         class="aba py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
                         <i class="fas fa-building mr-2"></i>Lotação
@@ -177,7 +173,7 @@
                                     </p>
                                 </div>
 
-                                <!-- Coluna de lotacao e vinculo TESTE -->
+                                <!-- Coluna de lotacao e vinculo -->
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Lotação</label>
                                     <p class="text-gray-900">
@@ -204,33 +200,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Aba Ocorrências -->
-                <div id="aba-ocorrencias" class="aba-conteudo hidden">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Ocorrências</h3>
-                    @if ($servidor->ocorrencias && $servidor->ocorrencias->count() > 0)
-                        <div class="space-y-4">
-                            @foreach ($servidor->ocorrencias as $ocorrencia)
-                                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                    <div class="flex justify-between items-start mb-3">
-                                        <div>
-                                            <h4 class="font-semibold text-gray-800">
-                                                {{ $ocorrencia->tipo ?? 'Ocorrência' }}</h4>
-                                            <p class="text-sm text-gray-600">
-                                                {{ \Carbon\Carbon::parse($ocorrencia->data)->format('d/m/Y') }}</p>
-                                        </div>
-                                    </div>
-                                    <p class="text-gray-700">{{ $ocorrencia->descricao ?? 'Sem descrição' }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="text-center py-8 text-gray-500">
-                            <i class="fas fa-exclamation-circle text-3xl mb-3"></i>
-                            <p>Nenhuma ocorrência registrada</p>
-                        </div>
-                    @endif
                 </div>
 
                 <!-- Aba Lotação -->
@@ -342,23 +311,27 @@
                 <!-- Aba Pagamento -->
                 <div id="aba-pagamento" class="aba-conteudo hidden">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Histórico de Pagamento</h3>
+
                     @if ($servidor->historicosPagamento && $servidor->historicosPagamento->count() > 0)
                         <div class="space-y-4">
                             @foreach ($servidor->historicosPagamento as $pagamento)
-                                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <div class="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
                                     <div class="flex justify-between items-start mb-3">
                                         <div>
                                             <h4 class="font-semibold text-gray-800">
-                                                {{ \Carbon\Carbon::parse($pagamento->mes_ano)->format('m/Y') }}</h4>
-                                            <p class="text-sm text-gray-600">{{ $pagamento->status }}</p>
+                                                {{ \Carbon\Carbon::parse($pagamento->mes_ano)->format('m/Y') }}
+                                            </h4>
+                                            <p class="text-sm text-gray-600">
+                                                {{ \Carbon\Carbon::parse($pagamento->mes_ano)->translatedFormat('F Y') }}
+                                            </p>
                                         </div>
                                         <span
-                                            class="px-2 py-1 rounded text-xs font-semibold 
-                                    {{ $pagamento->status == 'Pago'
-                                        ? 'bg-green-100 text-green-800'
-                                        : ($pagamento->status == 'Pendente'
-                                            ? 'bg-yellow-100 text-yellow-800'
-                                            : 'bg-red-100 text-red-800') }}">
+                                            class="px-3 py-1 rounded-full text-sm font-semibold 
+                            {{ $pagamento->status == 'Pago'
+                                ? 'bg-green-100 text-green-800'
+                                : ($pagamento->status == 'Pendente'
+                                    ? 'bg-yellow-100 text-yellow-800'
+                                    : 'bg-red-100 text-red-800') }}">
                                             {{ $pagamento->status }}
                                         </span>
                                     </div>
@@ -369,7 +342,7 @@
                             @endforeach
                         </div>
                     @else
-                        <div class="text-center py-8 text-gray-500">
+                        <div class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
                             <i class="fas fa-money-bill-wave text-3xl mb-3"></i>
                             <p>Nenhum pagamento registrado</p>
                         </div>

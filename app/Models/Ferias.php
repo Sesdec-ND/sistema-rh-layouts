@@ -20,10 +20,12 @@ class Ferias extends Model
         'observacoes'
     ];
 
-    protected $casts = [
-        'data_inicio' => 'date',
-        'data_fim' => 'date'
-    ];
+    // protected $casts = [
+        // 'data_inicio' => 'date',
+        // 'data_fim' => 'date'
+    // ];
+
+    public $timestamps = true;
 
     public function servidor()
     {

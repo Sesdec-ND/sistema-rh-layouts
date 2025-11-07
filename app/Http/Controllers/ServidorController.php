@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Servidor;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
@@ -25,11 +26,6 @@ class ServidorController extends Controller
     {
         $perfis = \App\Models\Perfil::all();
         return view('servidor.colaboradores.create', compact('perfis'));
-        // Se você quiser uma página separada para criar
-        // return view('servidor.colaboradores.create');
-
-        // Ou se está usando modal, redirecione para index
-        // return redirect()->route('servidores.index');
     }
 
     /**
@@ -40,6 +36,7 @@ class ServidorController extends Controller
         \Log::info('Dados recebidos no request:', $request->all());
 
         $validated = $request->validate([
+            // Dados Pessoais
             'matricula' => 'required|string|max:20|unique:servidores,matricula',
             'nome_completo' => 'required|string|max:255',
             'email' => 'required|email|unique:servidores,email',
@@ -50,20 +47,52 @@ class ServidorController extends Controller
             'estado_civil' => 'nullable|string|max:50',
             'telefone' => 'nullable|string|max:20',
             'endereco' => 'nullable|string|max:255',
-            'raca_cor' => 'nullable|string|max:50',
-            'tipo_sanguineo' => 'nullable|string|max:5',
-            'pispasep' => 'nullable|string|max:20', // CORRIGIDO: usar apenas pispasep
+            'raca_cor' => 'nullable|in:Branca,Preta,Parda,Amarela',
+            'tipo_sanguineo' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+            'pispasep' => 'nullable|string|max:20',
             'data_nomeacao' => 'nullable|date',
             'status' => 'required|boolean',
             'id_vinculo' => 'nullable|exists:vinculos,id',
             'id_lotacao' => 'nullable|exists:lotacoes,id',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+
+            // Validações para arrays dinâmicos
+            'dependentes' => 'nullable|array',
+            'dependentes.*.nome' => 'required|string|max:255',
+            'dependentes.*.parentesco' => 'nullable|string|max:100',
+            'dependentes.*.data_nascimento' => 'nullable|date',
+            'dependentes.*.cpf' => 'nullable|string|max:14',
+
+            'historicos_pagamento' => 'nullable|array',
+            'historicos_pagamento.*.mes_ano' => 'required|date',
+            'historicos_pagamento.*.valor' => 'required|numeric|min:0',
+            'historicos_pagamento.*.status' => 'required|in:Pendente,Pago,Cancelado',
+            'historicos_pagamento.*.observacoes' => 'nullable|string|max:500',
+
+            'ferias' => 'nullable|array',
+            'ferias.*.data_inicio' => 'required|date',
+            'ferias.*.data_fim' => 'required|date',
+            'ferias.*.dias' => 'nullable|integer|min:1',
+            'ferias.*.status' => 'nullable|string|max:50',
+            'ferias.*.observacoes' => 'nullable|string',
+
+            'formacoes' => 'nullable|array',
+            'formacoes.*.curso' => 'required|string|max:255',
+            'formacoes.*.instituicao' => 'required|string|max:255',
+            'formacoes.*.nivel' => 'nullable|string|max:100',
+            'formacoes.*.ano_conclusao' => 'nullable|integer',
+
+            'cursos' => 'nullable|array',
+            'cursos.*.nome' => 'required|string|max:255',
+            'cursos.*.instituicao' => 'required|string|max:255',
+            'cursos.*.carga_horaria' => 'nullable|integer|min:1',
+            'cursos.*.data_conclusao' => 'nullable|date',
         ]);
 
         DB::beginTransaction();
 
         try {
-            // 🔥 MAPEAMENTO CORRIGIDO - nomes dos campos devem bater com o banco
+            // Dados do servidor
             $servidorData = [
                 'matricula' => $validated['matricula'],
                 'nome_completo' => $validated['nome_completo'],
@@ -80,7 +109,7 @@ class ServidorController extends Controller
                 'pispasep' => $validated['pispasep'] ?? null,
                 'data_nomeacao' => $validated['data_nomeacao'] ?? null,
                 'status' => $validated['status'],
-                'id_vinculo' => $validated['id_inculo'] ?? null,
+                'id_vinculo' => $validated['id_vinculo'] ?? null,
                 'id_lotacao' => $validated['id_lotacao'] ?? null,
             ];
 
@@ -100,7 +129,7 @@ class ServidorController extends Controller
 
             DB::commit();
 
-            return redirect()->route('servidores.index')
+            return redirect()->route('servidores.show', $servidor->id)
                 ->with('success', 'Servidor cadastrado com sucesso!');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -142,35 +171,21 @@ class ServidorController extends Controller
             }
         }
 
-        // 🔥 CORREÇÃO: Processar Ocorrências com campo 'tipo_ocorrencia'
-        if ($request->has('ocorrencias')) {
-            foreach ($request->ocorrencias as $ocorrenciaData) {
-                if (!empty($ocorrenciaData['descricao'])) {
-                    $servidor->ocorrencias()->create([
-                        'tipo_ocorrencia' => $ocorrenciaData['tipo_ocorrencia'] ?? 'INREG', // ✅ CAMPO OBRIGATÓRIO
-                        'descricao' => $ocorrenciaData['descricao'] ?? null,
-                        'data_ocorrencia' => $ocorrenciaData['data_ocorrencia'] ?? now(),
-                        'status' => $ocorrenciaData['status'] ?? 'Ativa',
-                    ]);
-                }
-            }
-        }
-
-        // 🔥 NOVO: Processar Histórico de Pagamento
+        // Processar Histórico de Pagamento
         if ($request->has('historicos_pagamento')) {
             foreach ($request->historicos_pagamento as $pagamentoData) {
-                if (!empty($pagamentoData['mes_ano']) || !empty($pagamentoData['valor'])) {
+                if (!empty($pagamentoData['mes_ano']) && !empty($pagamentoData['valor'])) {
                     $servidor->historicosPagamento()->create([
-                        'mes_ano' => $pagamentoData['mes_ano'] ?? null,
-                        'valor' => $pagamentoData['valor'] ?? 0,
-                        'status' => $pagamentoData['status'] ?? 'Pendente',
-                        'data_pagamento' => $pagamentoData['data_pagamento'] ?? null,
+                        'mes_ano' => $pagamentoData['mes_ano'],
+                        'valor' => $pagamentoData['valor'],
+                        'status' => $pagamentoData['status'],
+                        'observacoes' => $pagamentoData['observacoes'] ?? null
                     ]);
                 }
             }
         }
 
-        // 🔥 NOVO: Processar Férias
+        // Processar Férias
         if ($request->has('ferias')) {
             foreach ($request->ferias as $feriasData) {
                 if (!empty($feriasData['data_inicio']) || !empty($feriasData['data_fim'])) {
@@ -185,7 +200,7 @@ class ServidorController extends Controller
             }
         }
 
-        // 🔥 NOVO: Processar Cursos
+        // Processar Cursos
         if ($request->has('cursos')) {
             foreach ($request->cursos as $cursoData) {
                 if (!empty($cursoData['nome']) || !empty($cursoData['instituicao'])) {
@@ -200,11 +215,10 @@ class ServidorController extends Controller
             }
         }
 
-        // 🔥 NOVO: Processar Lotação (se for dinâmica)
+        // Processar Lotação (se for dinâmica)
         if ($request->has('lotacoes')) {
             foreach ($request->lotacoes as $lotacaoData) {
                 if (!empty($lotacaoData['nomeLotacao']) || !empty($lotacaoData['departamento'])) {
-                    // Aqui você pode criar uma nova lotação ou apenas registrar o histórico
                     \App\Models\Lotacao::create([
                         'nomeLotacao' => $lotacaoData['nomeLotacao'] ?? null,
                         'sigla' => $lotacaoData['sigla'] ?? null,
@@ -216,11 +230,10 @@ class ServidorController extends Controller
             }
         }
 
-        // 🔥 NOVO: Processar Vínculo (se for dinâmico)
+        // Processar Vínculo (se for dinâmico)
         if ($request->has('vinculos')) {
             foreach ($request->vinculos as $vinculoData) {
                 if (!empty($vinculoData['nomeVinculo']) || !empty($vinculoData['descricao'])) {
-                    // Aqui você pode criar um novo vínculo ou apenas registrar o histórico
                     \App\Models\Vinculo::create([
                         'nomeVinculo' => $vinculoData['nomeVinculo'] ?? null,
                         'descricao' => $vinculoData['descricao'] ?? null,
@@ -236,7 +249,6 @@ class ServidorController extends Controller
     public function show($id)
     {
         $servidor = Servidor::with([
-            'ocorrencias',
             'lotacao',
             'vinculo',
             'dependentes',
@@ -247,14 +259,6 @@ class ServidorController extends Controller
         ])->findOrFail($id);
 
         return view('servidor.colaboradores.show', compact('servidor'));
-
-        try {
-            $servidor = Servidor::findOrFail($id);
-            return view('servidor.colaboradores.show', compact('servidor'));
-        } catch (\Exception $e) {
-            return redirect()->route('servidores.index')
-                ->with('error', 'Servidor não encontrado.');
-        }
     }
 
     /**
@@ -265,7 +269,6 @@ class ServidorController extends Controller
         try {
             $servidor = Servidor::findOrFail($id);
 
-            // Se você tiver lotações e vínculos
             $lotacoes = \App\Models\Lotacao::all() ?? [];
             $vinculos = \App\Models\Vinculo::all() ?? [];
 
@@ -281,61 +284,81 @@ class ServidorController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Encontrar o servidor
+        $servidor = Servidor::findOrFail($id);
+
+        // Validação dos dados
+        $validatedData = $request->validate([
+            // Dados Pessoais
+            'matricula' => 'required|string|max:50|unique:servidores,matricula,' . $id,
+            'nome_completo' => 'required|string|max:255',
+            'cpf' => 'required|string|max:14|unique:servidores,cpf,' . $id,
+            'rg' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
+            'data_nascimento' => 'required|date',
+            'genero' => 'required|in:Masculino,Feminino',
+            'estado_civil' => 'nullable|in:Solteiro,Casado,Divorciado,Viúvo',
+            'telefone' => 'nullable|string|max:20',
+            'endereco' => 'nullable|string|max:500',
+            'raca_cor' => 'nullable|in:Branca,Preta,Parda,Amarela',
+            'tipo_sanguineo' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+
+            // Dados Funcionais
+            'pispasep' => 'nullable|string|max:50',
+            'data_nomeacao' => 'nullable|date',
+            'status' => 'required|boolean',
+            'id_vinculo' => 'nullable|exists:vinculos,id',
+            'id_lotacao' => 'nullable|exists:lotacoes,id',
+        ]);
+
         try {
-            $servidor = Servidor::findOrFail($id);
-
-            $validated = $request->validate([
-                'matricula' => 'required|string|max:20|unique:servidores,matricula,' . $id,
-                'nome_completo' => 'required|string|max:255',
-                'email' => 'required|email|unique:servidores,email,' . $id,
-                'cpf' => 'required|string|max:14|unique:servidores,cpf,' . $id,
-                'rg' => 'required|string|max:20',
-                'data_nascimento' => 'required|date',
-                'genero' => 'required|in:Masculino,Feminino',
-                'estado_civil' => 'nullable|string|max:50',
-                'telefone' => 'nullable|string|max:20',
-                'endereco' => 'nullable|string|max:255',
-                'tipo_sanguineo' => 'nullable|string|max:5',
-                'pispasep' => 'nullable|string|max:20',
-                'data_nomeacao' => 'nullable|date',
-                'status' => 'required|boolean',
-                'id_vinculo' => 'nullable|exists:vinculos,id',
-                'id_lotacao' => 'nullable|exists:lotacoes,id',
-                'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-            ]);
-
             DB::beginTransaction();
 
-            // Upload da nova foto se existir
+            // Processar upload da foto se fornecida
             if ($request->hasFile('foto')) {
                 // Deletar foto antiga se existir
-                if ($servidor->foto && Storage::disk('public')->exists($servidor->foto)) {
-                    Storage::disk('public')->delete($servidor->foto);
+                if ($servidor->foto && Storage::exists($servidor->foto)) {
+                    Storage::delete($servidor->foto);
                 }
 
-                $fotoPath = $request->file('foto')->store('servidores/fotos', 'public');
-                $validated['foto'] = $fotoPath;
+                // Salvar nova foto
+                $fotoPath = $request->file('foto')->store('fotos_servidores', 'public');
+                $validatedData['foto'] = $fotoPath;
+            } else {
+                // Manter foto atual se não for enviada nova
+                unset($validatedData['foto']);
             }
 
-            $servidor->update($validated);
+            // Converter dados para os formatos corretos
+            $validatedData['data_nascimento'] = !empty($validatedData['data_nascimento'])
+                ? Carbon::parse($validatedData['data_nascimento'])
+                : null;
+
+            $validatedData['data_nomeacao'] = !empty($validatedData['data_nomeacao'])
+                ? Carbon::parse($validatedData['data_nomeacao'])
+                : null;
+
+            // Atualizar o servidor
+            $servidor->update($validatedData);
 
             DB::commit();
 
-            return redirect()->route('servidores.index')
+            return redirect()
+                ->route('servidores.show', $servidor->id)
                 ->with('success', 'Servidor atualizado com sucesso!');
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return redirect()->back()
-                ->with('error', 'Erro ao atualizar servidor: ' . $e->getMessage())
-                ->withInput();
+            return back()
+                ->withInput()
+                ->with('error', 'Erro ao atualizar servidor: ' . $e->getMessage());
         }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-
     public function destroy($id)
     {
         try {
@@ -351,6 +374,7 @@ class ServidorController extends Controller
                 ->with('error', 'Erro ao excluir servidor: ' . $e->getMessage());
         }
     }
+
     public function lixeira()
     {
         $servidores = Servidor::onlyTrashed()->with('perfil')->paginate(10);

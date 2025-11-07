@@ -89,7 +89,7 @@
             </a>
 
             <!-- Colaboradores -->
-            <a href="<?php echo e(route('admin.colaborador')); ?>"
+            <a href="<?php echo e(route('servidores.index')); ?>"
                 class="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-700 transition duration-200 <?php echo e(request()->routeIs('rh.colaboradores') ? 'bg-blue-700' : ''); ?>">
                 <i class="fas fa-users w-6 text-center"></i>
                 <span id="nav-colaboradores">Colaboradores</span>
@@ -266,23 +266,7 @@
                 </div>
             <?php endif; ?>
 
-            <?php if($errors->any()): ?>
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                    <div class="flex items-center">
-                        <div class="bg-red-100 p-2 rounded-full mr-3">
-                            <i class="fas fa-exclamation-triangle text-red-600"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-red-800 font-semibold">Por favor, corrija os seguintes erros:</h3>
-                            <ul class="text-red-700 text-sm list-disc list-inside mt-1">
-                                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <li><?php echo e($error); ?></li>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            <?php endif; ?>
+            
 
             <!-- Page Content -->
             <?php echo $__env->yieldContent('content'); ?>

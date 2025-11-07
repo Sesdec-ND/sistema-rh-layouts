@@ -173,10 +173,10 @@
                             class="aba py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600 whitespace-nowrap">
                             <i class="fas fa-user mr-2"></i>Servidor
                         </button>
-                        <button type="button" onclick="abrirAba('ocorrencias')"
+                        {{-- <button type="button" onclick="abrirAba('ocorrencias')"
                             class="aba py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
                             <i class="fas fa-exclamation-circle mr-2"></i>Ocorrências
-                        </button>
+                        </button> --}}
                         <button type="button" onclick="abrirAba('lotacao')"
                             class="aba py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
                             <i class="fas fa-building mr-2"></i>Lotação
@@ -356,7 +356,7 @@
                     </div>
 
                     <!-- Aba Ocorrências -->
-                    <div id="aba-ocorrencias" class="aba-conteudo hidden">
+                    {{-- <div id="aba-ocorrencias" class="aba-conteudo hidden">
                         <div class="flex justify-between items-center mb-4">
                             <h4 class="text-lg font-semibold text-gray-800">Ocorrências</h4>
                             <button type="button" onclick="adicionarOcorrencia()"
@@ -367,7 +367,7 @@
                         <div id="ocorrencias-container" class="space-y-4">
                             <!-- Ocorrências serão adicionadas aqui -->
                         </div>
-                    </div>
+                    </div> --}}
 
                     <!-- Aba Lotação -->
                     <div id="aba-lotacao" class="aba-conteudo hidden">
@@ -531,7 +531,7 @@
 @push('scripts')
     <script>
         // Contadores para campos dinâmicos
-        let ocorrenciaCount = 0;
+        // let ocorrenciaCount = 0;
         let dependenteCount = 0;
         let pagamentoCount = 0;
         let feriasCount = 0;
@@ -597,45 +597,45 @@
         // =============================================
 
         // Ocorrências
-        function adicionarOcorrencia() {
-            ocorrenciaCount++;
-            const html = `
-        <div class="ocorrencia-item border border-gray-200 rounded-lg p-4 bg-gray-50">
-            <div class="flex justify-between items-center mb-3">
-                <h5 class="font-semibold text-gray-800">Ocorrência ${ocorrenciaCount}</h5>
-                <button type="button" onclick="removerOcorrencia(this)" class="text-red-600 hover:text-red-800">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Data</label>
-                    <input type="date" name="ocorrencias[${ocorrenciaCount-1}][data]" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                    <select name="ocorrencias[${ocorrenciaCount-1}][tipo]" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                        <option value="">Selecione</option>
-                        <option value="Advertência">Advertência</option>
-                        <option value="Suspensão">Suspensão</option>
-                        <option value="Elogio">Elogio</option>
-                        <option value="Outros">Outros</option>
-                    </select>
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
-                    <textarea name="ocorrencias[${ocorrenciaCount-1}][descricao]" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
-                </div>
-            </div>
-        </div>
-    `;
-            document.getElementById('ocorrencias-container').insertAdjacentHTML('beforeend', html);
-        }
+    //     function adicionarOcorrencia() {
+    //         ocorrenciaCount++;
+    //         const html = `
+    //     <div class="ocorrencia-item border border-gray-200 rounded-lg p-4 bg-gray-50">
+    //         <div class="flex justify-between items-center mb-3">
+    //             <h5 class="font-semibold text-gray-800">Ocorrência ${ocorrenciaCount}</h5>
+    //             <button type="button" onclick="removerOcorrencia(this)" class="text-red-600 hover:text-red-800">
+    //                 <i class="fas fa-trash"></i>
+    //             </button>
+    //         </div>
+    //         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    //             <div>
+    //                 <label class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+    //                 <input type="date" name="ocorrencias[${ocorrenciaCount-1}][data]" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+    //             </div>
+    //             <div>
+    //                 <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+    //                 <select name="ocorrencias[${ocorrenciaCount-1}][tipo]" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+    //                     <option value="">Selecione</option>
+    //                     <option value="Advertência">Advertência</option>
+    //                     <option value="Suspensão">Suspensão</option>
+    //                     <option value="Elogio">Elogio</option>
+    //                     <option value="Outros">Outros</option>
+    //                 </select>
+    //             </div>
+    //             <div class="md:col-span-2">
+    //                 <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+    //                 <textarea name="ocorrencias[${ocorrenciaCount-1}][descricao]" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
+    //             </div>
+    //         </div>
+    //     </div>
+    // `;
+    //         document.getElementById('ocorrencias-container').insertAdjacentHTML('beforeend', html);
+    //     }
 
-        function removerOcorrencia(button) {
-            button.closest('.ocorrencia-item').remove();
-            atualizarContadores('.ocorrencia-item', 'Ocorrência');
-        }
+        // function removerOcorrencia(button) {
+        //     button.closest('.ocorrencia-item').remove();
+        //     atualizarContadores('.ocorrencia-item', 'Ocorrência');
+        // }
 
         // Dependentes
         function adicionarDependente() {

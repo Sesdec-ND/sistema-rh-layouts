@@ -18,8 +18,9 @@ class Ocorrencia extends Model
         'descricao',
         'data_ocorrencia',
         'status',
-        'observacoes'
     ];
+
+    public $timestamps = true;
 
     protected $casts = [
         'data_ocorrencia' => 'date',

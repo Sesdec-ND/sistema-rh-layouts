@@ -18,8 +18,9 @@ class Formacao extends Model
         'nivel',
         'ano_conclusao',
         'duracao',
-        'descricao'
     ];
+
+    public $timestamps = true;
 
     public function servidor()
     {

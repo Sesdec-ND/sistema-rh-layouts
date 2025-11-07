@@ -23,6 +23,8 @@ class Dependente extends Model
         'data_nascimento' => 'date',
     ];
 
+    public $timestamps = true;
+
     public function servidor()
     {
         return $this->belongsTo(Servidor::class, 'id_servidor');

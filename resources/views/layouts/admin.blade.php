@@ -89,7 +89,7 @@
             </a>
 
             <!-- Colaboradores -->
-            <a href="{{ route('admin.colaborador') }}"
+            <a href="{{ route('servidores.index') }}"
                 class="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-700 transition duration-200 {{ request()->routeIs('rh.colaboradores') ? 'bg-blue-700' : '' }}">
                 <i class="fas fa-users w-6 text-center"></i>
                 <span id="nav-colaboradores">Colaboradores</span>
@@ -266,7 +266,7 @@
                 </div>
             @endif
 
-            @if ($errors->any())
+            {{-- @if ($errors->any())
                 <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                     <div class="flex items-center">
                         <div class="bg-red-100 p-2 rounded-full mr-3">
@@ -282,7 +282,7 @@
                         </div>
                     </div>
                 </div>
-            @endif
+            @endif --}}
 
             <!-- Page Content -->
             @yield('content')

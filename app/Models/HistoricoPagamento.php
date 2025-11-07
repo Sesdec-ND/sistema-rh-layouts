@@ -26,6 +26,8 @@ class HistoricoPagamento extends Model
         'valor' => 'decimal:2'
     ];
 
+    public $timestamps = true;
+
     public function servidor()
     {
         return $this->belongsTo(Servidor::class, 'id_servidor');
