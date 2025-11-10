@@ -974,4 +974,115 @@ class ServidorController extends Controller
                 ->with('error', 'Erro ao atualizar lotação.');
         }
     }
+
+    // ========== MÉTODOS DE LIXEIRA (SOFT DELETE) ==========
+    
+    /**
+     * Lista servidores deletados (lixeira)
+     */
+    public function lixeira()
+    {
+        try {
+            $servidores = Servidor::onlyTrashed()
+                ->with(['vinculo', 'lotacao', 'user.perfil'])
+                ->orderBy('deleted_at', 'desc')
+                ->paginate(15);
+            
+            return view('servidor.colaboradores.lixeira', compact('servidores'));
+        } catch (\Exception $e) {
+            Log::error('Erro ao listar servidores da lixeira: ' . $e->getMessage());
+            return redirect()->route('admin.colaborador')
+                ->with('error', 'Erro ao carregar lixeira.');
+        }
+    }
+
+    /**
+     * Restaura um servidor deletado
+     */
+    public function restore($id)
+    {
+        try {
+            $servidor = Servidor::onlyTrashed()->findOrFail($id);
+            $servidor->restore();
+            
+            Log::info('Servidor restaurado: ' . $id);
+            
+            return redirect()->route('servidores.lixeira')
+                ->with('success', 'Servidor restaurado com sucesso!');
+        } catch (\Exception $e) {
+            Log::error('Erro ao restaurar servidor: ' . $e->getMessage());
+            return redirect()->route('servidores.lixeira')
+                ->with('error', 'Erro ao restaurar servidor: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove permanentemente um servidor (force delete)
+     */
+    public function forceDelete($id)
+    {
+        try {
+            $servidor = Servidor::onlyTrashed()->findOrFail($id);
+            
+            // Deletar foto se existir
+            if ($servidor->foto) {
+                Storage::disk('public')->delete($servidor->foto);
+            }
+            
+            // Deletar relacionamentos
+            $servidor->dependentes()->delete();
+            $servidor->ocorrencias()->delete();
+            $servidor->historicoPagamentos()->delete();
+            $servidor->ferias()->delete();
+            
+            // Force delete do servidor
+            $servidor->forceDelete();
+            
+            Log::info('Servidor removido permanentemente: ' . $id);
+            
+            return redirect()->route('servidores.lixeira')
+                ->with('success', 'Servidor removido permanentemente!');
+        } catch (\Exception $e) {
+            Log::error('Erro ao remover servidor permanentemente: ' . $e->getMessage());
+            return redirect()->route('servidores.lixeira')
+                ->with('error', 'Erro ao remover servidor: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Esvazia a lixeira (remove permanentemente todos os servidores deletados)
+     */
+    public function emptyTrash()
+    {
+        try {
+            $servidores = Servidor::onlyTrashed()->get();
+            $count = 0;
+            
+            foreach ($servidores as $servidor) {
+                // Deletar foto se existir
+                if ($servidor->foto) {
+                    Storage::disk('public')->delete($servidor->foto);
+                }
+                
+                // Deletar relacionamentos
+                $servidor->dependentes()->delete();
+                $servidor->ocorrencias()->delete();
+                $servidor->historicoPagamentos()->delete();
+                $servidor->ferias()->delete();
+                
+                // Force delete do servidor
+                $servidor->forceDelete();
+                $count++;
+            }
+            
+            Log::info("Lixeira esvaziada. {$count} servidor(es) removido(s) permanentemente.");
+            
+            return redirect()->route('servidores.lixeira')
+                ->with('success', "Lixeira esvaziada! {$count} servidor(es) removido(s) permanentemente.");
+        } catch (\Exception $e) {
+            Log::error('Erro ao esvaziar lixeira: ' . $e->getMessage());
+            return redirect()->route('servidores.lixeira')
+                ->with('error', 'Erro ao esvaziar lixeira: ' . $e->getMessage());
+        }
+    }
 }

@@ -183,8 +183,8 @@ class RelatoriosController extends Controller
                 return [
                     'nome' => $servidor->nome_completo,
                     'matricula' => $servidor->matricula,
-                    'lotacao' => $servidor->lotacao->nomeLotacao ?? 'N/A',
-                    'vinculo' => $servidor->vinculo->nomeVinculo ?? 'N/A',
+                    'lotacao' => $servidor->lotacao->nome_lotacao ?? 'N/A',
+                    'vinculo' => $servidor->vinculo->nome_vinculo ?? 'N/A',
                     'salario_base' => $salarioBase,
                     'beneficios' => $beneficios,
                     'descontos' => $descontos,
@@ -225,7 +225,7 @@ class RelatoriosController extends Controller
             ->groupBy('id_lotacao')
             ->map(function ($group, $key) {
                 return [
-                    'lotacao' => $group->first()->lotacao->nomeLotacao ?? 'Sem Lotação',
+                    'lotacao' => $group->first()->lotacao->nome_lotacao ?? 'Sem Lotação',
                     'total' => $group->count()
                 ];
             })
@@ -240,7 +240,7 @@ class RelatoriosController extends Controller
             ->groupBy('id_vinculo')
             ->map(function ($group, $key) {
                 return [
-                    'vinculo' => $group->first()->vinculo->nomeVinculo ?? 'Sem Vínculo',
+                    'vinculo' => $group->first()->vinculo->nome_vinculo ?? 'Sem Vínculo',
                     'total' => $group->count()
                 ];
             })
@@ -293,12 +293,12 @@ class RelatoriosController extends Controller
 
         if ($request->filled('lotacao_id')) {
             $query->where('id_lotacao', $request->lotacao_id);
-            $filtros['lotacao'] = Lotacao::find($request->lotacao_id)->nomeLotacao ?? 'N/A';
+            $filtros['lotacao'] = Lotacao::find($request->lotacao_id)->nome_lotacao ?? 'N/A';
         }
 
         if ($request->filled('vinculo_id')) {
             $query->where('id_vinculo', $request->vinculo_id);
-            $filtros['vinculo'] = Vinculo::find($request->vinculo_id)->nomeVinculo ?? 'N/A';
+            $filtros['vinculo'] = Vinculo::find($request->vinculo_id)->nome_vinculo ?? 'N/A';
         }
 
         if ($request->filled('genero')) {

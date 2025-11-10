@@ -99,10 +99,10 @@
                                 <td class="px-4 py-3 text-sm text-gray-900">{{ $colaborador->nome_completo ?? 'N/A' }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-900">{{ $colaborador->matricula ?? 'N/A' }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-900">
-                                    {{ $colaborador->lotacao->nomeLotacao ?? 'N/A' }}
+                                    {{ $colaborador->lotacao->nome_lotacao ?? 'N/A' }}
                                 </td>
                                 <td class="px-4 py-3 text-sm text-gray-900">
-                                    {{ $colaborador->vinculo->nomeVinculo ?? 'N/A' }}
+                                    {{ $colaborador->vinculo->nome_vinculo ?? 'N/A' }}
                                 </td>
                                 <td class="px-4 py-3">
                                     <span

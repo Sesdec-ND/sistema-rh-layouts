@@ -96,7 +96,7 @@
                         </div>
                         <div class="ml-3">
                             <p class="font-semibold text-gray-800">{{ $contratacao->nome_completo }}</p>
-                            <p class="text-sm text-gray-600">{{ $contratacao->lotacao->nomeLotacao ?? 'N/A' }}</p>
+                            <p class="text-sm text-gray-600">{{ $contratacao->lotacao->nome_lotacao ?? 'N/A' }}</p>
                         </div>
                     </div>
                     <span class="text-sm text-gray-500">{{ $contratacao->created_at->format('d/m/Y') }}</span>

@@ -43,6 +43,18 @@
             </div>
         @endif
 
+        <!-- Mensagens de Erro de Validação -->
+        @if ($errors->any())
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Erros encontrados:</strong>
+                <ul class="list-disc list-inside mt-2">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <!-- Tabela de Servidores -->
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
             <div class="overflow-x-auto">
@@ -101,10 +113,10 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex space-x-2">
                                         <!-- Botão Visualizar -->
-                                        <a href="{{ route('servidores.show', $servidor->id) }}" {{-- class="bg-green-100 hover:bg-green-200 text-green-600 p-2 rounded-lg transition duration-200"
+                                        <a href="{{ route('servidores.show', $servidor->matricula) }}" {{-- class="bg-green-100 hover:bg-green-200 text-green-600 p-2 rounded-lg transition duration-200"
                                             title="Visualizar">
                                             <i class="fas fa-eye"></i> --}}
-                                            <button onclick="abrirModalServidor({{ $servidor->id }})"
+                                            <button onclick="abrirModalServidor({{ $servidor->matricula }})"
                                             class="bg-green-100 hover:bg-green-200 text-green-600 p-2 rounded-lg transition duration-200">
                                             <i class="fas fa-eye"></i>
                                             </button>
@@ -112,14 +124,14 @@
 
 
                                         <!-- Botão Editar -->
-                                        <a href="{{ route('servidores.edit', $servidor->id) }}"
+                                        <a href="{{ route('servidores.edit', $servidor->matricula) }}"
                                             class="bg-blue-100 hover:bg-blue-200 text-blue-600 p-2 rounded-lg transition duration-200"
                                             title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
 
                                         <!-- Botão Deletar -->
-                                        <form action="{{ route('servidores.destroy', $servidor->id) }}" method="POST"
+                                        <form action="{{ route('servidores.destroy', $servidor->matricula) }}" method="POST"
                                             class="inline">
                                             @csrf
                                             @method('DELETE')
@@ -286,10 +298,11 @@
                                         <select name="estado_civil"
                                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                                             <option value="">Selecione</option>
-                                            <option value="Solteiro">Solteiro</option>
-                                            <option value="Casado">Casado</option>
-                                            <option value="Divorciado">Divorciado</option>
-                                            <option value="Viúvo">Viúvo</option>
+                                            <option value="Solteiro(a)">Solteiro(a)</option>
+                                            <option value="Casado(a)">Casado(a)</option>
+                                            <option value="Divorciado(a)">Divorciado(a)</option>
+                                            <option value="Viúvo(a)">Viúvo(a)</option>
+                                            <option value="União Estável">União Estável</option>
                                         </select>
                                     </div>
                                     <div>
@@ -312,6 +325,7 @@
                                             <option value="Preta">Preta</option>
                                             <option value="Parda">Parda</option>
                                             <option value="Amarela">Amarela</option>
+                                            <option value="Indígena">Indígena</option>
                                         </select>
                                     </div>
                                     <div>
@@ -400,26 +414,26 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Vínculo</label>
-                                <select name="idVinculo"
+                                <select name="id_vinculo"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                                     <option value="">Selecione um vínculo...</option>
                                     @foreach (\App\Models\Vinculo::all() as $vinculo)
-                                        <option value="{{ $vinculo->idVinculo }}"
-                                            {{ old('idVinculo') == $vinculo->idVinculo ? 'selected' : '' }}>
-                                            {{ $vinculo->nomeVinculo }}
+                                        <option value="{{ $vinculo->id_vinculo }}"
+                                            {{ old('id_vinculo') == $vinculo->id_vinculo ? 'selected' : '' }}>
+                                            {{ $vinculo->nome_vinculo }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Lotação</label>
-                                <select name="idLotacao"
+                                <select name="id_lotacao"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                                     <option value="">Selecione uma lotação...</option>
                                     @foreach (\App\Models\Lotacao::where('status', true)->get() as $lotacao)
-                                        <option value="{{ $lotacao->idLotacao }}"
-                                            {{ old('idLotacao') == $lotacao->idLotacao ? 'selected' : '' }}>
-                                            {{ $lotacao->nomeLotacao }} ({{ $lotacao->sigla }})
+                                        <option value="{{ $lotacao->id_lotacao }}"
+                                            {{ old('id_lotacao') == $lotacao->id_lotacao ? 'selected' : '' }}>
+                                            {{ $lotacao->nome_lotacao }} ({{ $lotacao->sigla }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -551,7 +565,16 @@
         function fecharModal() {
             document.getElementById('modalNovoServidor').classList.add('hidden');
             document.body.classList.remove('overflow-hidden');
+            // Limpar o formulário
+            document.getElementById('formNovoServidor').reset();
         }
+
+        // Fechar modal quando houver mensagem de sucesso
+        @if(session('success'))
+            document.addEventListener('DOMContentLoaded', function() {
+                fecharModal();
+            });
+        @endif
 
         function abrirAba(abaNome) {
             // Esconde todas as abas

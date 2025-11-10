@@ -1,558 +1,438 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
-@section('title', 'Cadastrar Novo Servidor')
+@section('title', 'Servidores')
 
 @section('content')
-    <div class="space-y-6">
-        <!-- Header -->
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800">Cadastrar Novo Servidor</h1>
-        </div>
-
-        <!-- Formulário com Abas -->
-        <div class="bg-white rounded-xl shadow-md">
-            <!-- Navegação por Abas -->
-            <div class="border-b border-gray-200">
-                <nav class="-mb-px flex space-x-8 overflow-x-auto">
-                    <button type="button" onclick="abrirAba('pessoais')"
-                        class="aba-nav py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600 whitespace-nowrap">
-                        Dados Pessoais
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-users"></i>
+                        Gerenciamento de Servidores
+                    </h5>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createServidorModal">
+                        <i class="fas fa-user-plus"></i>
+                        Novo Servidor
                     </button>
-                    <button type="button" onclick="abrirAba('funcionais')"
-                        class="aba-nav py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap">
-                        Dados Funcionais
-                    </button>
-                    <button type="button" onclick="abrirAba('dependentes')"
-                        class="aba-nav py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap">
-                        Dependentes
-                    </button>
-                    <button type="button" onclick="abrirAba('pagamentos')"
-                        class="aba-nav py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap">
-                        Pagamentos
-                    </button>
-                </nav>
+                </div>
+                <div class="card-body">
+                    <!-- Tabela de servidores -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="servidores-table">
+                            <thead>
+                                <tr>
+                                    <th>Foto</th>
+                                    <th>Nome</th>
+                                    <th>Matrícula</th>
+                                    <th>CPF</th>
+                                    <th>Lotacao</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($servidores as $servidor)
+                                <tr>
+                                    <td>
+                                        <img src="{{ $servidor->foto_url }}" alt="Foto" 
+                                             class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                    </td>
+                                    <td>{{ $servidor->nome_completo }}</td>
+                                    <td>{{ $servidor->matricula }}</td>
+                                    <td>{{ $servidor->formatted_cpf }}</td>
+                                    <td>{{ $servidor->lotacao->sigla ?? 'N/A' }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ $servidor->status ? 'success' : 'danger' }}">
+                                            {{ $servidor->status ? 'Ativo' : 'Inativo' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ route('servidores.show', $servidor->matricula) }}" 
+                                               class="btn btn-sm btn-info" title="Visualizar">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ route('servidores.edit', $servidor->matricula) }}" 
+                                               class="btn btn-sm btn-warning" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('servidores.destroy', $servidor->matricula) }}" 
+                                                  method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger" 
+                                                        title="Excluir" onclick="return confirm('Tem certeza?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+        </div>
+    </div>
+</div>
 
-            <form action="{{ route('servidores.store') }}" method="POST" enctype="multipart/form-data" class="p-8">
+<!-- Modal de Cadastro -->
+<div class="modal fade" id="createServidorModal" tabindex="-1" aria-labelledby="createServidorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="createServidorModalLabel">
+                    <i class="fas fa-user-plus"></i>
+                    Cadastrar Novo Servidor
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="createServidorForm" action="{{ route('servidores.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Dados Pessoais -->
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-id-card"></i>
+                                        Dados Pessoais
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Foto -->
+                                    <div class="form-group mb-3 text-center">
+                                        <label for="foto" class="form-label">Foto</label>
+                                        <div class="d-flex flex-column align-items-center">
+                                            <div class="mb-2">
+                                                <img id="fotoPreview" src="{{ asset('images/default-avatar.png') }}" 
+                                                     class="img-thumbnail" style="width: 120px; height: 120px; object-fit: cover;">
+                                            </div>
+                                            <input type="file" class="form-control form-control-sm @error('foto') is-invalid @enderror" 
+                                                   id="foto" name="foto" accept="image/*">
+                                            @error('foto')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
 
-                <!-- Aba Dados Pessoais -->
-                <div id="aba-pessoais" class="aba-conteudo space-y-6">
-                    <h2 class="text-xl font-semibold text-gray-800 border-b pb-3">Dados Pessoais</h2>
+                                    <div class="form-group mb-2">
+                                        <label for="nome_completo" class="form-label">Nome Completo *</label>
+                                        <input type="text" class="form-control form-control-sm @error('nome_completo') is-invalid @enderror" 
+                                               id="nome_completo" name="nome_completo" 
+                                               value="{{ old('nome_completo') }}" required>
+                                        @error('nome_completo')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Matrícula -->
-                        <div>
-                            <label for="matricula" class="block text-sm font-semibold text-gray-700 mb-2">Matrícula
-                                *</label>
-                            <input type="text" id="matricula" name="matricula" value="{{ old('matricula') }}"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('matricula') border-red-500 @enderror">
-                            @error('matricula')
-                                <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                            @enderror
-                        </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="email" class="form-label">Email *</label>
+                                                <input type="email" class="form-control form-control-sm @error('email') is-invalid @enderror" 
+                                                       id="email" name="email" value="{{ old('email') }}" required>
+                                                @error('email')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="matricula" class="form-label">Matrícula *</label>
+                                                <input type="text" class="form-control form-control-sm @error('matricula') is-invalid @enderror" 
+                                                       id="matricula" name="matricula" value="{{ old('matricula') }}" required>
+                                                @error('matricula')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
 
-                        <!-- Nome Completo -->
-                        <div class="md:col-span-2">
-                            <label for="nome_completo" class="block text-sm font-semibold text-gray-700 mb-2">Nome Completo
-                                *</label>
-                            <input type="text" id="nome_completo" name="nome_completo" value="{{ old('nome_completo') }}"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('nome_completo') border-red-500 @enderror">
-                            @error('nome_completo')
-                                <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                            @enderror
-                        </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="cpf" class="form-label">CPF *</label>
+                                                <input type="text" class="form-control form-control-sm cpf @error('cpf') is-invalid @enderror" 
+                                                       id="cpf" name="cpf" value="{{ old('cpf') }}" required>
+                                                @error('cpf')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="rg" class="form-label">RG</label>
+                                                <input type="text" class="form-control form-control-sm @error('rg') is-invalid @enderror" 
+                                                       id="rg" name="rg" value="{{ old('rg') }}">
+                                                @error('rg')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
 
-                        <!-- CPF -->
-                        <div>
-                            <label for="cpf" class="block text-sm font-semibold text-gray-700 mb-2">CPF *</label>
-                            <input type="text" id="cpf" name="cpf" value="{{ old('cpf') }}"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('cpf') border-red-500 @enderror">
-                            @error('cpf')
-                                <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                            @enderror
-                        </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="data_nascimento" class="form-label">Data Nasc. *</label>
+                                                <input type="date" class="form-control form-control-sm @error('data_nascimento') is-invalid @enderror" 
+                                                       id="data_nascimento" name="data_nascimento" 
+                                                       value="{{ old('data_nascimento') }}" required>
+                                                @error('data_nascimento')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="genero" class="form-label">Gênero *</label>
+                                                <select class="form-select form-select-sm @error('genero') is-invalid @enderror" 
+                                                        id="genero" name="genero" required>
+                                                    <option value="">Selecione...</option>
+                                                    <option value="Masculino" {{ old('genero') == 'Masculino' ? 'selected' : '' }}>Masculino</option>
+                                                    <option value="Feminino" {{ old('genero') == 'Feminino' ? 'selected' : '' }}>Feminino</option>
+                                                </select>
+                                                @error('genero')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
 
-                        <!-- RG -->
-                        <div>
-                            <label for="rg" class="block text-sm font-semibold text-gray-700 mb-2">RG *</label>
-                            <input type="text" id="rg" name="rg" value="{{ old('rg') }}"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('rg') border-red-500 @enderror">
-                            @error('rg')
-                                <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                            @enderror
-                        </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="estado_civil" class="form-label">Estado Civil *</label>
+                                                <select class="form-select form-select-sm @error('estado_civil') is-invalid @enderror" 
+                                                        id="estado_civil" name="estado_civil" required>
+                                                    <option value="">Selecione...</option>
+                                                    <option value="Solteiro(a)" {{ old('estado_civil') == 'Solteiro(a)' ? 'selected' : '' }}>Solteiro(a)</option>
+                                                    <option value="Casado(a)" {{ old('estado_civil') == 'Casado(a)' ? 'selected' : '' }}>Casado(a)</option>
+                                                    <option value="Divorciado(a)" {{ old('estado_civil') == 'Divorciado(a)' ? 'selected' : '' }}>Divorciado(a)</option>
+                                                    <option value="Viúvo(a)" {{ old('estado_civil') == 'Viúvo(a)' ? 'selected' : '' }}>Viúvo(a)</option>
+                                                    <option value="União Estável" {{ old('estado_civil') == 'União Estável' ? 'selected' : '' }}>União Estável</option>
+                                                </select>
+                                                @error('estado_civil')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="raca_cor" class="form-label">Raça/Cor *</label>
+                                                <select class="form-select form-select-sm @error('raca_cor') is-invalid @enderror" 
+                                                        id="raca_cor" name="raca_cor" required>
+                                                    <option value="">Selecione...</option>
+                                                    <option value="Branca" {{ old('raca_cor') == 'Branca' ? 'selected' : '' }}>Branca</option>
+                                                    <option value="Preta" {{ old('raca_cor') == 'Preta' ? 'selected' : '' }}>Preta</option>
+                                                    <option value="Parda" {{ old('raca_cor') == 'Parda' ? 'selected' : '' }}>Parda</option>
+                                                    <option value="Amarela" {{ old('raca_cor') == 'Amarela' ? 'selected' : '' }}>Amarela</option>
+                                                    <option value="Indígena" {{ old('raca_cor') == 'Indígena' ? 'selected' : '' }}>Indígena</option>
+                                                </select>
+                                                @error('raca_cor')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
 
-                        <!-- Data Nascimento -->
-                        <div>
-                            <label for="data_nascimento" class="block text-sm font-semibold text-gray-700 mb-2">Data
-                                Nascimento *</label>
-                            <input type="date" id="data_nascimento" name="data_nascimento"
-                                value="{{ old('data_nascimento') }}"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('data_nascimento') border-red-500 @enderror">
-                            @error('data_nascimento')
-                                <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <!-- Gênero -->
-                        <div>
-                            <label for="genero" class="block text-sm font-semibold text-gray-700 mb-2">Gênero *</label>
-                            <select id="genero" name="genero"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Selecione...</option>
-                                <option value="Masculino" @if (old('genero') == 'Masculino') selected @endif>Masculino
-                                </option>
-                                <option value="Feminino" @if (old('genero') == 'Feminino') selected @endif>Feminino</option>
-                            </select>
-                            @error('genero')
-                                <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <!-- Estado Civil -->
-                        <div>
-                            <label for="estado_civil" class="block text-sm font-semibold text-gray-700 mb-2">Estado
-                                Civil</label>
-                            <select id="estado_civil" name="estado_civil"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Selecione...</option>
-                                <option value="Solteiro" @if (old('estado_civil') == 'Solteiro') selected @endif>Solteiro(a)
-                                </option>
-                                <option value="Casado" @if (old('estado_civil') == 'Casado') selected @endif>Casado(a)</option>
-                                <option value="Divorciado" @if (old('estado_civil') == 'Divorciado') selected @endif>Divorciado(a)
-                                </option>
-                                <option value="Viúvo" @if (old('estado_civil') == 'Viúvo') selected @endif>Viúvo(a)</option>
-                            </select>
-                        </div>
-
-                        <!-- Email -->
-                        <div>
-                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
-                            <input type="email" id="email" name="email" value="{{ old('email') }}"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('email') border-red-500 @enderror">
-                            @error('email')
-                                <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                            @enderror
-                        </div>
-
-                        <!-- Telefone -->
-                        <div>
-                            <label for="telefone" class="block text-sm font-semibold text-gray-700 mb-2">Telefone</label>
-                            <input type="text" id="telefone" name="telefone" value="{{ old('telefone') }}"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        <!-- Endereço -->
-                        <div class="md:col-span-3">
-                            <label for="endereco" class="block text-sm font-semibold text-gray-700 mb-2">Endereço</label>
-                            <input type="text" id="endereco" name="endereco" value="{{ old('endereco') }}"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        <!-- Raça/Cor -->
-                        <div>
-                            <label for="raca_cor" class="block text-sm font-semibold text-gray-700 mb-2">Raça/Cor</label>
-                            <select id="raca_cor" name="raca_cor"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Selecione...</option>
-                                <option value="Branca" @if (old('raca_cor') == 'Branca') selected @endif>Branca</option>
-                                <option value="Preta" @if (old('raca_cor') == 'Preta') selected @endif>Preta</option>
-                                <option value="Parda" @if (old('raca_cor') == 'Parda') selected @endif>Parda</option>
-                                <option value="Amarela" @if (old('raca_cor') == 'Amarela') selected @endif>Amarela</option>
-                            </select>
-                        </div>
-
-                        <!-- Tipo Sanguíneo -->
-                        <div>
-                            <label for="tipo_sanguineo" class="block text-sm font-semibold text-gray-700 mb-2">Tipo
-                                Sanguíneo</label>
-                            <select id="tipo_sanguineo" name="tipo_sanguineo"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Selecione...</option>
-                                <option value="A+" @if (old('tipo_sanguineo') == 'A+') selected @endif>A+</option>
-                                <option value="A-" @if (old('tipo_sanguineo') == 'A-') selected @endif>A-</option>
-                                <option value="B+" @if (old('tipo_sanguineo') == 'B+') selected @endif>B+</option>
-                                <option value="B-" @if (old('tipo_sanguineo') == 'B-') selected @endif>B-</option>
-                                <option value="AB+" @if (old('tipo_sanguineo') == 'AB+') selected @endif>AB+</option>
-                                <option value="AB-" @if (old('tipo_sanguineo') == 'AB-') selected @endif>AB-</option>
-                                <option value="O+" @if (old('tipo_sanguineo') == 'O+') selected @endif>O+</option>
-                                <option value="O-" @if (old('tipo_sanguineo') == 'O-') selected @endif>O-</option>
-                            </select>
-                        </div>
-
-                        <!-- Foto -->
-                        <div>
-                            <label for="foto" class="block text-sm font-semibold text-gray-700 mb-2">Foto</label>
-                            <input type="file" id="foto" name="foto"
-                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Aba Dados Funcionais -->
-                <div id="aba-funcionais" class="aba-conteudo hidden space-y-6">
-                    <h2 class="text-xl font-semibold text-gray-800 border-b pb-3">Dados Funcionais</h2>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- PIS/PASEP -->
-                        <div>
-                            <label for="pispasep" class="block text-sm font-semibold text-gray-700 mb-2">PIS/PASEP</label>
-                            <input type="text" id="pispasep" name="pispasep" value="{{ old('pispasep') }}"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        <!-- Data Nomeação -->
-                        <div>
-                            <label for="data_nomeacao" class="block text-sm font-semibold text-gray-700 mb-2">Data
-                                Nomeação</label>
-                            <input type="date" id="data_nomeacao" name="data_nomeacao"
-                                value="{{ old('data_nomeacao') }}"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        <!-- Status -->
-                        <div>
-                            <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                            <select id="status" name="status"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="1" selected>Ativo</option>
-                                <option value="0">Inativo</option>
-                            </select>
-                        </div>
-
-                        <!-- Vínculo -->
-                        <div>
-                            <label for="id_vinculo" class="block text-sm font-semibold text-gray-700 mb-2">Vínculo</label>
-                            <select id="id_vinculo" name="id_vinculo"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Selecione...</option>
-                                @foreach (\App\Models\Vinculo::all() as $vinculo)
-                                    <option value="{{ $vinculo->id }}"
-                                        @if (old('id_vinculo') == $vinculo->id) selected @endif>
-                                        {{ $vinculo->nomeVinculo }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Lotação -->
-                        <div>
-                            <label for="id_lotacao" class="block text-sm font-semibold text-gray-700 mb-2">Lotação</label>
-                            <select id="id_lotacao" name="id_lotacao"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Selecione...</option>
-                                @foreach (\App\Models\Lotacao::all() as $lotacao)
-                                    <option value="{{ $lotacao->id }}"
-                                        @if (old('id_lotacao') == $lotacao->id) selected @endif>
-                                        {{ $lotacao->nomeLotacao }} @if ($lotacao->sigla)
-                                            ({{ $lotacao->sigla }})
-                                        @endif
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Cargo -->
-                        <div>
-                            <label for="cargo" class="block text-sm font-semibold text-gray-700 mb-2">Cargo</label>
-                            <input type="text" id="cargo" name="cargo" value="{{ old('cargo') }}"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        <!-- Salário Base -->
-                        <div>
-                            <label for="salario_base" class="block text-sm font-semibold text-gray-700 mb-2">Salário
-                                Base</label>
-                            <input type="number" step="0.01" id="salario_base" name="salario_base"
-                                value="{{ old('salario_base') }}"
-                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </div>
-
-                    <!-- Formações Acadêmicas -->
-                    <div class="mt-8">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-gray-800">Formações Acadêmicas</h3>
-                            <button type="button" onclick="adicionarFormacao()"
-                                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">
-                                + Adicionar Formação
-                            </button>
-                        </div>
-                        <div id="formacoes-container" class="space-y-4">
-                            <!-- Formações serão adicionadas aqui -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Aba Dependentes -->
-                <div id="aba-dependentes" class="aba-conteudo hidden space-y-6">
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-xl font-semibold text-gray-800 border-b pb-3">Dependentes</h2>
-                        <button type="button" onclick="adicionarDependente()"
-                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
-                            + Adicionar Dependente
-                        </button>
-                    </div>
-                    <div id="dependentes-container" class="space-y-4">
-                        <!-- Dependentes serão adicionados aqui -->
-                    </div>
-                </div>
-
-                <!-- Aba Pagamentos -->
-                <div id="aba-pagamentos" class="aba-conteudo hidden space-y-6">
-                    <h2 class="text-xl font-semibold text-gray-800 border-b pb-3">Pagamentos</h2>
-
-                    <!-- Dados Bancários -->
-                    {{-- <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div>
-                        <label for="banco" class="block text-sm font-semibold text-gray-700 mb-2">Banco</label>
-                        <input type="text" id="banco" name="banco" value="{{ old('banco') }}"
-                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <div>
-                        <label for="agencia" class="block text-sm font-semibold text-gray-700 mb-2">Agência</label>
-                        <input type="text" id="agencia" name="agencia" value="{{ old('agencia') }}"
-                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <div>
-                        <label for="conta_corrente" class="block text-sm font-semibold text-gray-700 mb-2">Conta Corrente</label>
-                        <input type="text" id="conta_corrente" name="conta_corrente" value="{{ old('conta_corrente') }}"
-                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <div>
-                        <label for="tipo_conta" class="block text-sm font-semibold text-gray-700 mb-2">Tipo de Conta</label>
-                        <select id="tipo_conta" name="tipo_conta" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Selecione...</option>
-                            <option value="Corrente" @if (old('tipo_conta') == 'Corrente') selected @endif>Corrente</option>
-                            <option value="Poupança" @if (old('tipo_conta') == 'Poupança') selected @endif>Poupança</option>
-                            <option value="Salário" @if (old('tipo_conta') == 'Salário') selected @endif>Salário</option>
-                        </select>
-                    </div>
-                </div> --}}
-
-                    <!-- Histórico de Pagamentos -->
-                    <div class="border-t pt-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-gray-800">Histórico de Pagamentos</h3>
-                            <button type="button" onclick="adicionarPagamento()"
-                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
-                                + Adicionar Pagamento
-                            </button>
-                        </div>
-
-                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                            <div class="grid grid-cols-5 gap-4 text-sm font-semibold text-gray-700 mb-2">
-                                <div>Mês/Ano</div>
-                                <div>Valor</div>
-                                <div>Status</div>
-                                <div>Observações</div>
-                            </div>
-                            <div id="pagamentos-container" class="space-y-3">
-                                <!-- Pagamentos serão adicionados aqui dinamicamente -->
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="tipo_sanguineo" class="form-label">Tipo Sanguíneo *</label>
+                                                <select class="form-select form-select-sm @error('tipo_sanguineo') is-invalid @enderror" 
+                                                        id="tipo_sanguineo" name="tipo_sanguineo" required>
+                                                    <option value="">Selecione...</option>
+                                                    <option value="A+" {{ old('tipo_sanguineo') == 'A+' ? 'selected' : '' }}>A+</option>
+                                                    <option value="A-" {{ old('tipo_sanguineo') == 'A-' ? 'selected' : '' }}>A-</option>
+                                                    <option value="B+" {{ old('tipo_sanguineo') == 'B+' ? 'selected' : '' }}>B+</option>
+                                                    <option value="B-" {{ old('tipo_sanguineo') == 'B-' ? 'selected' : '' }}>B-</option>
+                                                    <option value="AB+" {{ old('tipo_sanguineo') == 'AB+' ? 'selected' : '' }}>AB+</option>
+                                                    <option value="AB-" {{ old('tipo_sanguineo') == 'AB-' ? 'selected' : '' }}>AB-</option>
+                                                    <option value="O+" {{ old('tipo_sanguineo') == 'O+' ? 'selected' : '' }}>O+</option>
+                                                    <option value="O-" {{ old('tipo_sanguineo') == 'O-' ? 'selected' : '' }}>O-</option>
+                                                </select>
+                                                @error('tipo_sanguineo')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="pispasep" class="form-label">PIS/PASEP</label>
+                                                <input type="text" class="form-control form-control-sm @error('pispasep') is-invalid @enderror" 
+                                                       id="pispasep" name="pispasep" value="{{ old('pispasep') }}">
+                                                @error('pispasep')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Férias -->
-                    <div class="border-t pt-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Férias</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="ferias_inicio" class="block text-sm font-semibold text-gray-700 mb-2">Data
-                                    Início</label>
-                                <input type="date" id="ferias_inicio" name="ferias_inicio"
-                                    value="{{ old('ferias_inicio') }}"
-                                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <!-- Dados Profissionais e Contato -->
+                        <div class="col-md-6">
+                            <!-- Dados Profissionais -->
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-briefcase"></i>
+                                        Dados Profissionais
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="id_vinculo" class="form-label">Vínculo *</label>
+                                                <select class="form-select form-select-sm @error('id_vinculo') is-invalid @enderror" 
+                                                        id="id_vinculo" name="id_vinculo" required>
+                                                    <option value="">Selecione...</option>
+                                                    @foreach($vinculos as $vinculo)
+                                                        <option value="{{ $vinculo->id_vinculo }}" {{ old('id_vinculo') == $vinculo->id_vinculo ? 'selected' : '' }}>
+                                                            {{ $vinculo->nome_vinculo }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                @error('id_vinculo')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="id_lotacao" class="form-label">Lotação *</label>
+                                                <select class="form-select form-select-sm @error('id_lotacao') is-invalid @enderror" 
+                                                        id="id_lotacao" name="id_lotacao" required>
+                                                    <option value="">Selecione...</option>
+                                                    @foreach($lotacoes as $lotacao)
+                                                        <option value="{{ $lotacao->id_lotacao }}" {{ old('id_lotacao') == $lotacao->id_lotacao ? 'selected' : '' }}>
+                                                            {{ $lotacao->sigla }} - {{ $lotacao->nome_lotacao }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                @error('id_lotacao')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="data_nomeacao" class="form-label">Data Nomeação</label>
+                                                <input type="date" class="form-control form-control-sm @error('data_nomeacao') is-invalid @enderror" 
+                                                       id="data_nomeacao" name="data_nomeacao" 
+                                                       value="{{ old('data_nomeacao') }}">
+                                                @error('data_nomeacao')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-2">
+                                                <label for="formacao" class="form-label">Formação</label>
+                                                <input type="text" class="form-control form-control-sm @error('formacao') is-invalid @enderror" 
+                                                       id="formacao" name="formacao" value="{{ old('formacao') }}">
+                                                @error('formacao')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group mb-2">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   id="status" name="status" value="1" checked>
+                                            <label class="form-check-label" for="status">
+                                                Servidor Ativo
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div>
-                                <label for="ferias_termino" class="block text-sm font-semibold text-gray-700 mb-2">Data
-                                    Término</label>
-                                <input type="date" id="ferias_termino" name="ferias_termino"
-                                    value="{{ old('ferias_termino') }}"
-                                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
+                            <!-- Contato -->
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-phone"></i>
+                                        Contato
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group mb-2">
+                                        <label for="telefone" class="form-label">Telefone</label>
+                                        <input type="text" class="form-control form-control-sm telefone @error('telefone') is-invalid @enderror" 
+                                               id="telefone" name="telefone" value="{{ old('telefone') }}">
+                                        @error('telefone')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
 
-                            <div>
-                                <label for="periodo_aquisitivo"
-                                    class="block text-sm font-semibold text-gray-700 mb-2">Período Aquisitivo</label>
-                                <input type="text" id="periodo_aquisitivo" name="periodo_aquisitivo"
-                                    value="{{ old('periodo_aquisitivo') }}"
-                                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Ex: 2023-2024">
-                            </div>
-
-                            <div>
-                                <label for="dias_gozados" class="block text-sm font-semibold text-gray-700 mb-2">Dias
-                                    Gozados</label>
-                                <input type="number" id="dias_gozados" name="dias_gozados"
-                                    value="{{ old('dias_gozados', 0) }}"
-                                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    min="0" max="30">
+                                    <div class="form-group mb-2">
+                                        <label for="endereco" class="form-label">Endereço</label>
+                                        <textarea class="form-control form-control-sm @error('endereco') is-invalid @enderror" 
+                                                  id="endereco" name="endereco" rows="2">{{ old('endereco') }}</textarea>
+                                        @error('endereco')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Botões de Navegação e Submit -->
-                <div class="flex justify-between pt-8 border-t mt-8">
-                    <div class="flex space-x-3">
-                        <button type="button" onclick="abaAnterior()"
-                            class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg">
-                            ← Anterior
-                        </button>
-                        <button type="button" onclick="proximaAba()"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                            Próxima →
-                        </button>
-                    </div>
-
-                    <div class="flex space-x-3">
-                        <a href="{{ route('servidores.index') }}"
-                            class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg">
-                            Cancelar
-                        </a>
-                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg">
-                            Salvar Servidor
-                        </button>
-                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Cadastrar Servidor
+                    </button>
                 </div>
             </form>
         </div>
     </div>
+</div>
 @endsection
 
 @push('scripts')
-    <script>
-        // Contadores para as abas dinâmicas
-        let contadorFormacoes = 0;
-        let contadorDependentes = 0;
-        let contadorPagamentos = 0;
-
-        // Sistema de Abas
-        const abas = ['pessoais', 'funcionais', 'dependentes', 'pagamentos'];
-        let abaAtual = 0;
-
-        function abrirAba(nomeAba) {
-            // Esconde todas as abas
-            document.querySelectorAll('.aba-conteudo').forEach(aba => {
-                aba.classList.add('hidden');
-            });
-
-            // Remove estilo ativo de todas as abas
-            document.querySelectorAll('.aba-nav').forEach(aba => {
-                aba.classList.remove('border-blue-500', 'text-blue-600');
-                aba.classList.add('border-transparent', 'text-gray-500');
-            });
-
-            // Mostra aba selecionada
-            document.getElementById('aba-' + nomeAba).classList.remove('hidden');
-
-            // Ativa estilo da aba selecionada
-            const abaIndex = abas.indexOf(nomeAba);
-            if (abaIndex !== -1) {
-                abaAtual = abaIndex;
-                document.querySelector(`[onclick="abrirAba('${nomeAba}')"]`).classList.add('border-blue-500',
-                    'text-blue-600');
+<script>
+    // Preview da foto
+    document.getElementById('foto').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('fotoPreview').src = e.target.result;
             }
+            reader.readAsDataURL(file);
         }
+    });
 
-        function proximaAba() {
-            if (abaAtual < abas.length - 1) {
-                abrirAba(abas[abaAtual + 1]);
-            }
-        }
-
-        function abaAnterior() {
-            if (abaAtual > 0) {
-                abrirAba(abas[abaAtual - 1]);
-            }
-        }
-
-        // Funções para adicionar itens dinâmicos
-        function adicionarFormacao() {
-            contadorFormacoes++;
-            const novaFormacao = `
-            <div class="formacao-item border border-gray-200 rounded-lg p-4 bg-white">
-                <div class="flex justify-between items-center mb-3">
-                    <h4 class="font-semibold text-gray-700">Formação ${contadorFormacoes}</h4>
-                    <button type="button" onclick="removerFormacao(this)" class="text-red-600 hover:text-red-800 text-lg">✕</button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" name="formacoes[${contadorFormacoes-1}][curso]" placeholder="Curso" class="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="text" name="formacoes[${contadorFormacoes-1}][instituicao]" placeholder="Instituição" class="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="text" name="formacoes[${contadorFormacoes-1}][nivel]" placeholder="Nível (Graduação, Mestrado, etc.)" class="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="number" name="formacoes[${contadorFormacoes-1}][ano_conclusao]" placeholder="Ano Conclusão" class="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-            </div>
-        `;
-            document.getElementById('formacoes-container').insertAdjacentHTML('beforeend', novaFormacao);
-        }
-
-        function adicionarDependente() {
-            contadorDependentes++;
-            const novoDependente = `
-            <div class="dependente-item border border-gray-200 rounded-lg p-4 bg-white">
-                <div class="flex justify-between items-center mb-3">
-                    <h4 class="font-semibold text-gray-700">Dependente ${contadorDependentes}</h4>
-                    <button type="button" onclick="removerDependente(this)" class="text-red-600 hover:text-red-800 text-lg">✕</button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" name="dependentes[${contadorDependentes-1}][nome]" placeholder="Nome completo" class="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="text" name="dependentes[${contadorDependentes-1}][parentesco]" placeholder="Parentesco" class="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="date" name="dependentes[${contadorDependentes-1}][data_nascimento]" class="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="text" name="dependentes[${contadorDependentes-1}][cpf]" placeholder="CPF" class="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-            </div>
-        `;
-            document.getElementById('dependentes-container').insertAdjacentHTML('beforeend', novoDependente);
-        }
-
-        function adicionarPagamento() {
-    contadorPagamentos++;
-    const novoPagamento = `
-        <div class="pagamento-item grid grid-cols-5 gap-4 items-center p-3 bg-white border border-gray-200 rounded">
-            <input type="month" name="historicos_pagamento[${contadorPagamentos-1}][mes_ano]" 
-                class="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-            <input type="number" step="0.01" name="historicos_pagamento[${contadorPagamentos-1}][valor]" 
-                placeholder="Valor R$" class="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-            <select name="historicos_pagamento[${contadorPagamentos-1}][status]" 
-                class="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="Pendente">Pendente</option>
-                <option value="Pago">Pago</option>
-                <option value="Cancelado">Cancelado</option>
-            </select>
-            <textarea name="historicos_pagamento[${contadorPagamentos-1}][observacoes]" rows="1"
-                placeholder="Observações" class="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-            <button type="button" onclick="removerPagamento(this)" class="text-red-600 hover:text-red-800 text-lg justify-self-center">✕</button>
-        </div>
-    `;
-    document.getElementById('pagamentos-container').insertAdjacentHTML('beforeend', novoPagamento);
-}
-
-
-        // Funções para remover itens
-        function removerFormacao(botao) {
-            botao.closest('.formacao-item').remove();
-        }
-
-        function removerDependente(botao) {
-            botao.closest('.dependente-item').remove();
-        }
-
-        function removerPagamento(botao) {
-            botao.closest('.pagamento-item').remove();
-        }
-
-        // Inicializar primeira aba
-        document.addEventListener('DOMContentLoaded', function() {
-            abrirAba('pessoais');
-            // Adicionar primeiro dependente automaticamente
-            adicionarDependente();
+    // Máscaras
+    $(document).ready(function() {
+        $('.cpf').mask('000.000.000-00', {reverse: true});
+        $('.telefone').mask('(00) 00000-0000');
+        
+        // Limpar modal quando fechar
+        $('#createServidorModal').on('hidden.bs.modal', function () {
+            document.getElementById('createServidorForm').reset();
+            document.getElementById('fotoPreview').src = "{{ asset('images/default-avatar.png') }}";
         });
-    </script>
+    });
+</script>
 @endpush

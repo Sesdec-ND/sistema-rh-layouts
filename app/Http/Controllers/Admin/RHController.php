@@ -69,19 +69,37 @@ class RHController extends Controller
      * Lista de colaboradores - FOCO APENAS EM DADOS CADASTRAIS (MODIFICADO)
      */
     public function colaboradores()
-    {
-        if (!Auth::user()->hasPermission('colaboradores', 'view')) {
-            abort(403, 'Acesso não autorizado');
-        }
-
-        // 2. Busque TODOS os dados que a view precisa
-        $servidores = Servidor::all(); // A view espera '$servidores', não '$colaboradores'
-        $lotacoes   = Lotacao::all();
-        $vinculos   = Vinculo::all();
-
-        // 3. Retorne a view e passe TODAS as variáveis necessárias
-        return view('admin.colaborador', compact('servidores', 'lotacoes', 'vinculos'));
+{
+    if (!Auth::user()->hasPermission('colaboradores', 'view')) {
+        abort(403, 'Acesso não autorizado');
     }
+
+    // Use a mesma lógica da função index() que funciona
+    $user = Auth::user();
+    $servidorRH = Servidor::where('email', $user->email)
+        ->orWhere('cpf', $user->cpf)
+        ->first();
+
+    $vinculos = Vinculo::all();
+    $servidores = Servidor::with(['lotacao', 'vinculo'])->get();
+    $lotacoes = Lotacao::all(); // ← AGORA DEVERIA FUNCIONAR
+
+    return view('admin.colaborador', compact('servidores', 'lotacoes', 'vinculos'));
+}
+    // public function colaboradores()
+    // {
+    //     if (!Auth::user()->hasPermission('colaboradores', 'view')) {
+    //         abort(403, 'Acesso não autorizado');
+    //     }
+
+    //     // 2. Busque TODOS os dados que a view precisa
+    //     $servidores = Servidor::all(); // A view espera '$servidores', não '$colaboradores'
+    //     $lotacoes   = Lotacao::all();
+    //     $vinculos   = Vinculo::all();
+
+    //     // 3. Retorne a view e passe TODAS as variáveis necessárias
+    //     return view('admin.colaborador', compact('servidores', 'lotacoes', 'vinculos'));
+    // }
     /*
     public function relatorios()
     {

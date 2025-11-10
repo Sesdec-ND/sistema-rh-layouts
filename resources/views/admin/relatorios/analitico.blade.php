@@ -33,7 +33,7 @@
                 <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">Todas</option>
                     @foreach($lotacoes ?? [] as $lotacao)
-                    <option value="{{ $lotacao->idLotacao ?? $lotacao->id }}">{{ $lotacao->nomeLotacao ?? 'N/A' }}</option>
+                    <option value="{{ $lotacao->id_lotacao ?? $lotacao->id }}">{{ $lotacao->nome_lotacao ?? 'N/A' }}</option>
                     @endforeach
                 </select>
             </div>
@@ -42,7 +42,7 @@
                 <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">Todos</option>
                     @foreach($vinculos ?? [] as $vinculo)
-                    <option value="{{ $vinculo->idVinculo ?? $vinculo->id }}">{{ $vinculo->nomeVinculo ?? 'N/A' }}</option>
+                    <option value="{{ $vinculo->id_vinculo ?? $vinculo->id }}">{{ $vinculo->nome_vinculo ?? 'N/A' }}</option>
                     @endforeach
                 </select>
             </div>
