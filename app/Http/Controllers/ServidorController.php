@@ -31,6 +31,22 @@ class ServidorController extends Controller
     public function store(Request $request)
     {
         try {
+            // Verificar se há vínculos e lotações cadastrados
+            $vinculosCount = Vinculo::count();
+            $lotacoesCount = Lotacao::count();
+            
+            if ($vinculosCount === 0) {
+                return redirect()->back()
+                    ->with('error', 'Não é possível cadastrar servidor. Não há vínculos cadastrados. Por favor, execute o seeder: php artisan db:seed --class=VinculoSeeder')
+                    ->withInput();
+            }
+            
+            if ($lotacoesCount === 0) {
+                return redirect()->back()
+                    ->with('error', 'Não é possível cadastrar servidor. Não há lotações cadastradas. Por favor, execute o seeder: php artisan db:seed --class=LotacaoSeeder')
+                    ->withInput();
+            }
+            
             // Log dos dados recebidos
             Log::info('Dados recebidos no store:', $request->all());
             
