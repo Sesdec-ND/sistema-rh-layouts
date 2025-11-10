@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 class Ocorrencia extends Model
 {
@@ -13,21 +12,21 @@ class Ocorrencia extends Model
     protected $table = 'ocorrencias';
 
     protected $fillable = [
-        'id_servidor',
         'tipo_ocorrencia',
-        'descricao',
         'data_ocorrencia',
+        'descricao',
         'status',
+        'observacoes',
+        'id_servidor',
     ];
-
-    public $timestamps = true;
 
     protected $casts = [
         'data_ocorrencia' => 'date',
     ];
 
+    // Relacionamentos
     public function servidor()
     {
-        return $this->belongsTo(Servidor::class, 'id_servidor');
+        return $this->belongsTo(Servidor::class, 'id_servidor', 'matricula');
     }
 }

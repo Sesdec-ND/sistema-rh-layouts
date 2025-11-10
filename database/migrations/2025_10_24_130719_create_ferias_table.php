@@ -10,13 +10,16 @@ return new class extends Migration
     {
         Schema::create('ferias', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_servidor')->constrained('servidores')->onDelete('cascade');
+            $table->string('id_servidor'); // Matrícula do servidor (chave primária é string)
             $table->date('data_inicio');
             $table->date('data_fim');
             $table->integer('dias');
             $table->string('status')->default('agendada'); // agendada, em_andamento, concluida
             $table->text('observacoes')->nullable();
             $table->timestamps();
+            
+            // Foreign key usando a matrícula como referência
+            $table->foreign('id_servidor')->references('matricula')->on('servidores')->onDelete('cascade');
             
             // Índices para consultas por período
             $table->index(['data_inicio', 'data_fim']);

@@ -11,29 +11,37 @@ class Lotacao extends Model
 
     protected $table = 'lotacoes';
 
+    protected $primaryKey = 'id_lotacao';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
     protected $fillable = [
-        'nomeLotacao',
+        'nome_lotacao',
         'sigla',
         'departamento',
         'localizacao',
-        'status'
+        'status',
     ];
-
-    // Se não usar timestamps
-    public $timestamps = true;
-
-    // Accessor para nome (para compatibilidade)
-    public function getNomeAttribute()
-    {
-        return $this->nomeLotacao;
-    }
 
     protected $casts = [
-        'status' => 'boolean'
+        'status' => 'boolean',
     ];
 
+    // Relacionamentos
     public function servidores()
     {
-        return $this->hasMany(Servidor::class, 'id_lotacao');
+        return $this->hasMany(Servidor::class, 'id_lotacao', 'id_lotacao');
+    }
+
+    // Scopes
+    public function scopeAtivas($query)
+    {
+        return $query->where('status', true);
+    }
+
+    // Accessors
+    public function getNomeCompletoAttribute()
+    {
+        return "{$this->sigla} - {$this->nome_lotacao}";
     }
 }

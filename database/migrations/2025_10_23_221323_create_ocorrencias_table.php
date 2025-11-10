@@ -10,13 +10,16 @@ return new class extends Migration
     {
         Schema::create('ocorrencias', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_servidor')->constrained('servidores')->onDelete('cascade');
+            $table->string('id_servidor'); // Matrícula do servidor (chave primária é string)
             $table->string('tipo_ocorrencia');
             $table->text('descricao')->nullable();
             $table->date('data_ocorrencia');
             $table->string('status')->default('pendente'); // pendente, resolvida, etc.
             $table->text('observacoes')->nullable();
             $table->timestamps();
+            
+            // Foreign key usando a matrícula como referência
+            $table->foreign('id_servidor')->references('matricula')->on('servidores')->onDelete('cascade');
         });
     }
 

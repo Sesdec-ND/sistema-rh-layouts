@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
 {
     Schema::create('vinculos', function (Blueprint $table) {
-        $table->id('idVinculo');
-        $table->string('nomeVinculo');
+        $table->bigIncrements('id_vinculo');
+        $table->string('nome_vinculo');
         $table->text('descricao')->nullable();
         $table->timestamps();
     });

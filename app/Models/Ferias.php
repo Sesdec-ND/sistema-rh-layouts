@@ -17,18 +17,28 @@ class Ferias extends Model
         'data_fim',
         'dias',
         'status',
-        'observacoes'
+        'observacoes',
     ];
 
-    // protected $casts = [
-        // 'data_inicio' => 'date',
-        // 'data_fim' => 'date'
-    // ];
+    protected $casts = [
+        'data_inicio' => 'date',
+        'data_fim' => 'date',
+    ];
 
-    public $timestamps = true;
-
+    // Relacionamentos
     public function servidor()
     {
-        return $this->belongsTo(Servidor::class, 'id_servidor');
+        return $this->belongsTo(Servidor::class, 'id_servidor', 'matricula');
+    }
+
+    // Scopes
+    public function scopeAtivas($query)
+    {
+        return $query->where('status', 'Ativo');
+    }
+
+    public function scopePorServidor($query, $servidorId)
+    {
+        return $query->where('id_servidor', $servidorId);
     }
 }

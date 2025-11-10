@@ -11,26 +11,26 @@ class Vinculo extends Model
 
     protected $table = 'vinculos';
 
+    protected $primaryKey = 'id_vinculo';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
     protected $fillable = [
-        'nomeVinculo',
+        'nome_vinculo',
         'descricao',
     ];
 
-    // Se não usar timestamps
-    public $timestamps = true;
-
-    // Accessor para nome (para compatibilidade)
-    public function getNomeAttribute()
-    {
-        return $this->nomeVinculo;
-    }
-
-    // protected $casts = [
-        // 'status' => 'boolean'
-    // ];
-
+    // Relacionamentos
     public function servidores()
     {
-        return $this->hasMany(Servidor::class, 'id_vinculo');
+        return $this->hasMany(Servidor::class, 'id_vinculo', 'id_vinculo');
+    }
+
+    // Scopes
+    public function scopeAtivos($query)
+    {
+        return $query->whereHas('servidores', function($q) {
+            $q->where('status', true);
+        });
     }
 }

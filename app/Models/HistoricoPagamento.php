@@ -12,24 +12,34 @@ class HistoricoPagamento extends Model
     protected $table = 'historicos_pagamento';
 
     protected $fillable = [
-        'id_servidor',
         'mes_ano',
         'valor',
         'status',
         'data_pagamento',
-        'observacoes'
+        'observacoes',
+        'id_servidor',
     ];
 
     protected $casts = [
         'mes_ano' => 'date',
+        'valor' => 'decimal:2',
         'data_pagamento' => 'date',
-        'valor' => 'decimal:2'
     ];
 
-    public $timestamps = true;
-
+    // Relacionamentos
     public function servidor()
     {
-        return $this->belongsTo(Servidor::class, 'id_servidor');
+        return $this->belongsTo(Servidor::class, 'id_servidor', 'matricula');
+    }
+
+    // Accessors
+    public function getCompetenciaAttribute()
+    {
+        return $this->mes_ano ? $this->mes_ano->format('m/Y') : null;
+    }
+
+    public function getValorFormatadoAttribute()
+    {
+        return 'R$ ' . number_format($this->valor, 2, ',', '.');
     }
 }

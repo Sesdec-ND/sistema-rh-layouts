@@ -57,12 +57,12 @@ return new class extends Migration
             if (!Schema::hasColumn('servidores', 'id_vinculo')) {
                 $table->unsignedBigInteger('id_vinculo')->nullable()->after('data_nomeacao');
                 // Se você tem uma tabela 'vinculos', descomente a linha abaixo
-                // $table->foreign('id_vinculo')->references('id')->on('vinculos')->onDelete('set null');
+                // $table->foreign('id_vinculo')->references('id_vinculo')->on('vinculos')->onDelete('set null');
             }
             if (!Schema::hasColumn('servidores', 'id_lotacao')) {
                 $table->unsignedBigInteger('id_lotacao')->nullable()->after('id_vinculo');
                 // Se você tem uma tabela 'lotacoes', descomente a linha abaixo
-                // $table->foreign('id_lotacao')->references('id')->on('lotacoes')->onDelete('set null');
+                // $table->foreign('id_lotacao')->references('id_lotacao')->on('lotacoes')->onDelete('set null');
             }
         });
     }

@@ -10,12 +10,12 @@ class VinculoSeeder extends Seeder
     public function run()
     {
         $vinculos = [
-            ['nomeVinculo' => 'Efetivo', 'descricao' => 'Servidor efetivo'],
-            ['nomeVinculo' => 'Comissionado', 'descricao' => 'Servidor comissionado'],
-            ['nomeVinculo' => 'Voluntário', 'descricao' => 'Servidor voluntário'],
-            ['nomeVinculo' => 'PVSA', 'descricao' => 'Programa Voluntário'],
-            ['nomeVinculo' => 'Temporário', 'descricao' => 'Servidor temporário'],
-            ['nomeVinculo' => 'Estagiário', 'descricao' => 'Estagiário'],
+            ['nome_vinculo' => 'Efetivo', 'descricao' => 'Servidor efetivo'],
+            ['nome_vinculo' => 'Comissionado', 'descricao' => 'Servidor comissionado'],
+            ['nome_vinculo' => 'Voluntário', 'descricao' => 'Servidor voluntário'],
+            ['nome_vinculo' => 'PVSA', 'descricao' => 'Programa Voluntário'],
+            ['nome_vinculo' => 'Temporário', 'descricao' => 'Servidor temporário'],
+            ['nome_vinculo' => 'Estagiário', 'descricao' => 'Estagiário'],
         ];
 
         foreach ($vinculos as $vinculo) {
