@@ -414,6 +414,36 @@ class ServidorController extends Controller
         }
 
         try {
+            // Verificar se precisa criar uma nova lotação
+            if ($request->has('criar_lotacao') && $request->criar_lotacao == '1') {
+                $lotacaoRules = [
+                    'nome_lotacao' => 'required|string|max:255',
+                    'sigla' => 'nullable|string|max:50',
+                    'departamento' => 'nullable|string|max:255',
+                    'localizacao' => 'nullable|string|max:255',
+                    'status' => 'nullable|boolean',
+                ];
+                
+                $lotacaoValidated = $request->validate($lotacaoRules);
+                
+                // Criar nova lotação
+                $novaLotacao = Lotacao::create([
+                    'nome_lotacao' => $lotacaoValidated['nome_lotacao'],
+                    'sigla' => $lotacaoValidated['sigla'] ?? null,
+                    'departamento' => $lotacaoValidated['departamento'] ?? null,
+                    'localizacao' => $lotacaoValidated['localizacao'] ?? null,
+                    'status' => $lotacaoValidated['status'] ?? true,
+                ]);
+                
+                // Adicionar o id_lotacao ao request para atribuir ao servidor
+                $request->merge(['id_lotacao' => $novaLotacao->id_lotacao]);
+                
+                // Adicionar a regra de validação para id_lotacao se não existir
+                if (!isset($rules['id_lotacao'])) {
+                    $rules['id_lotacao'] = 'nullable|exists:lotacoes,id_lotacao';
+                }
+            }
+            
             // Validar apenas os campos presentes
             $validated = $request->validate($rules);
 
@@ -462,16 +492,23 @@ class ServidorController extends Controller
                     'servidor' => $servidor->toArray(),
                 ];
 
-                // Adicionar URL da foto se foi atualizada
+                // Adicionar URL da foto se foi atualizada ou se já existe
                 if ($request->hasFile('foto') && $servidor->foto) {
-                    $response['foto_url'] = Storage::url($servidor->foto);
+                    $response['foto_url'] = asset('storage/' . $servidor->foto);
+                } else if ($servidor->foto) {
+                    // Se a foto já existe, retornar a URL também
+                    $response['foto_url'] = asset('storage/' . $servidor->foto);
                 }
 
                 // Adicionar dados de lotação e vínculo se foram atualizados
-                if ($servidor->lotacao) {
+                if (isset($validated['id_lotacao'])) {
+                    if ($servidor->lotacao) {
+                        $response['lotacao'] = $servidor->lotacao->toArray();
+                    } else {
+                        $response['lotacao'] = null;
+                    }
+                } else if ($servidor->lotacao) {
                     $response['lotacao'] = $servidor->lotacao->toArray();
-                } else if (isset($validated['id_lotacao']) && $validated['id_lotacao'] === null) {
-                    $response['lotacao'] = null;
                 }
 
                 if ($servidor->vinculo) {

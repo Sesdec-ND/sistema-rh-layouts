@@ -71,7 +71,7 @@
                         <div id="previewFoto"
                             class="w-48 h-48 bg-gray-200 rounded-full mb-4 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
                                 @if ($servidor->foto)
-                                <img src="{{ Storage::url($servidor->foto) }}" alt="{{ $servidor->nome ?? $servidor->nome_completo }}"
+                                <img src="{{ asset('storage/' . $servidor->foto) }}?v={{ time() }}" alt="{{ $servidor->nome ?? $servidor->nome_completo }}"
                                     class="w-full h-full object-cover">
                                 @else
                                 <div class="w-full h-full flex items-center justify-center bg-gray-300 text-gray-500">
@@ -279,23 +279,45 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Data Nomeação -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Data Nomeação</label>
-                            <p class="text-gray-900">{{ $servidor->data_nomeacao ? \Carbon\Carbon::parse($servidor->data_nomeacao)->format('d/m/Y') : 'Não informado' }}</p>
-                        </div>
-
-                        <!-- Formação -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Formação</label>
-                            <p class="text-gray-900">{{ $servidor->formacao ?? 'Não informado' }}</p>
-                        </div>
-
-                        <!-- Status -->
-                        
+                    <!-- Informações dos Dados Profissionais (somente leitura) -->
+                    <div id="dados-profissionais-info-container">
+                        @if ($servidor->data_nomeacao || $servidor->formacao || isset($servidor->status))
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                <h4 class="text-sm font-semibold text-gray-700 mb-3">Dados Profissionais Atuais</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 mb-1">Data Nomeação</label>
+                                        <p class="text-gray-900" data-dados-profissionais-data-nomeacao>
+                                            {{ $servidor->data_nomeacao ? \Carbon\Carbon::parse($servidor->data_nomeacao)->format('d/m/Y') : 'Não informado' }}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 mb-1">Formação</label>
+                                        <p class="text-gray-900" data-dados-profissionais-formacao>{{ $servidor->formacao ?? 'Não informado' }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 mb-1">Status</label>
+                                        <p class="text-gray-900" data-dados-profissionais-status>
+                                            @if (isset($servidor->status))
+                                                @if ($servidor->status)
+                                                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Ativo</span>
+                                                @else
+                                                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">Inativo</span>
+                                                @endif
+                                            @else
+                                                Não informado
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                                <p class="text-sm text-yellow-800">Nenhum dado profissional informado no momento.</p>
+                            </div>
+                        @endif
                     </div>
-                        </div>
+                </div>
 
                 <!-- Seção: Lotação -->
                 <div class="mb-8 pb-8 border-b border-gray-200" id="secao-lotacao">
@@ -307,6 +329,11 @@
                             @if ($servidor->lotacao)
                             <button type="button" onclick="abrirModalEditarLotacao({{ $servidor->lotacao->id_lotacao }}, '{{ addslashes($servidor->lotacao->nome_lotacao) }}', '{{ addslashes($servidor->lotacao->sigla ?? '') }}', '{{ addslashes($servidor->lotacao->departamento ?? '') }}', '{{ addslashes($servidor->lotacao->localizacao ?? '') }}', {{ $servidor->lotacao->status ? 1 : 0 }})" 
                                 class="text-blue-600 hover:text-blue-800" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            @else
+                            <button type="button" onclick="abrirModalAtribuirLotacao()" 
+                                class="text-blue-600 hover:text-blue-800" title="Atribuir Lotação">
                                 <i class="fas fa-edit"></i>
                             </button>
                             @endif
@@ -993,6 +1020,52 @@
         `;
     }
 
+    // Função para atualizar informações de Dados Profissionais na tela
+    function atualizarInformacoesDadosProfissionais(dadosProfissionais) {
+        const container = document.getElementById('dados-profissionais-info-container');
+        if (!container) return;
+
+        if (!dadosProfissionais || (!dadosProfissionais.data_nomeacao && !dadosProfissionais.formacao && dadosProfissionais.status === undefined)) {
+            container.innerHTML = '<div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200"><p class="text-sm text-yellow-800">Nenhum dado profissional informado no momento.</p></div>';
+            return;
+        }
+
+        // Formatar data
+        let dataNomeacaoFormatada = 'Não informado';
+        if (dadosProfissionais.data_nomeacao) {
+            const data = new Date(dadosProfissionais.data_nomeacao);
+            dataNomeacaoFormatada = data.toLocaleDateString('pt-BR');
+        }
+
+        // Status HTML
+        let statusHtml = 'Não informado';
+        if (dadosProfissionais.status !== undefined) {
+            statusHtml = dadosProfissionais.status 
+                ? '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Ativo</span>'
+                : '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">Inativo</span>';
+        }
+
+        container.innerHTML = `
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">Dados Profissionais Atuais</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Data Nomeação</label>
+                        <p class="text-gray-900" data-dados-profissionais-data-nomeacao>${dataNomeacaoFormatada}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Formação</label>
+                        <p class="text-gray-900" data-dados-profissionais-formacao>${dadosProfissionais.formacao || 'Não informado'}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Status</label>
+                        <p class="text-gray-900" data-dados-profissionais-status>${statusHtml}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     // Função para atualizar informações de Vínculo na tela
     function atualizarInformacoesVinculo(vinculo) {
         const container = document.getElementById('vinculo-info-container');
@@ -1163,7 +1236,15 @@
         document.getElementById('editDadosProfissionaisServidorId').value = servidorId;
         document.getElementById('editDadosProfissionaisDataNomeacao').value = '{{ $servidor->data_nomeacao ? \Carbon\Carbon::parse($servidor->data_nomeacao)->format('Y-m-d') : '' }}';
         document.getElementById('editDadosProfissionaisFormacao').value = '{{ addslashes($servidor->formacao ?? '') }}';
-        document.getElementById('editDadosProfissionaisStatus').value = '{{ $servidor->status ? 1 : 0 }}';
+        document.getElementById('editDadosProfissionaisStatus').value = '{{ isset($servidor->status) ? ($servidor->status ? 1 : 0) : '' }}';
+        
+        // Atualizar título do modal dinamicamente
+        const temDados = '{{ $servidor->data_nomeacao || $servidor->formacao || isset($servidor->status) ? 'true' : 'false' }}';
+        const modalTitle = document.querySelector('#modalEditarDadosProfissionais h3');
+        if (modalTitle) {
+            modalTitle.textContent = temDados === 'true' ? 'Editar Dados Profissionais' : 'Adicionar Dados Profissionais';
+        }
+        
         document.getElementById('modalEditarDadosProfissionais').classList.remove('hidden');
     }
     
@@ -1190,6 +1271,116 @@
         document.getElementById('modalEditarLotacao').classList.add('hidden');
     }
     
+    // Funções para modal de atribuir lotação
+    function abrirModalAtribuirLotacao() {
+        document.getElementById('modalAtribuirLotacao').classList.remove('hidden');
+    }
+    
+    function fecharModalAtribuirLotacao() {
+        document.getElementById('modalAtribuirLotacao').classList.add('hidden');
+        // Resetar o select
+        const select = document.getElementById('atribuirLotacaoId');
+        if (select) {
+            select.value = '';
+        }
+        // Resetar os campos de nova lotação
+        const nomeInput = document.getElementById('atribuirLotacaoNome');
+        const siglaInput = document.getElementById('atribuirLotacaoSigla');
+        const departamentoInput = document.getElementById('atribuirLotacaoDepartamento');
+        const localizacaoInput = document.getElementById('atribuirLotacaoLocalizacao');
+        const statusSelect = document.getElementById('atribuirLotacaoStatus');
+        if (nomeInput) nomeInput.value = '';
+        if (siglaInput) siglaInput.value = '';
+        if (departamentoInput) departamentoInput.value = '';
+        if (localizacaoInput) localizacaoInput.value = '';
+        if (statusSelect) statusSelect.value = '1';
+    }
+    
+    function salvarAtribuirLotacao() {
+        const form = document.getElementById('formAtribuirLotacao');
+        const formData = new FormData(form);
+        const matricula = document.getElementById('servidor_matricula').value;
+        const csrfToken = document.querySelector('input[name="_token"]').value;
+        
+        const lotacaoId = document.getElementById('atribuirLotacaoId').value;
+        const nomeLotacao = document.getElementById('atribuirLotacaoNome').value;
+        
+        // Verificar se selecionou uma lotação existente ou está criando uma nova
+        if (!lotacaoId && !nomeLotacao) {
+            exibirNotificacao('Por favor, selecione uma lotação existente ou preencha o nome para criar uma nova.', 'error');
+            return;
+        }
+        
+        // Se está criando uma nova lotação, adicionar os campos
+        if (!lotacaoId && nomeLotacao) {
+            formData.append('nome_lotacao', nomeLotacao);
+            formData.append('sigla', document.getElementById('atribuirLotacaoSigla').value || '');
+            formData.append('departamento', document.getElementById('atribuirLotacaoDepartamento').value || '');
+            formData.append('localizacao', document.getElementById('atribuirLotacaoLocalizacao').value || '');
+            formData.append('status', document.getElementById('atribuirLotacaoStatus').value || '1');
+            formData.append('criar_lotacao', '1'); // Flag para indicar que deve criar a lotação
+        } else if (lotacaoId) {
+            formData.append('id_lotacao', lotacaoId);
+        }
+        
+        formData.append('_method', 'PUT');
+        formData.append('_token', csrfToken);
+        
+        const button = form.querySelector('button[type="submit"]');
+        const originalHTML = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+        
+        const url = `{{ route('servidores.update', ':id') }}`.replace(':id', matricula);
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                exibirNotificacao('Lotação atribuída com sucesso!', 'success');
+                
+                // Atualizar informações de lotação na tela
+                if (data.lotacao) {
+                    atualizarInformacoesLotacao(data.lotacao);
+                    
+                    // Atualizar o botão de editar
+                    const secaoLotacao = document.querySelector('#secao-lotacao .flex.items-center.gap-2');
+                    if (secaoLotacao) {
+                        const botaoAtual = secaoLotacao.querySelector('button');
+                        if (botaoAtual) {
+                            const nomeLotacao = (data.lotacao.nome_lotacao || '').replace(/'/g, "\\'");
+                            const sigla = (data.lotacao.sigla || '').replace(/'/g, "\\'");
+                            const departamento = (data.lotacao.departamento || '').replace(/'/g, "\\'");
+                            const localizacao = (data.lotacao.localizacao || '').replace(/'/g, "\\'");
+                            botaoAtual.outerHTML = `<button type="button" onclick="abrirModalEditarLotacao(${data.lotacao.id_lotacao}, '${nomeLotacao}', '${sigla}', '${departamento}', '${localizacao}', ${data.lotacao.status ? 1 : 0})" class="text-blue-600 hover:text-blue-800" title="Editar"><i class="fas fa-edit"></i></button>`;
+                        }
+                    }
+                }
+                
+                // Fechar modal após um breve delay
+                setTimeout(() => {
+                    fecharModalAtribuirLotacao();
+                }, 1000);
+            } else {
+                const errorMsg = data.errors ? Object.values(data.errors).flat().join(', ') : (data.message || 'Erro ao atribuir lotação');
+                exibirNotificacao(errorMsg, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao atribuir lotação:', error);
+            exibirNotificacao('Erro ao atribuir lotação. Por favor, tente novamente.', 'error');
+        })
+        .finally(() => {
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+        });
+    }
+    
     function abrirModalEditarVinculo() {
         const servidorId = document.getElementById('servidor_matricula').value;
         document.getElementById('editVinculoServidorId').value = servidorId;
@@ -1198,6 +1389,123 @@
     
     function fecharModalEditarVinculo() {
         document.getElementById('modalEditarVinculo').classList.add('hidden');
+    }
+    
+    // Funções para modal de edição de foto
+    function abrirModalEditarFoto() {
+        document.getElementById('modalEditarFoto').classList.remove('hidden');
+    }
+    
+    function fecharModalEditarFoto() {
+        document.getElementById('modalEditarFoto').classList.add('hidden');
+        // Resetar o input de arquivo
+        const fotoInput = document.getElementById('fotoModal');
+        if (fotoInput) {
+            fotoInput.value = '';
+        }
+        // Restaurar preview original
+        const fotoPreviewModal = document.getElementById('fotoPreviewModal');
+        const imgFotoAtual = document.getElementById('imgFotoAtual');
+        if (fotoPreviewModal && imgFotoAtual) {
+            fotoPreviewModal.innerHTML = '';
+            const img = imgFotoAtual.cloneNode(true);
+            fotoPreviewModal.appendChild(img);
+        } else if (fotoPreviewModal) {
+            fotoPreviewModal.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-300 text-gray-500"><i class="fas fa-user text-3xl"></i></div>';
+        }
+    }
+    
+    function previewFotoModal(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const fotoPreviewModal = document.getElementById('fotoPreviewModal');
+                if (fotoPreviewModal) {
+                    fotoPreviewModal.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = 'Preview';
+                    img.className = 'w-full h-full object-cover';
+                    fotoPreviewModal.appendChild(img);
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    function salvarFoto() {
+        const fotoInput = document.getElementById('fotoModal');
+        if (!fotoInput || !fotoInput.files || !fotoInput.files[0]) {
+            exibirNotificacao('Por favor, selecione uma foto para enviar.', 'error');
+            return;
+        }
+        
+        const matricula = document.getElementById('servidor_matricula').value;
+        const formData = new FormData();
+        const csrfToken = document.querySelector('#formEditarFoto input[name="_token"]').value;
+        
+        formData.append('foto', fotoInput.files[0]);
+        formData.append('_method', 'PUT');
+        formData.append('_token', csrfToken);
+        
+        const button = document.querySelector('#formEditarFoto button[type="submit"]');
+        const originalButtonHTML = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+        
+        const url = `{{ route('servidores.update', ':id') }}`.replace(':id', matricula);
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Erro ao salvar foto');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                exibirNotificacao('Foto salva com sucesso!', 'success');
+                
+                // Atualizar preview da foto principal
+                if (data.foto_url) {
+                    // Adicionar timestamp para forçar reload da imagem
+                    const fotoUrl = data.foto_url + '?v=' + new Date().getTime();
+                    const fotoContainer = document.getElementById('previewFoto');
+                    if (fotoContainer) {
+                        fotoContainer.innerHTML = `<img src="${fotoUrl}" alt="Foto" class="w-full h-full object-cover">`;
+                    }
+                    
+                    // Atualizar também o preview do modal
+                    const fotoPreviewModal = document.getElementById('fotoPreviewModal');
+                    if (fotoPreviewModal) {
+                        fotoPreviewModal.innerHTML = `<img src="${fotoUrl}" alt="Foto" class="w-full h-full object-cover">`;
+                    }
+                }
+                
+                // Fechar modal após um breve delay
+                setTimeout(() => {
+                    fecharModalEditarFoto();
+                }, 1000);
+            } else {
+                const errorMsg = data.errors ? Object.values(data.errors).flat().join(', ') : (data.message || 'Erro ao salvar foto');
+                exibirNotificacao(errorMsg, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao salvar foto:', error);
+            exibirNotificacao(error.message || 'Erro ao salvar foto. Por favor, tente novamente.', 'error');
+        })
+        .finally(() => {
+            button.disabled = false;
+            button.innerHTML = originalButtonHTML;
+        });
     }
     
     // Funções para salvar via AJAX
@@ -1380,9 +1688,22 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                exibirNotificacao('Salvo!', 'success');
-                fecharModalEditarDadosProfissionais();
-                setTimeout(() => location.reload(), 1000);
+                exibirNotificacao('Dados profissionais salvos com sucesso!', 'success');
+                
+                // Atualizar informações de dados profissionais na tela
+                if (data.servidor) {
+                    const dadosProfissionais = {
+                        data_nomeacao: data.servidor.data_nomeacao,
+                        formacao: data.servidor.formacao,
+                        status: data.servidor.status
+                    };
+                    atualizarInformacoesDadosProfissionais(dadosProfissionais);
+                }
+                
+                // Fechar modal após um breve delay
+                setTimeout(() => {
+                    fecharModalEditarDadosProfissionais();
+                }, 1000);
             } else {
                 const errorMsg = data.errors ? Object.values(data.errors).flat().join(', ') : (data.message || 'Erro ao salvar');
                 exibirNotificacao(errorMsg, 'error');
@@ -1999,6 +2320,74 @@
     </div>
 </div>
 
+<!-- Modal para Atribuir Lotação -->
+<div id="modalAtribuirLotacao" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-gray-800">Atribuir Lotação</h3>
+            <button onclick="fecharModalAtribuirLotacao()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="formAtribuirLotacao" onsubmit="event.preventDefault(); salvarAtribuirLotacao();">
+            @csrf
+            @method('PUT')
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Selecione uma Lotação Existente</label>
+                    <select id="atribuirLotacaoId" name="id_lotacao" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="">Selecione uma lotação existente ou crie uma nova abaixo...</option>
+                        @php
+                            $lotacoesUnicas = $lotacoes->unique('id_lotacao');
+                        @endphp
+                        @foreach ($lotacoesUnicas as $lotacao)
+                            <option value="{{ $lotacao->id_lotacao }}">
+                                {{ $lotacao->nome_lotacao }}@if($lotacao->sigla) ({{ $lotacao->sigla }})@endif
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Ou preencha os campos abaixo para criar uma nova lotação</p>
+                </div>
+                
+                <div class="border-t border-gray-200 pt-4 mt-4">
+                    <p class="text-sm font-medium text-gray-700 mb-3">Criar Nova Lotação</p>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome da Lotação *</label>
+                        <input type="text" id="atribuirLotacaoNome" name="nome_lotacao" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: Polícia Civil">
+                    </div>
+                    <div class="mt-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Sigla</label>
+                        <input type="text" id="atribuirLotacaoSigla" name="sigla" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: PC">
+                    </div>
+                    <div class="mt-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Departamento</label>
+                        <input type="text" id="atribuirLotacaoDepartamento" name="departamento" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: Segurança Pública">
+                    </div>
+                    <div class="mt-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Localização</label>
+                        <input type="text" id="atribuirLotacaoLocalizacao" name="localizacao" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: Sede Central">
+                    </div>
+                    <div class="mt-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select id="atribuirLotacaoStatus" name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="1">Ativa</option>
+                            <option value="0">Inativa</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" onclick="fecharModalAtribuirLotacao()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
+                    <i class="fas fa-save mr-2"></i> Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Modal para Editar Vínculo -->
 <div id="modalEditarVinculo" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
     <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
@@ -2028,6 +2417,51 @@
             </div>
             <div class="flex justify-end space-x-3 mt-6">
                 <button type="button" onclick="fecharModalEditarVinculo()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
+                    <i class="fas fa-save mr-2"></i> Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Editar Foto -->
+<div id="modalEditarFoto" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-gray-800">Editar Foto</h3>
+            <button onclick="fecharModalEditarFoto()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="formEditarFoto" onsubmit="event.preventDefault(); salvarFoto();">
+            @csrf
+            @method('PUT')
+            <div class="space-y-4">
+                <!-- Preview da foto atual -->
+                <div class="flex justify-center mb-4">
+                    <div id="fotoPreviewModal" class="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
+                        @if ($servidor->foto)
+                            <img src="{{ asset('storage/' . $servidor->foto) }}" alt="Foto atual" id="imgFotoAtual" class="w-full h-full object-cover">
+                        @else
+                            <div class="w-full h-full flex items-center justify-center bg-gray-300 text-gray-500">
+                                <i class="fas fa-user text-3xl"></i>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                
+                <!-- Input de arquivo -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Selecione uma nova foto</label>
+                    <input type="file" id="fotoModal" name="foto" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-lg" onchange="previewFotoModal(this)">
+                    <p class="text-xs text-gray-500 mt-1">Formatos aceitos: JPEG, PNG, JPG, GIF (máx. 2MB)</p>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" onclick="fecharModalEditarFoto()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
                     Cancelar
                 </button>
                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
