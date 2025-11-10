@@ -1,5 +1,4 @@
 <?php
-// [file name]: UsuarioController.php
 
 namespace App\Http\Controllers\Admin;
 
@@ -8,7 +7,7 @@ use App\Models\User;
 use App\Models\Perfil;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
 class UsuarioController extends Controller
@@ -18,11 +17,16 @@ class UsuarioController extends Controller
      */
     public function indexAcessoSistema()
     {
-        // Use paginate() em vez de get() para ter paginação
-        $servidores = Servidor::with(['user', 'user.perfil'])->paginate(10); // 10 itens por página
+        // Agora que os CPFs estão padronizados, o relacionamento funciona direto
+        $servidores = Servidor::with(['vinculo', 'lotacao', 'user.perfil'])
+            ->paginate(10);
+        
         $perfis = Perfil::all();
         
-        return view('admin.acesso-sistema.acesso-sistema', compact('servidores', 'perfis'));
+        return view('admin.acesso-sistema.acesso-sistema', [
+            'servidores' => $servidores,
+            'perfis' => $perfis
+        ]);
     }
 
     /**
@@ -32,12 +36,17 @@ class UsuarioController extends Controller
     {
         $perfis = Perfil::all();
         
-        // Verificar se já existe usuário para este servidor
-        // $usuarioExistente = User::where('cpf', $servidor->cpf)->first();
-
-        // 🔴 POR esta (busca flexível):
-        $cpfBusca = preg_replace('/[^0-9]/', '', $servidor->cpf);
-        $usuarioExistente = User::whereRaw("REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') = ?", [$cpfBusca])->first();
+        // Buscar usuário existente com CPF limpo
+        $cpfLimpo = preg_replace('/[^0-9]/', '', $servidor->cpf);
+        $usuarioExistente = User::whereRaw("REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') = ?", [$cpfLimpo])
+            ->with('perfil')
+            ->first();
+        
+        Log::info('Buscando usuário existente', [
+            'servidor_cpf' => $servidor->cpf,
+            'cpf_limpo' => $cpfLimpo,
+            'usuario_encontrado' => $usuarioExistente ? 'Sim' : 'Não'
+        ]);
         
         return view('admin.acesso-sistema.atribuir-perfil', compact('servidor', 'perfis', 'usuarioExistente'));
     }
@@ -47,40 +56,74 @@ class UsuarioController extends Controller
      */
     public function storeUserFromServidor(Request $request, Servidor $servidor)
     {
-        $request->validate([
-            'perfil_id' => 'required|exists:perfis,id',
-            'email' => 'required|email|unique:users,email',
-            'username' => 'required|unique:users,username',
-            'password' => 'required|min:8|confirmed',
-        ]);
+        // Limpar CPF do servidor para comparação
+        $cpfLimpo = preg_replace('/[^0-9]/', '', $servidor->cpf);
         
         // Verificar se já existe usuário com este CPF
-        // $usuarioExistente = User::where('cpf', $servidor->cpf)->first();
-
-        // 🔴 POR esta (busca flexível):
-        $cpfBusca = preg_replace('/[^0-9]/', '', $servidor->cpf);
-        $usuarioExistente = User::whereRaw("REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') = ?", [$cpfBusca])->first();
+        $usuarioExistente = User::whereRaw("REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') = ?", [$cpfLimpo])->first();
         
         if ($usuarioExistente) {
+            Log::warning('Tentativa de criar usuário duplicado', [
+                'servidor_cpf' => $servidor->cpf,
+                'usuario_existente_id' => $usuarioExistente->id
+            ]);
+            
             return redirect()->back()
                 ->with('error', 'Já existe um usuário cadastrado com este CPF!')
                 ->withInput();
         }
         
-        // Criar usuário - O CPF será usado como login
-        $user = User::create([
-            'name' => $servidor->nome_completo,
-            'email' => $request->email,
-            'username' => $request->username,
-            'password' => Hash::make($request->password),
-            'cpf' => $servidor->cpf,
-            'rg' => $servidor->rg,
-            'perfil_id' => $request->perfil_id,
-            'status' => 'ativo',
+        // Validação
+        $request->validate([
+            'perfil_id' => 'required|exists:perfis,id',
+            'email' => 'required|email|unique:users,email',
+            'username' => 'required|unique:users,username',
+            'password' => 'required|min:8|confirmed',
+        ], [
+            'perfil_id.required' => 'O perfil de acesso é obrigatório.',
+            'perfil_id.exists' => 'Perfil de acesso inválido.',
+            'email.required' => 'O email é obrigatório.',
+            'email.email' => 'Digite um email válido.',
+            'email.unique' => 'Este email já está cadastrado.',
+            'username.required' => 'O nome de usuário é obrigatório.',
+            'username.unique' => 'Este nome de usuário já está em uso.',
+            'password.required' => 'A senha é obrigatória.',
+            'password.min' => 'A senha deve ter no mínimo 8 caracteres.',
+            'password.confirmed' => 'As senhas não coincidem.',
         ]);
         
-        return redirect()->route('admin.acesso-sistema')
-        ->with('success', 'Acesso criado com sucesso! O colaborador pode fazer login usando o CPF: ' . $servidor->cpf);
+        try {
+            // Criar usuário - O CPF será formatado automaticamente pelo mutator do User
+            $user = User::create([
+                'name' => $servidor->nome_completo,
+                'email' => $request->email,
+                'username' => $request->username,
+                'password' => Hash::make($request->password),
+                'cpf' => $servidor->cpf, // Será formatado pelo mutator
+                'rg' => $servidor->rg,
+                'perfil_id' => $request->perfil_id,
+                'status' => 'ativo',
+            ]);
+            
+            Log::info('Usuário criado com sucesso', [
+                'user_id' => $user->id,
+                'servidor_cpf' => $servidor->cpf,
+                'user_cpf' => $user->cpf
+            ]);
+            
+            return redirect()->route('admin.acesso-sistema')
+                ->with('success', 'Acesso criado com sucesso! O colaborador pode fazer login usando o CPF: ' . $servidor->cpf);
+                
+        } catch (\Exception $e) {
+            Log::error('Erro ao criar usuário', [
+                'error' => $e->getMessage(),
+                'servidor_id' => $servidor->matricula
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Erro ao criar acesso: ' . $e->getMessage())
+                ->withInput();
+        }
     }
     
     /**
@@ -90,14 +133,38 @@ class UsuarioController extends Controller
     {
         $request->validate([
             'perfil_id' => 'required|exists:perfis,id',
+        ], [
+            'perfil_id.required' => 'O perfil de acesso é obrigatório.',
+            'perfil_id.exists' => 'Perfil de acesso inválido.',
         ]);
         
-        $user->update([
-            'perfil_id' => $request->perfil_id,
-        ]);
-        
-        return redirect()->route('admin.acesso-sistema')
-            ->with('success', 'Perfil de acesso atualizado com sucesso!');
+        try {
+            $perfilAntigo = $user->perfil->nomePerfil ?? 'Sem perfil';
+            
+            $user->update([
+                'perfil_id' => $request->perfil_id,
+            ]);
+            
+            $perfilNovo = $user->fresh()->perfil->nomePerfil;
+            
+            Log::info('Perfil de usuário atualizado', [
+                'user_id' => $user->id,
+                'perfil_antigo' => $perfilAntigo,
+                'perfil_novo' => $perfilNovo
+            ]);
+            
+            return redirect()->route('admin.acesso-sistema')
+                ->with('success', "Perfil atualizado de '$perfilAntigo' para '$perfilNovo' com sucesso!");
+                
+        } catch (\Exception $e) {
+            Log::error('Erro ao atualizar perfil', [
+                'error' => $e->getMessage(),
+                'user_id' => $user->id
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Erro ao atualizar perfil: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -105,9 +172,28 @@ class UsuarioController extends Controller
      */
     public function revogarAcesso(User $user)
     {
-        $user->delete();
-        
-        return redirect()->route('admin.acesso-sistema')
-            ->with('success', 'Acesso ao sistema revogado com sucesso!');
+        try {
+            $userName = $user->name;
+            $userId = $user->id;
+            
+            $user->delete();
+            
+            Log::info('Acesso revogado', [
+                'user_id' => $userId,
+                'user_name' => $userName
+            ]);
+            
+            return redirect()->route('admin.acesso-sistema')
+                ->with('success', "Acesso de '$userName' revogado com sucesso!");
+                
+        } catch (\Exception $e) {
+            Log::error('Erro ao revogar acesso', [
+                'error' => $e->getMessage(),
+                'user_id' => $user->id
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Erro ao revogar acesso: ' . $e->getMessage());
+        }
     }
 }

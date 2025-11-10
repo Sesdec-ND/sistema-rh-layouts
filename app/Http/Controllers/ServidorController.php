@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\QueryException;
 
+
 class ServidorController extends Controller
 {
     public function index()
@@ -67,8 +68,8 @@ class ServidorController extends Controller
             'raca_cor' => 'nullable|in:Branca,Preta,Parda,Amarela,Indígena',
             'tipo_sanguineo' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
             'pispasep' => 'nullable|string|max:20',
-                'id_vinculo' => 'nullable|exists:vinculos,id_vinculo',
-                'id_lotacao' => 'nullable|exists:lotacoes,id_lotacao',
+				'id_vinculo' => 'nullable|exists:vinculos,id',
+				'id_lotacao' => 'nullable|exists:lotacoes,id',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -403,11 +404,11 @@ class ServidorController extends Controller
         if ($request->has('pispasep')) {
             $rules['pispasep'] = 'nullable|string|max:20';
         }
-        if ($request->has('id_vinculo')) {
-            $rules['id_vinculo'] = 'nullable|exists:vinculos,id_vinculo';
+		if ($request->has('id_vinculo')) {
+			$rules['id_vinculo'] = 'nullable|exists:vinculos,id';
         }
-        if ($request->has('id_lotacao')) {
-            $rules['id_lotacao'] = 'nullable|exists:lotacoes,id_lotacao';
+		if ($request->has('id_lotacao')) {
+			$rules['id_lotacao'] = 'nullable|exists:lotacoes,id';
         }
         if ($request->hasFile('foto')) {
             $rules['foto'] = 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048';
@@ -569,7 +570,7 @@ class ServidorController extends Controller
         ]);
         
         $servidor = Servidor::findOrFail($servidorId);
-        $validated['id_servidor'] = $servidor->matricula;
+		$validated['id_servidor'] = $servidor->id;
         
         Dependente::create($validated);
         
@@ -631,7 +632,7 @@ class ServidorController extends Controller
         ]);
         
         $servidor = Servidor::findOrFail($servidorId);
-        $validated['id_servidor'] = $servidor->matricula;
+		$validated['id_servidor'] = $servidor->id;
         
         Ocorrencia::create($validated);
         
@@ -704,7 +705,7 @@ class ServidorController extends Controller
             'observacoes' => $request->input('observacoes'),
         ]);
         
-        $validated['id_servidor'] = $servidor->matricula;
+		$validated['id_servidor'] = $servidor->id;
         
         // Converter mês/ano para data (formato YYYY-MM vira YYYY-MM-01)
         $mesAno = $validated['mes_ano'];
@@ -826,7 +827,7 @@ class ServidorController extends Controller
         ]);
         
         $servidor = Servidor::findOrFail($servidorId);
-        $validated['id_servidor'] = $servidor->matricula;
+		$validated['id_servidor'] = $servidor->id;
         
         Ferias::create($validated);
         

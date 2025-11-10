@@ -29,7 +29,7 @@ class HistoricoPagamento extends Model
     // Relacionamentos
     public function servidor()
     {
-        return $this->belongsTo(Servidor::class, 'id_servidor', 'matricula');
+		return $this->belongsTo(Servidor::class, 'id_servidor', 'id');
     }
 
     // Accessors

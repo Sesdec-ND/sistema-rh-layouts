@@ -57,12 +57,12 @@ class Servidor extends Model
     // Relacionamentos
     public function vinculo()
     {
-        return $this->belongsTo(Vinculo::class, 'id_vinculo', 'id_vinculo');
+        return $this->belongsTo(Vinculo::class, 'id_vinculo', 'id');
     }
 
     public function lotacao()
     {
-        return $this->belongsTo(Lotacao::class, 'id_lotacao', 'id_lotacao');
+        return $this->belongsTo(Lotacao::class, 'id_lotacao', 'id');
     }
 
     public function dependentes()
@@ -77,7 +77,7 @@ class Servidor extends Model
 
     public function historicoPagamentos()
     {
-        return $this->hasMany(HistoricoPagamento::class, 'id_servidor', 'matricula');
+        return $this->hasMany(HistoricoPagamento::class, 'id_servidor', 'id');
     }
 
     public function ferias()
@@ -85,9 +85,19 @@ class Servidor extends Model
         return $this->hasMany(Ferias::class, 'id_servidor', 'matricula');
     }
 
+    // 🔴 RELACIONAMENTO CORRIGIDO - Busca flexível por CPF
     public function user()
     {
-        return $this->hasOne(User::class, 'cpf', 'cpf');
+        // Busca o usuário comparando CPF sem formatação
+        return $this->hasOne(User::class, 'cpf', 'cpf')
+            ->orWhereRaw("REPLACE(REPLACE(REPLACE(users.cpf, '.', ''), '-', ''), ' ', '') = REPLACE(REPLACE(REPLACE(?, '.', ''), '-', ''), ' ', '')", [$this->cpf]);
+    }
+
+    // 🔴 MÉTODO AUXILIAR - Retorna o usuário de forma confiável
+    public function getUserAttribute()
+    {
+        $cpfLimpo = preg_replace('/[^0-9]/', '', $this->cpf);
+        return User::whereRaw("REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') = ?", [$cpfLimpo])->first();
     }
 
     // Métodos de cálculo (conforme UML)
@@ -98,7 +108,6 @@ class Servidor extends Model
 
     public function verificarProximidadeAposentadoria()
     {
-        // Exemplo: considerar aposentadoria aos 65 anos
         $idadeAposentadoria = 65;
         $idadeAtual = $this->calcularIdade();
         $anosRestantes = $idadeAposentadoria - $idadeAtual;
@@ -152,7 +161,25 @@ class Servidor extends Model
     // Mutators
     public function setCpfAttribute($value)
     {
-        $this->attributes['cpf'] = preg_replace('/\D/', '', $value);
+        // Remove qualquer formatação existente
+        $cpf = preg_replace('/[^0-9]/', '', $value);
+        
+        // Aplica a formatação padrão: 000.000.000-00
+        if (strlen($cpf) === 11) {
+            $this->attributes['cpf'] = substr($cpf, 0, 3) . '.' . 
+                                     substr($cpf, 3, 3) . '.' . 
+                                     substr($cpf, 6, 3) . '-' . 
+                                     substr($cpf, 9, 2);
+        } else {
+            // Se não tiver 11 dígitos, salva como veio
+            $this->attributes['cpf'] = $value;
+        }
+    }
+
+    // Accessor para CPF (garante exibição consistente)
+    public function getCpfAttribute($value)
+    {
+        return $value; // Já estará formatado pelo mutator
     }
 
     public function setTelefoneAttribute($value)

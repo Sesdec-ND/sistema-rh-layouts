@@ -11,7 +11,7 @@ class Vinculo extends Model
 
     protected $table = 'vinculos';
 
-    protected $primaryKey = 'id_vinculo';
+	protected $primaryKey = 'id';
     public $incrementing = true;
     protected $keyType = 'int';
 
@@ -23,7 +23,7 @@ class Vinculo extends Model
     // Relacionamentos
     public function servidores()
     {
-        return $this->hasMany(Servidor::class, 'id_vinculo', 'id_vinculo');
+		return $this->hasMany(Servidor::class, 'id_vinculo', 'id');
     }
 
     // Scopes

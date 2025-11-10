@@ -1,4 +1,4 @@
-{{-- resources/views/admin/acesso-sistema.blade.php --}}
+{{-- resources/views/admin/acesso-sistema/acesso-sistema.blade.php --}}
 @extends('layouts.admin')
 
 @section('title', 'Acesso ao Sistema - RH')
@@ -31,13 +31,22 @@
         </div>
     @endif
 
+    @php
+        // Contar usuários de forma segura
+        $totalComAcesso = 0;
+        foreach($servidores as $s) {
+            if($s->user) $totalComAcesso++;
+        }
+        $totalSemAcesso = $servidores->total() - $totalComAcesso;
+    @endphp
+
     <!-- Cards de Resumo -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-600 text-sm">Total Colaboradores</p>
-                    <p class="text-3xl font-bold text-gray-800">{{ $servidores->count() }}</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ $servidores->total() }}</p>
                 </div>
                 <div class="bg-blue-100 p-3 rounded-full">
                     <i class="fas fa-users text-blue-600 text-xl"></i>
@@ -49,7 +58,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-600 text-sm">Com Acesso</p>
-                    <p class="text-3xl font-bold text-gray-800">{{ $servidores->where('user', '!=', null)->count() }}</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ $totalComAcesso }}</p>
                 </div>
                 <div class="bg-green-100 p-3 rounded-full">
                     <i class="fas fa-user-check text-green-600 text-xl"></i>
@@ -61,7 +70,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-600 text-sm">Sem Acesso</p>
-                    <p class="text-3xl font-bold text-gray-800">{{ $servidores->where('user', null)->count() }}</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ $totalSemAcesso }}</p>
                 </div>
                 <div class="bg-yellow-100 p-3 rounded-full">
                     <i class="fas fa-user-plus text-yellow-600 text-xl"></i>
@@ -90,7 +99,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach($servidores as $servidor)
+                    @forelse($servidores as $servidor)
                     <tr class="hover:bg-gray-50 transition duration-150">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
@@ -104,7 +113,7 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ $servidor->cpf }}</div>
+                            <div class="text-sm text-gray-900">{{ $servidor->formatted_cpf }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900">{{ $servidor->matricula }}</div>
@@ -126,7 +135,7 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @if($servidor->user)
+                            @if($servidor->user && $servidor->user->perfil)
                                 @php
                                     $badgeColors = [
                                         'RH' => 'bg-purple-100 text-purple-800',
@@ -147,23 +156,22 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex space-x-2">
                                 @if($servidor->user)
-                                    <a href="{{ route('admin.acesso-sistema.atribuir', $servidor->id) }}" 
+                                    <a href="{{ route('admin.acesso-sistema.atribuir', $servidor->matricula) }}" 
                                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center">
                                         <i class="fas fa-edit mr-2"></i>
                                         Alterar Perfil
                                     </a>
                                     <form action="{{ route('admin.acesso-sistema.revogar', $servidor->user->id) }}" method="POST" class="inline">
                                         @csrf
-                                        <!-- @method('DELETE') -->
                                         <button type="submit" 
                                                 class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center"
-                                                onclick="return confirm('Tem certeza que deseja revogar o acesso deste usuário?')">
+                                                onclick="return confirm('Tem certeza que deseja revogar o acesso de {{ $servidor->nome_completo }}?')">
                                             <i class="fas fa-ban mr-2"></i>
                                             Revogar Acesso
                                         </button>
                                     </form>
                                 @else
-                                    <a href="{{ route('admin.acesso-sistema.atribuir', $servidor->id) }}" 
+                                    <a href="{{ route('admin.acesso-sistema.atribuir', $servidor->matricula) }}" 
                                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center">
                                         <i class="fas fa-user-plus mr-2"></i>
                                         Atribuir Acesso
@@ -172,7 +180,14 @@
                             </div>
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                            <i class="fas fa-inbox text-4xl mb-2"></i>
+                            <p class="text-lg">Nenhum colaborador encontrado</p>
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

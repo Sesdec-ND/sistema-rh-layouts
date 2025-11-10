@@ -11,7 +11,7 @@ class Lotacao extends Model
 
     protected $table = 'lotacoes';
 
-    protected $primaryKey = 'id_lotacao';
+	protected $primaryKey = 'id';
     public $incrementing = true;
     protected $keyType = 'int';
 
@@ -30,7 +30,7 @@ class Lotacao extends Model
     // Relacionamentos
     public function servidores()
     {
-        return $this->hasMany(Servidor::class, 'id_lotacao', 'id_lotacao');
+		return $this->hasMany(Servidor::class, 'id_lotacao', 'id');
     }
 
     // Scopes
