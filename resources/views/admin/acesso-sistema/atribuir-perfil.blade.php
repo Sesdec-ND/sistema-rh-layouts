@@ -17,6 +17,31 @@
         </a>
     </div>
 
+    @if (session('success'))
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg shadow-md" role="alert">
+            <p class="font-bold">Sucesso!</p>
+            <p>{{ session('success') }}</p>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-lg shadow-md" role="alert">
+            <p class="font-bold">Erro!</p>
+            <p>{{ session('error') }}</p>
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-lg shadow-md" role="alert">
+            <p class="font-bold">Erro de Validação!</p>
+            <ul class="list-disc list-inside mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <!-- Informações do Colaborador -->
     <div class="bg-white rounded-xl shadow-md p-6">
         <h2 class="text-xl font-bold text-gray-800 mb-4">Informações do Colaborador</h2>
@@ -93,7 +118,7 @@
         </div>
     @else
         <!-- Criar Novo Usuário -->
-        <form action="{{ route('admin.acesso-sistema.criar-usuario', $servidor->id) }}" method="POST" class="bg-white rounded-xl shadow-md p-6">
+        <form action="{{ route('admin.acesso-sistema.criar-usuario', $servidor->matricula) }}" method="POST" class="bg-white rounded-xl shadow-md p-6">
             @csrf
             
             <h2 class="text-xl font-bold text-gray-800 mb-6">Criar Acesso ao Sistema</h2>
