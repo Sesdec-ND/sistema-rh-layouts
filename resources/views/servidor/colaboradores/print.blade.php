@@ -247,9 +247,7 @@
             <button onclick="window.print()" class="btn btn-print">
                 🖨️ Imprimir
             </button>
-            <a href="{{ route('servidores.show', $servidor->matricula) }}" class="btn">
-                ← Voltar
-            </a>
+            
         </div>
 
         <!-- Cabeçalho -->
