@@ -28,8 +28,10 @@ class UsuarioController extends Controller
     /**
      * Mostra formulário para criar usuário a partir de servidor
      */
-    public function createUserFromServidor(Servidor $servidor)
+    public function createUserFromServidor($servidor)
     {
+        // Buscar servidor pela matrícula (chave primária)
+        $servidor = Servidor::findOrFail($servidor);
         $perfis = Perfil::all();
         
         // Verificar se já existe usuário para este servidor
@@ -45,42 +47,58 @@ class UsuarioController extends Controller
     /**
      * Cria usuário com perfil a partir de servidor
      */
-    public function storeUserFromServidor(Request $request, Servidor $servidor)
+    public function storeUserFromServidor(Request $request, $servidor)
     {
-        $request->validate([
-            'perfil_id' => 'required|exists:perfis,id',
-            'email' => 'required|email|unique:users,email',
-            'username' => 'required|unique:users,username',
-            'password' => 'required|min:8|confirmed',
-        ]);
+        $servidorMatricula = $servidor; // Guardar a matrícula antes de buscar
         
-        // Verificar se já existe usuário com este CPF
-        // $usuarioExistente = User::where('cpf', $servidor->cpf)->first();
+        try {
+            // Buscar servidor pela matrícula (chave primária)
+            $servidor = Servidor::findOrFail($servidor);
+            
+            $validated = $request->validate([
+                'perfil_id' => 'required|exists:perfis,id',
+                'email' => 'required|email|unique:users,email',
+                'username' => 'required|unique:users,username',
+                'password' => 'required|min:8|confirmed',
+            ]);
+            
+            // Verificar se já existe usuário com este CPF
+            // $usuarioExistente = User::where('cpf', $servidor->cpf)->first();
 
-        // 🔴 POR esta (busca flexível):
-        $cpfBusca = preg_replace('/[^0-9]/', '', $servidor->cpf);
-        $usuarioExistente = User::whereRaw("REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') = ?", [$cpfBusca])->first();
-        
-        if ($usuarioExistente) {
-            return redirect()->back()
-                ->with('error', 'Já existe um usuário cadastrado com este CPF!')
+            // 🔴 POR esta (busca flexível):
+            $cpfBusca = preg_replace('/[^0-9]/', '', $servidor->cpf);
+            $usuarioExistente = User::whereRaw("REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') = ?", [$cpfBusca])->first();
+            
+            if ($usuarioExistente) {
+                return redirect()->route('admin.acesso-sistema.atribuir', $servidor->matricula)
+                    ->with('error', 'Já existe um usuário cadastrado com este CPF!')
+                    ->withInput();
+            }
+            
+            // Criar usuário - O CPF será usado como login
+            $user = User::create([
+                'name' => $servidor->nome_completo,
+                'email' => $validated['email'],
+                'username' => $validated['username'],
+                'password' => Hash::make($validated['password']),
+                'cpf' => $servidor->cpf,
+                'rg' => $servidor->rg ?? null,
+                'perfil_id' => $validated['perfil_id'],
+            ]);
+            
+            return redirect()->route('admin.acesso-sistema')
+                ->with('success', 'Acesso criado com sucesso! O colaborador pode fazer login usando o CPF: ' . $servidor->cpf);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Em caso de erro de validação, redirecionar para a página de atribuir perfil
+            return redirect()->route('admin.acesso-sistema.atribuir', $servidorMatricula)
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            // Em caso de outros erros, também redirecionar para a página de atribuir perfil
+            return redirect()->route('admin.acesso-sistema.atribuir', $servidorMatricula)
+                ->with('error', 'Erro ao criar acesso: ' . $e->getMessage())
                 ->withInput();
         }
-        
-        // Criar usuário - O CPF será usado como login
-        $user = User::create([
-            'name' => $servidor->nome_completo,
-            'email' => $request->email,
-            'username' => $request->username,
-            'password' => Hash::make($request->password),
-            'cpf' => $servidor->cpf,
-            'rg' => $servidor->rg,
-            'perfil_id' => $request->perfil_id,
-            'status' => 'ativo',
-        ]);
-        
-        return redirect()->route('admin.acesso-sistema')
-        ->with('success', 'Acesso criado com sucesso! O colaborador pode fazer login usando o CPF: ' . $servidor->cpf);
     }
     
     /**

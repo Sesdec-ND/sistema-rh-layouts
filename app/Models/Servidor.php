@@ -18,6 +18,14 @@ class Servidor extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'matricula';
+    }
+
     protected $fillable = [
         'nome_completo',
         'email',
@@ -83,6 +91,16 @@ class Servidor extends Model
     public function ferias()
     {
         return $this->hasMany(Ferias::class, 'id_servidor', 'matricula');
+    }
+
+    public function formacoes()
+    {
+        return $this->hasMany(Formacao::class, 'id_servidor', 'matricula');
+    }
+
+    public function cursos()
+    {
+        return $this->hasMany(Curso::class, 'id_servidor', 'matricula');
     }
 
     public function user()

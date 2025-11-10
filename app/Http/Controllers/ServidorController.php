@@ -351,7 +351,9 @@ class ServidorController extends Controller
                 'dependentes', 
                 'historicoPagamentos', 
                 'ferias', 
-                'ocorrencias'
+                'ocorrencias',
+                'formacoes',
+                'cursos'
             ])->findOrFail($id);
             
             // Carregar vínculos e lotações

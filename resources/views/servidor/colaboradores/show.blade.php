@@ -259,7 +259,7 @@
                         </h2>
                         <!-- <button type="button" onclick="abrirModalDependente()"
                             class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center">
-                            <i class="fas fa-plus mr-2"></i> Adicionar Dependente
+                            <i class="fas fap-lus mr-2"></i> Adicionar Dependente
                         </button> -->
                     </div>
                     @php
@@ -318,10 +318,7 @@
                         <h2 class="text-2xl font-bold text-gray-800 border-b-2 border-blue-500 pb-3">
                             <i class="fas fa-money-bill-wave mr-2"></i>Histórico de Pagamento
                         </h2>
-                        <button type="button" onclick="abrirModalPagamento()"
-                            class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition duration-200 flex items-center justify-center" title="Adicionar Pagamento">
-                            <i class="fas fa-plus"></i>
-                        </button>
+                        
                     </div>
                     @php
                         $historicoPagamentos = $servidor->historicoPagamentos ?? collect();
@@ -406,10 +403,7 @@
                         <h2 class="text-2xl font-bold text-gray-800 border-b-2 border-blue-500 pb-3">
                             <i class="fas fa-umbrella-beach mr-2"></i>Histórico de Férias
                         </h2>
-                        <button type="button" onclick="abrirModalFeria()"
-                            class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition duration-200 flex items-center justify-center" title="Adicionar Férias">
-                            <i class="fas fa-plus"></i>
-                        </button>
+                        
                     </div>
                     @php
                         $ferias = $servidor->ferias ?? collect();

@@ -425,6 +425,149 @@
                         @endif
                     </div>
                 </div>
+
+                <!-- Seção: Formação e Cursos -->
+                <div class="mb-8 pb-8 border-b border-gray-200">
+                    <div class="mb-6">
+                        <div class="flex items-center gap-2 border-b-2 border-blue-500 pb-3">
+                            <h2 class="text-2xl font-bold text-gray-800">
+                                <i class="fas fa-graduation-cap mr-2"></i>Formação e Cursos
+                            </h2>
+                        </div>
+                    </div>
+
+                    <!-- Abas -->
+                    <div class="border-b border-gray-200 mb-6">
+                        <nav class="-mb-px flex space-x-8">
+                            <button type="button" onclick="mostrarAba('formacao')" id="tab-formacao" 
+                                class="tab-button active py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600 flex items-center">
+                                <i class="fas fa-graduation-cap mr-2"></i>Formação
+                            </button>
+                            <button type="button" onclick="mostrarAba('cursos')" id="tab-cursos" 
+                                class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 flex items-center">
+                                <i class="fas fa-book mr-2"></i>Cursos
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Conteúdo da Aba Formação -->
+                    <div id="conteudo-formacao" class="tab-content">
+                        <div class="flex justify-end mb-4">
+                            <button type="button" onclick="abrirModalFormacao()" 
+                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center">
+                                <i class="fas fa-plus mr-2"></i> Adicionar Formação
+                            </button>
+                        </div>
+
+                        <div id="lista-formacoes">
+                            @if($servidor->formacoes && $servidor->formacoes->count() > 0)
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Curso</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Instituição</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nível</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ano Conclusão</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duração</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @foreach($servidor->formacoes as $formacao)
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $formacao->curso }}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $formacao->instituicao }}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $formacao->nivel }}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $formacao->ano_conclusao }}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $formacao->duracao ?? '-' }}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                        <button type="button" onclick="abrirModalEditarFormacao({{ $formacao->id }}, '{{ addslashes($formacao->curso) }}', '{{ addslashes($formacao->instituicao) }}', '{{ $formacao->nivel }}', {{ $formacao->ano_conclusao }}, '{{ addslashes($formacao->duracao ?? '') }}', '{{ addslashes($formacao->descricao ?? '') }}')" 
+                                                            class="text-blue-600 hover:text-blue-800 mr-3">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                        <form action="{{ route('servidores.formacoes.destroy', [$servidor->matricula, $formacao->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover esta formação?')" class="inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="text-red-600 hover:text-red-800">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="text-center py-8 text-gray-500 bg-yellow-50 rounded-lg border border-yellow-200">
+                                    <i class="fas fa-graduation-cap text-3xl mb-3"></i>
+                                    <p>Nenhuma formação cadastrada</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Conteúdo da Aba Cursos -->
+                    <div id="conteudo-cursos" class="tab-content hidden">
+                        <div class="flex justify-end mb-4">
+                            <button type="button" onclick="abrirModalCurso()" 
+                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center">
+                                <i class="fas fa-plus mr-2"></i> Adicionar Curso
+                            </button>
+                        </div>
+
+                        <div id="lista-cursos">
+                            @if($servidor->cursos && $servidor->cursos->count() > 0)
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Instituição</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Carga Horária</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data Conclusão</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @foreach($servidor->cursos as $curso)
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $curso->nome }}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $curso->instituicao }}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $curso->carga_horaria }}h</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                        {{ $curso->data_conclusao ? \Carbon\Carbon::parse($curso->data_conclusao)->format('d/m/Y') : '-' }}
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $curso->tipo ?? '-' }}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                        <button type="button" onclick="abrirModalEditarCurso({{ $curso->id }}, '{{ addslashes($curso->nome) }}', '{{ addslashes($curso->instituicao) }}', {{ $curso->carga_horaria }}, '{{ $curso->data_conclusao ? \Carbon\Carbon::parse($curso->data_conclusao)->format('Y-m-d') : '' }}', '{{ $curso->tipo ?? '' }}', '{{ addslashes($curso->descricao ?? '') }}')" 
+                                                            class="text-blue-600 hover:text-blue-800 mr-3">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                        <form action="{{ route('servidores.cursos.destroy', [$servidor->matricula, $curso->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este curso?')" class="inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="text-red-600 hover:text-red-800">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="text-center py-8 text-gray-500 bg-yellow-50 rounded-lg border border-yellow-200">
+                                    <i class="fas fa-book text-3xl mb-3"></i>
+                                    <p>Nenhum curso cadastrado</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </form>
 
             <!-- Seção: Dependentes -->
@@ -1085,6 +1228,33 @@
         if (vinculoData && vinculo.created_at) {
             const data = new Date(vinculo.created_at);
             vinculoData.textContent = data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+        }
+    }
+
+    // Função para alternar entre abas
+    function mostrarAba(aba) {
+        // Ocultar todos os conteúdos
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        // Remover classe active de todas as abas
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('active', 'border-blue-500', 'text-blue-600');
+            button.classList.add('border-transparent', 'text-gray-500');
+        });
+        
+        // Mostrar conteúdo da aba selecionada
+        const conteudo = document.getElementById('conteudo-' + aba);
+        if (conteudo) {
+            conteudo.classList.remove('hidden');
+        }
+        
+        // Ativar botão da aba selecionada
+        const botao = document.getElementById('tab-' + aba);
+        if (botao) {
+            botao.classList.add('active', 'border-blue-500', 'text-blue-600');
+            botao.classList.remove('border-transparent', 'text-gray-500');
         }
     }
 
