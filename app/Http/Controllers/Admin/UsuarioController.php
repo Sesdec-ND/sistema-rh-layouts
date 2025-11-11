@@ -34,6 +34,11 @@ class UsuarioController extends Controller
      */
     public function createUserFromServidor(Servidor $servidor)
     {
+<<<<<<< HEAD
+=======
+        // Buscar servidor pelo id
+        $servidor = Servidor::findOrFail($servidor);
+>>>>>>> 0abed94 (mostrando servidor por id e config de pdf)
         $perfis = Perfil::all();
         
         // Buscar usuário existente com CPF limpo
@@ -56,6 +61,7 @@ class UsuarioController extends Controller
      */
     public function storeUserFromServidor(Request $request, Servidor $servidor)
     {
+<<<<<<< HEAD
         // Limpar CPF do servidor para comparação
         $cpfLimpo = preg_replace('/[^0-9]/', '', $servidor->cpf);
         
@@ -94,6 +100,35 @@ class UsuarioController extends Controller
         
         try {
             // Criar usuário - O CPF será formatado automaticamente pelo mutator do User
+=======
+        $servidorId = $servidor; // Guardar o id antes de buscar
+        
+        try {
+            // Buscar servidor pelo id
+            $servidor = Servidor::findOrFail($servidor);
+            
+            $validated = $request->validate([
+                'perfil_id' => 'required|exists:perfis,id',
+                'email' => 'required|email|unique:users,email',
+                'username' => 'required|unique:users,username',
+                'password' => 'required|min:8|confirmed',
+            ]);
+            
+            // Verificar se já existe usuário com este CPF
+            // $usuarioExistente = User::where('cpf', $servidor->cpf)->first();
+
+            // 🔴 POR esta (busca flexível):
+            $cpfBusca = preg_replace('/[^0-9]/', '', $servidor->cpf);
+            $usuarioExistente = User::whereRaw("REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') = ?", [$cpfBusca])->first();
+            
+            if ($usuarioExistente) {
+                return redirect()->route('admin.acesso-sistema.atribuir', $servidor->id)
+                    ->with('error', 'Já existe um usuário cadastrado com este CPF!')
+                    ->withInput();
+            }
+            
+            // Criar usuário - O CPF será usado como login
+>>>>>>> 0abed94 (mostrando servidor por id e config de pdf)
             $user = User::create([
                 'name' => $servidor->nome_completo,
                 'email' => $request->email,
@@ -113,6 +148,7 @@ class UsuarioController extends Controller
             
             return redirect()->route('admin.acesso-sistema')
                 ->with('success', 'Acesso criado com sucesso! O colaborador pode fazer login usando o CPF: ' . $servidor->cpf);
+<<<<<<< HEAD
                 
         } catch (\Exception $e) {
             Log::error('Erro ao criar usuário', [
@@ -121,6 +157,16 @@ class UsuarioController extends Controller
             ]);
             
             return redirect()->back()
+=======
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Em caso de erro de validação, redirecionar para a página de atribuir perfil
+            return redirect()->route('admin.acesso-sistema.atribuir', $servidorId)
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            // Em caso de outros erros, também redirecionar para a página de atribuir perfil
+            return redirect()->route('admin.acesso-sistema.atribuir', $servidorId)
+>>>>>>> 0abed94 (mostrando servidor por id e config de pdf)
                 ->with('error', 'Erro ao criar acesso: ' . $e->getMessage())
                 ->withInput();
         }

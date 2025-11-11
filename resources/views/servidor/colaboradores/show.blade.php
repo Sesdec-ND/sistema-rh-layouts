@@ -34,11 +34,11 @@
                 <p class="text-gray-600 mt-2">Detalhes completos do servidor</p>
             </div>
             <div class="flex space-x-3">
-                <a href="{{ route('servidores.print', $servidor->matricula) }}" target="_blank"
+                <a href="{{ route('servidores.print', $servidor->id) }}" target="_blank"
                     class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center">
                     <i class="fas fa-print mr-2"></i> Imprimir
                 </a>
-                <a href="{{ route('servidores.edit', $servidor->matricula) }}"
+                <a href="{{ route('servidores.edit', $servidor->id) }}"
                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center">
                     <i class="fas fa-edit mr-2"></i> Editar
                 </a>
@@ -200,18 +200,7 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Localização</label>
                                 <p class="text-gray-900">{{ $servidor->lotacao->localizacao ?? 'Não informado' }}</p>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                <p class="text-gray-900">
-                                    @if ($servidor->lotacao->status)
-                                        <span
-                                            class="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Ativa</span>
-                                    @else
-                                        <span
-                                            class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">Inativa</span>
-                                    @endif
-                                </p>
-                            </div>
+                           
                         </div>
                     @else
                         <div class="text-center py-8 text-gray-500">
@@ -293,7 +282,7 @@
                                         </div>
                                     </div>
                                     <div class="mt-3 pt-3 border-t border-gray-200">
-                                        <form action="{{ route('servidores.dependentes.destroy', [$servidor->matricula, $dependente->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este dependente?')">
+                                        <form action="{{ route('servidores.dependentes.destroy', [$servidor->id, $dependente->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este dependente?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-600 hover:text-red-800 text-sm">
@@ -378,7 +367,7 @@
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                <form action="{{ route('servidores.pagamentos.destroy', [$servidor->matricula, $pagamento->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este pagamento?')">
+                                                <form action="{{ route('servidores.pagamentos.destroy', [$servidor->id, $pagamento->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este pagamento?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     
@@ -454,7 +443,7 @@
                                         @endif
                                     </div>
                                     <div class="mt-3 pt-3 border-t border-gray-200">
-                                        <form action="{{ route('servidores.ferias.destroy', [$servidor->matricula, $feria->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este período de férias?')">
+                                        <form action="{{ route('servidores.ferias.destroy', [$servidor->id, $feria->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este período de férias?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-600 hover:text-red-800 text-sm">
@@ -519,7 +508,7 @@
                                                 {{ $ocorrencia->observacoes ?? '-' }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                <form action="{{ route('servidores.ocorrencias.destroy', [$servidor->matricula, $ocorrencia->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover esta ocorrência?')">
+                                                <form action="{{ route('servidores.ocorrencias.destroy', [$servidor->id, $ocorrencia->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover esta ocorrência?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="text-red-600 hover:text-red-800">
@@ -595,7 +584,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form id="formDependente" action="{{ route('servidores.dependentes.store', $servidor->matricula) }}" method="POST">
+        <form id="formDependente" action="{{ route('servidores.dependentes.store', $servidor->id) }}" method="POST">
             @csrf
             <div class="space-y-4">
                 <div>
@@ -650,7 +639,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form id="formOcorrencia" action="{{ route('servidores.ocorrencias.store', $servidor->matricula) }}" method="POST">
+        <form id="formOcorrencia" action="{{ route('servidores.ocorrencias.store', $servidor->id) }}" method="POST">
             @csrf
             <div class="space-y-4">
                 <div>
@@ -699,7 +688,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form id="formPagamento" action="{{ route('servidores.pagamentos.store', $servidor->matricula) }}" method="POST">
+        <form id="formPagamento" action="{{ route('servidores.pagamentos.store', $servidor->id) }}" method="POST">
             @csrf
             <div class="space-y-4">
                 <div>
@@ -748,7 +737,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form id="formFeria" action="{{ route('servidores.ferias.store', $servidor->matricula) }}" method="POST">
+        <form id="formFeria" action="{{ route('servidores.ferias.store', $servidor->id) }}" method="POST">
             @csrf
             <div class="space-y-4">
                 <div>

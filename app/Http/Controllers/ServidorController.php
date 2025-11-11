@@ -135,7 +135,7 @@ class ServidorController extends Controller
                     foreach ($request->dependentes as $dependenteData) {
                         if (!empty($dependenteData['nome'])) {
                             Dependente::create([
-                                'id_servidor' => $servidor->matricula,
+                                'id_servidor' => $servidor->id,
                                 'nome' => $dependenteData['nome'],
                                 'parentesco' => $dependenteData['parentesco'] ?? null,
                                 'data_nascimento' => $dependenteData['data_nascimento'] ?? null,
@@ -166,7 +166,7 @@ class ServidorController extends Controller
                             }
                             
                             HistoricoPagamento::create([
-                                'id_servidor' => $servidor->matricula,
+                                'id_servidor' => $servidor->id,
                                 'mes_ano' => $mesAno,
                                 'valor' => $valor,
                                 'status' => $pagamentoData['status'] ?? 'pendente',
@@ -183,7 +183,7 @@ class ServidorController extends Controller
                     foreach ($request->ferias as $feriasData) {
                         if (!empty($feriasData['data_inicio'])) {
                             Ferias::create([
-                                'id_servidor' => $servidor->matricula,
+                                'id_servidor' => $servidor->id,
                                 'data_inicio' => $feriasData['data_inicio'],
                                 'data_fim' => $feriasData['data_fim'] ?? null,
                                 'dias' => $feriasData['dias'] ?? null,
@@ -257,47 +257,52 @@ class ServidorController extends Controller
             // Carregar relacionamentos principais
         $servidor->load(['vinculo', 'lotacao']);
             
-            // Carregar relacionamentos opcionais e garantir que sejam Collections
+            // Carregar relacionamentos - buscar por ID ou matrícula (compatibilidade)
             try {
-                $servidor->load('dependentes');
-                Log::info('Dependentes carregados para servidor ' . $id . ': ' . $servidor->dependentes->count());
+                // Tentar buscar por ID primeiro
+                $dependentes = \App\Models\Dependente::where('id_servidor', $servidor->id)->get();
+                // Se não encontrar, tentar por matrícula (para dados antigos)
+                if ($dependentes->isEmpty()) {
+                    $dependentes = \App\Models\Dependente::where('id_servidor', $servidor->matricula)->get();
+                }
+                $servidor->setRelation('dependentes', $dependentes);
+                Log::info('Dependentes carregados para servidor ' . $id . ': ' . $dependentes->count());
             } catch (\Exception $e) {
                 Log::warning('Erro ao carregar dependentes: ' . $e->getMessage());
                 $servidor->setRelation('dependentes', collect());
             }
             
             try {
-                $servidor->load('ocorrencias');
-                Log::info('Ocorrencias carregadas para servidor ' . $id . ': ' . $servidor->ocorrencias->count());
+                $ocorrencias = \App\Models\Ocorrencia::where('id_servidor', $servidor->id)->get();
+                if ($ocorrencias->isEmpty()) {
+                    $ocorrencias = \App\Models\Ocorrencia::where('id_servidor', $servidor->matricula)->get();
+                }
+                $servidor->setRelation('ocorrencias', $ocorrencias);
+                Log::info('Ocorrencias carregadas para servidor ' . $id . ': ' . $ocorrencias->count());
             } catch (\Exception $e) {
                 Log::warning('Erro ao carregar ocorrencias: ' . $e->getMessage());
                 $servidor->setRelation('ocorrencias', collect());
             }
             
             try {
-                $servidor->load('historicoPagamentos');
-                Log::info('HistoricoPagamentos carregado para servidor ' . $id . ': ' . $servidor->historicoPagamentos->count());
-                
-                // Log detalhado dos pagamentos para debug
-                foreach ($servidor->historicoPagamentos as $pagamento) {
-                    Log::info('Pagamento carregado - ID: ' . $pagamento->id, [
-                        'mes_ano' => $pagamento->mes_ano,
-                        'valor' => $pagamento->valor,
-                        'status' => $pagamento->status,
-                        'data_pagamento' => $pagamento->data_pagamento,
-                        'data_pagamento_attributes' => $pagamento->getAttributes()['data_pagamento'] ?? 'N/A',
-                        'observacoes' => $pagamento->observacoes,
-                        'observacoes_attributes' => $pagamento->getAttributes()['observacoes'] ?? 'N/A',
-                    ]);
+                $pagamentos = \App\Models\HistoricoPagamento::where('id_servidor', $servidor->id)->get();
+                if ($pagamentos->isEmpty()) {
+                    $pagamentos = \App\Models\HistoricoPagamento::where('id_servidor', $servidor->matricula)->get();
                 }
+                $servidor->setRelation('historicoPagamentos', $pagamentos);
+                Log::info('HistoricoPagamentos carregado para servidor ' . $id . ': ' . $pagamentos->count());
             } catch (\Exception $e) {
                 Log::warning('Erro ao carregar historicoPagamentos: ' . $e->getMessage());
                 $servidor->setRelation('historicoPagamentos', collect());
             }
             
             try {
-                $servidor->load('ferias');
-                Log::info('Ferias carregadas para servidor ' . $id . ': ' . $servidor->ferias->count());
+                $ferias = \App\Models\Ferias::where('id_servidor', $servidor->id)->get();
+                if ($ferias->isEmpty()) {
+                    $ferias = \App\Models\Ferias::where('id_servidor', $servidor->matricula)->get();
+                }
+                $servidor->setRelation('ferias', $ferias);
+                Log::info('Ferias carregadas para servidor ' . $id . ': ' . $ferias->count());
             } catch (\Exception $e) {
                 Log::warning('Erro ao carregar ferias: ' . $e->getMessage());
                 $servidor->setRelation('ferias', collect());
@@ -305,25 +310,13 @@ class ServidorController extends Controller
             
             // Log detalhado para debug
             Log::info('Servidor carregado com sucesso:', [
+                'id' => $servidor->id,
                 'matricula' => $servidor->matricula,
                 'nome' => $servidor->nome_completo,
                 'dependentes_count' => $servidor->dependentes->count(),
                 'ocorrencias_count' => $servidor->ocorrencias->count(),
                 'historicoPagamentos_count' => $servidor->historicoPagamentos->count(),
                 'ferias_count' => $servidor->ferias->count(),
-            ]);
-            
-            // Verificar se há dados diretamente do banco (debug)
-            $dependentesDb = \App\Models\Dependente::where('id_servidor', $id)->count();
-            $ocorrenciasDb = \App\Models\Ocorrencia::where('id_servidor', $id)->count();
-            $pagamentosDb = \App\Models\HistoricoPagamento::where('id_servidor', $id)->count();
-            $feriasDb = \App\Models\Ferias::where('id_servidor', $id)->count();
-            
-            Log::info('Dados diretamente do banco para servidor ' . $id . ':', [
-                'dependentes_db' => $dependentesDb,
-                'ocorrencias_db' => $ocorrenciasDb,
-                'pagamentos_db' => $pagamentosDb,
-                'ferias_db' => $feriasDb,
             ]);
             
             return view('servidor.colaboradores.show', compact('servidor'));
@@ -345,17 +338,34 @@ class ServidorController extends Controller
     public function edit($id)
     {
         try {
-            // Buscar servidor pela matrícula (chave primária) com todos os dados
+            // Buscar servidor pelo id
             $servidor = Servidor::with([
                 'vinculo', 
                 'lotacao', 
-                'dependentes', 
-                'historicoPagamentos', 
-                'ferias', 
-                'ocorrencias',
                 'formacoes',
                 'cursos'
             ])->findOrFail($id);
+            
+            // Carregar relacionamentos manualmente (compatibilidade com dados antigos)
+            $dependentes = \App\Models\Dependente::where('id_servidor', $servidor->id)
+                ->orWhere('id_servidor', $servidor->matricula)
+                ->get();
+            $servidor->setRelation('dependentes', $dependentes);
+            
+            $ocorrencias = \App\Models\Ocorrencia::where('id_servidor', $servidor->id)
+                ->orWhere('id_servidor', $servidor->matricula)
+                ->get();
+            $servidor->setRelation('ocorrencias', $ocorrencias);
+            
+            $pagamentos = \App\Models\HistoricoPagamento::where('id_servidor', $servidor->id)
+                ->orWhere('id_servidor', $servidor->matricula)
+                ->get();
+            $servidor->setRelation('historicoPagamentos', $pagamentos);
+            
+            $ferias = \App\Models\Ferias::where('id_servidor', $servidor->id)
+                ->orWhere('id_servidor', $servidor->matricula)
+                ->get();
+            $servidor->setRelation('ferias', $ferias);
             
             // Carregar vínculos e lotações
         $vinculos = Vinculo::all();
@@ -652,7 +662,11 @@ class ServidorController extends Controller
         ]);
         
         $servidor = Servidor::findOrFail($servidorId);
+<<<<<<< HEAD
 		$validated['id_servidor'] = $servidor->id;
+=======
+        $validated['id_servidor'] = $servidor->id;
+>>>>>>> 0abed94 (mostrando servidor por id e config de pdf)
         
         Dependente::create($validated);
         
@@ -714,7 +728,11 @@ class ServidorController extends Controller
         ]);
         
         $servidor = Servidor::findOrFail($servidorId);
+<<<<<<< HEAD
 		$validated['id_servidor'] = $servidor->id;
+=======
+        $validated['id_servidor'] = $servidor->id;
+>>>>>>> 0abed94 (mostrando servidor por id e config de pdf)
         
         Ocorrencia::create($validated);
         
@@ -787,7 +805,11 @@ class ServidorController extends Controller
             'observacoes' => $request->input('observacoes'),
         ]);
         
+<<<<<<< HEAD
 		$validated['id_servidor'] = $servidor->id;
+=======
+        $validated['id_servidor'] = $servidor->id;
+>>>>>>> 0abed94 (mostrando servidor por id e config de pdf)
         
         // Converter mês/ano para data (formato YYYY-MM vira YYYY-MM-01)
         $mesAno = $validated['mes_ano'];
@@ -909,7 +931,11 @@ class ServidorController extends Controller
         ]);
         
         $servidor = Servidor::findOrFail($servidorId);
+<<<<<<< HEAD
 		$validated['id_servidor'] = $servidor->id;
+=======
+        $validated['id_servidor'] = $servidor->id;
+>>>>>>> 0abed94 (mostrando servidor por id e config de pdf)
         
         Ferias::create($validated);
         
@@ -963,29 +989,112 @@ class ServidorController extends Controller
     public function print($id)
     {
         try {
-            // Buscar servidor pela matrícula (chave primária) com todos os relacionamentos
+            // Buscar servidor pelo id
             $servidor = Servidor::with([
                 'vinculo',
                 'lotacao',
-                'dependentes',
-                'ocorrencias',
-                'historicoPagamentos',
-                'ferias',
+                'formacoes',
+                'cursos',
                 'user'
             ])->findOrFail($id);
             
-            return view('servidor.colaboradores.print', compact('servidor'));
+            // Carregar relacionamentos manualmente (compatibilidade com dados antigos)
+            // Dependentes
+            $dependentes = \App\Models\Dependente::where('id_servidor', $servidor->id)
+                ->orWhere('id_servidor', $servidor->matricula)
+                ->get();
+            $servidor->setRelation('dependentes', $dependentes);
+            
+            // Ocorrências
+            $ocorrencias = \App\Models\Ocorrencia::where('id_servidor', $servidor->id)
+                ->orWhere('id_servidor', $servidor->matricula)
+                ->get();
+            $servidor->setRelation('ocorrencias', $ocorrencias);
+            
+            // Histórico de Pagamentos
+            $pagamentos = \App\Models\HistoricoPagamento::where('id_servidor', $servidor->id)
+                ->orWhere('id_servidor', $servidor->matricula)
+                ->get();
+            $servidor->setRelation('historicoPagamentos', $pagamentos);
+            
+            // Férias
+            $ferias = \App\Models\Ferias::where('id_servidor', $servidor->id)
+                ->orWhere('id_servidor', $servidor->matricula)
+                ->get();
+            $servidor->setRelation('ferias', $ferias);
+            
+            Log::info('Gerando PDF para servidor ID: ' . $id);
+            
+            // Primeiro, testar se a view renderiza corretamente
+            try {
+                $html = view('servidor.colaboradores.print', compact('servidor'))->render();
+                Log::info('View renderizada com sucesso. Tamanho: ' . strlen($html) . ' bytes');
+            } catch (\Exception $e) {
+                Log::error('Erro ao renderizar view: ' . $e->getMessage(), [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return redirect()->route('servidores.show', $id)
+                    ->with('error', 'Erro ao renderizar página: ' . $e->getMessage());
+            }
+            
+            // TEMPORÁRIO: Retornar HTML para testar se a view funciona
+            // Descomente a linha abaixo para testar a view sem PDF
+            // return response($html)->header('Content-Type', 'text/html');
+            
+            // Gerar PDF usando DomPDF 3.x
+            try {
+                if (!class_exists('\Dompdf\Dompdf')) {
+                    Log::error('DomPDF não está instalado');
+                    return response($html)->header('Content-Type', 'text/html');
+                }
+                
+                $options = new \Dompdf\Options();
+                $options->set('isRemoteEnabled', true);
+                $options->set('isHtml5ParserEnabled', true);
+                $options->set('isPhpEnabled', true);
+                $options->set('chroot', public_path());
+                $options->set('defaultFont', 'DejaVu Sans');
+                $options->set('debugKeepTemp', true);
+                $options->set('debugCss', false);
+                $options->set('debugLayout', false);
+                
+                $dompdf = new \Dompdf\Dompdf($options);
+                
+                // O HTML já vem completo da view, apenas garantir encoding
+                $dompdf->loadHtml($html, 'UTF-8');
+                $dompdf->setPaper('A4', 'portrait');
+                
+                Log::info('Iniciando renderização do PDF...');
+                $dompdf->render();
+                Log::info('PDF renderizado com sucesso. Tamanho do output: ' . strlen($dompdf->output()));
+                
+                // Retornar o PDF
+                return response($dompdf->output(), 200)
+                    ->header('Content-Type', 'application/pdf')
+                    ->header('Content-Disposition', 'inline; filename="ficha-servidor-' . $servidor->matricula . '.pdf"');
+            } catch (\Throwable $e) {
+                Log::error('Erro ao gerar PDF com DomPDF: ' . $e->getMessage(), [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                // Se o PDF falhar, retornar a view HTML diretamente para debug
+                return response($html)->header('Content-Type', 'text/html');
+            }
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::error('Servidor não encontrado para impressão: ' . $id);
             return redirect()->route('admin.colaborador')
                 ->with('error', 'Servidor não encontrado.');
         } catch (\Exception $e) {
-            Log::error('Erro ao gerar visualização de impressão: ' . $e->getMessage(), [
+            Log::error('Erro ao gerar PDF: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
             ]);
             return redirect()->route('servidores.show', $id)
-                ->with('error', 'Erro ao gerar visualização de impressão: ' . $e->getMessage());
+                ->with('error', 'Erro ao gerar PDF: ' . $e->getMessage());
         }
     }
 

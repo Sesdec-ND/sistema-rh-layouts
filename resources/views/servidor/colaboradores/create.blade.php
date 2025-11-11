@@ -50,15 +50,15 @@
                                     </td>
                                     <td>
                                         <div class="btn-group">
-                                            <a href="{{ route('servidores.show', $servidor->matricula) }}" 
+                                            <a href="{{ route('servidores.show', $servidor->id) }}" 
                                                class="btn btn-sm btn-info" title="Visualizar">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="{{ route('servidores.edit', $servidor->matricula) }}" 
+                                            <a href="{{ route('servidores.edit', $servidor->id) }}" 
                                                class="btn btn-sm btn-warning" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <form action="{{ route('servidores.destroy', $servidor->matricula) }}" 
+                                            <form action="{{ route('servidores.destroy', $servidor->id) }}" 
                                                   method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')

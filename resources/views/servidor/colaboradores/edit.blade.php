@@ -36,7 +36,7 @@
                 <p class="text-gray-600 mt-2">Atualize as informações do servidor: <strong>{{ $servidor->nome_completo }}</strong></p>
             </div>
             <div class="flex space-x-3">
-                <a href="{{ route('servidores.show', $servidor->matricula) }}"
+                <a href="{{ route('servidores.show', $servidor->id) }}"
                     class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center">
                     <i class="fas fa-eye mr-2"></i> Visualizar
                 </a>
@@ -49,10 +49,10 @@
 
         <!-- Formulário Completo - TODOS OS CAMPOS EM UMA TELA -->
         <div class="bg-white rounded-xl shadow-md p-8">
-            <form id="mainForm" action="{{ route('servidores.update', $servidor->matricula) }}" method="POST" enctype="multipart/form-data">
+            <form id="mainForm" action="{{ route('servidores.update', $servidor->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
-                <input type="hidden" id="servidor_matricula" value="{{ $servidor->matricula }}">
+                <input type="hidden" id="servidor_id" value="{{ $servidor->id }}">
 
                 <!-- Seção: Foto -->
                 <div class="mb-8 pb-8 border-b border-gray-200">
@@ -486,7 +486,7 @@
                                                             class="text-blue-600 hover:text-blue-800 mr-3">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
-                                                        <form action="{{ route('servidores.formacoes.destroy', [$servidor->matricula, $formacao->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover esta formação?')" class="inline">
+                                                        <form action="{{ route('servidores.formacoes.destroy', [$servidor->id, $formacao->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover esta formação?')" class="inline">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="text-red-600 hover:text-red-800">
@@ -546,7 +546,7 @@
                                                             class="text-blue-600 hover:text-blue-800 mr-3">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
-                                                        <form action="{{ route('servidores.cursos.destroy', [$servidor->matricula, $curso->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este curso?')" class="inline">
+                                                        <form action="{{ route('servidores.cursos.destroy', [$servidor->id, $curso->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este curso?')" class="inline">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="text-red-600 hover:text-red-800">
@@ -590,7 +590,7 @@
                             <div class="rounded-lg p-4 bg-white">
                                 <div class="flex items-center gap-2 mb-3">
                                     <h4 class="font-semibold text-gray-800">{{ $dependente->nome }}</h4>
-                                    <button type="button" onclick="abrirModalEditarDependente({{ $dependente->id }}, '{{ $dependente->nome }}', '{{ $dependente->parentesco ?? '' }}', '{{ $dependente->data_nascimento ? \Carbon\Carbon::parse($dependente->data_nascimento)->format('Y-m-d') : '' }}', '{{ $dependente->cpf ?? '' }}', '{{ $dependente->genero ?? '' }}', {{ $servidor->matricula }})" 
+                                    <button type="button" onclick="abrirModalEditarDependente({{ $dependente->id }}, '{{ $dependente->nome }}', '{{ $dependente->parentesco ?? '' }}', '{{ $dependente->data_nascimento ? \Carbon\Carbon::parse($dependente->data_nascimento)->format('Y-m-d') : '' }}', '{{ $dependente->cpf ?? '' }}', '{{ $dependente->genero ?? '' }}', {{ $servidor->id }})" 
                                         class="text-blue-600 hover:text-blue-800" title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -616,7 +616,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-3 pt-3 border-t border-gray-200">
-                                    <form action="{{ route('servidores.dependentes.destroy', [$servidor->matricula, $dependente->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este dependente?')">
+                                    <form action="{{ route('servidores.dependentes.destroy', [$servidor->id, $dependente->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este dependente?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 hover:text-red-800 text-sm">
@@ -703,11 +703,11 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                            <button type="button" onclick="abrirModalEditarPagamento({{ $pagamento->id }}, '{{ $mesAnoValue }}', {{ $pagamento->valor ?? 0 }}, '{{ $pagamento->status ?? 'pendente' }}', '{{ $dataPagamentoValue }}', '{{ addslashes($observacoesRaw ?? '') }}', {{ $servidor->matricula }})" 
+                                            <button type="button" onclick="abrirModalEditarPagamento({{ $pagamento->id }}, '{{ $mesAnoValue }}', {{ $pagamento->valor ?? 0 }}, '{{ $pagamento->status ?? 'pendente' }}', '{{ $dataPagamentoValue }}', '{{ addslashes($observacoesRaw ?? '') }}', {{ $servidor->id }})" 
                                                 class="text-blue-600 hover:text-blue-800 mr-2" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <form action="{{ route('servidores.pagamentos.destroy', [$servidor->matricula, $pagamento->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este pagamento?')" class="inline">
+                                            <form action="{{ route('servidores.pagamentos.destroy', [$servidor->id, $pagamento->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este pagamento?')" class="inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-600 hover:text-red-800">
@@ -749,7 +749,7 @@
                                 <div class="mb-3">
                                     <div class="flex items-center gap-2 mb-2">
                                         <h4 class="font-semibold text-gray-800">Período {{ $loop->iteration }}</h4>
-                                        <button type="button" onclick="abrirModalEditarFeria({{ $feria->id }}, '{{ $feria->data_inicio ? $feria->data_inicio->format('Y-m-d') : '' }}', '{{ $feria->data_fim ? $feria->data_fim->format('Y-m-d') : '' }}', {{ $feria->dias ?? 'null' }}, '{{ $feria->status ?? 'Pendente' }}', '{{ addslashes($feria->observacoes ?? '') }}', {{ $servidor->matricula }})" 
+                                        <button type="button" onclick="abrirModalEditarFeria({{ $feria->id }}, '{{ $feria->data_inicio ? $feria->data_inicio->format('Y-m-d') : '' }}', '{{ $feria->data_fim ? $feria->data_fim->format('Y-m-d') : '' }}', {{ $feria->dias ?? 'null' }}, '{{ $feria->status ?? 'Pendente' }}', '{{ addslashes($feria->observacoes ?? '') }}', {{ $servidor->id }})" 
                                             class="text-blue-600 hover:text-blue-800" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </button>
@@ -790,7 +790,7 @@
                                         @endif
                                 </div>
                                 <div class="mt-3 pt-3 border-t border-gray-200">
-                                    <form action="{{ route('servidores.ferias.destroy', [$servidor->matricula, $feria->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este período de férias?')">
+                                    <form action="{{ route('servidores.ferias.destroy', [$servidor->id, $feria->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este período de férias?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 hover:text-red-800 text-sm">
@@ -855,11 +855,11 @@
                                             {{ $ocorrencia->observacoes ?? '-' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                            <button type="button" onclick="abrirModalEditarOcorrencia({{ $ocorrencia->id }}, '{{ addslashes($ocorrencia->tipo_ocorrencia) }}', '{{ $ocorrencia->data_ocorrencia ? $ocorrencia->data_ocorrencia->format('Y-m-d') : '' }}', '{{ $ocorrencia->status ?? 'pendente' }}', '{{ addslashes($ocorrencia->descricao ?? '') }}', '{{ addslashes($ocorrencia->observacoes ?? '') }}', {{ $servidor->matricula }})" 
+                                            <button type="button" onclick="abrirModalEditarOcorrencia({{ $ocorrencia->id }}, '{{ addslashes($ocorrencia->tipo_ocorrencia) }}', '{{ $ocorrencia->data_ocorrencia ? $ocorrencia->data_ocorrencia->format('Y-m-d') : '' }}', '{{ $ocorrencia->status ?? 'pendente' }}', '{{ addslashes($ocorrencia->descricao ?? '') }}', '{{ addslashes($ocorrencia->observacoes ?? '') }}', {{ $servidor->id }})" 
                                                 class="text-blue-600 hover:text-blue-800 mr-2" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <form action="{{ route('servidores.ocorrencias.destroy', [$servidor->matricula, $ocorrencia->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover esta ocorrência?')" class="inline">
+                                            <form action="{{ route('servidores.ocorrencias.destroy', [$servidor->id, $ocorrencia->id]) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover esta ocorrência?')" class="inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-600 hover:text-red-800">
@@ -882,7 +882,7 @@
 
             <!-- Botões de Navegação -->
                 <div class="flex justify-end space-x-4 pt-8 border-t mt-8">
-                    <a href="{{ route('servidores.show', $servidor->matricula) }}"
+                    <a href="{{ route('servidores.show', $servidor->id) }}"
                         class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg transition duration-200">
                     Visualizar Servidor
                 </a>
@@ -1026,7 +1026,7 @@
 
     // Função para salvar uma seção específica
     function salvarSecao(secao) {
-        const matricula = document.getElementById('servidor_matricula').value;
+        const servidorId = document.getElementById('servidor_id').value;
         const formData = new FormData();
         const csrfToken = document.querySelector('input[name="_token"]').value;
         
@@ -1075,7 +1075,7 @@
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
         // Enviar via AJAX
-        const url = `{{ route('servidores.update', ':id') }}`.replace(':id', matricula);
+        const url = `{{ route('servidores.update', ':id') }}`.replace(':id', servidorId);
         fetch(url, {
             method: 'POST',
             body: formData,
@@ -1402,7 +1402,7 @@
     
     // Funções para modais de Dados Profissionais, Lotação e Vínculo
     function abrirModalEditarDadosProfissionais() {
-        const servidorId = document.getElementById('servidor_matricula').value;
+        const servidorId = document.getElementById('servidor_id').value;
         document.getElementById('editDadosProfissionaisServidorId').value = servidorId;
         document.getElementById('editDadosProfissionaisDataNomeacao').value = '{{ $servidor->data_nomeacao ? \Carbon\Carbon::parse($servidor->data_nomeacao)->format('Y-m-d') : '' }}';
         document.getElementById('editDadosProfissionaisFormacao').value = '{{ addslashes($servidor->formacao ?? '') }}';
@@ -1469,7 +1469,7 @@
     function salvarAtribuirLotacao() {
         const form = document.getElementById('formAtribuirLotacao');
         const formData = new FormData(form);
-        const matricula = document.getElementById('servidor_matricula').value;
+        const servidorId = document.getElementById('servidor_id').value;
         const csrfToken = document.querySelector('input[name="_token"]').value;
         
         const lotacaoId = document.getElementById('atribuirLotacaoId').value;
@@ -1501,7 +1501,7 @@
         button.disabled = true;
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
         
-        const url = `{{ route('servidores.update', ':id') }}`.replace(':id', matricula);
+        const url = `{{ route('servidores.update', ':id') }}`.replace(':id', servidorId);
         fetch(url, {
             method: 'POST',
             body: formData,
@@ -1552,7 +1552,7 @@
     }
     
     function abrirModalEditarVinculo() {
-        const servidorId = document.getElementById('servidor_matricula').value;
+        const servidorId = document.getElementById('servidor_id').value;
         document.getElementById('editVinculoServidorId').value = servidorId;
         document.getElementById('modalEditarVinculo').classList.remove('hidden');
     }
@@ -1610,7 +1610,7 @@
             return;
         }
         
-        const matricula = document.getElementById('servidor_matricula').value;
+        const servidorId = document.getElementById('servidor_id').value;
         const formData = new FormData();
         const csrfToken = document.querySelector('#formEditarFoto input[name="_token"]').value;
         
@@ -1623,7 +1623,7 @@
         button.disabled = true;
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
         
-        const url = `{{ route('servidores.update', ':id') }}`.replace(':id', matricula);
+        const url = `{{ route('servidores.update', ':id') }}`.replace(':id', servidorId);
         fetch(url, {
             method: 'POST',
             body: formData,
@@ -1838,7 +1838,7 @@
     function salvarEditarDadosProfissionais() {
         const form = document.getElementById('formEditarDadosProfissionais');
         const formData = new FormData(form);
-        const matricula = document.getElementById('servidor_matricula').value;
+        const servidorId = document.getElementById('servidor_id').value;
         
         const button = form.querySelector('button[type="submit"]');
         const originalHTML = button.innerHTML;
@@ -1848,7 +1848,7 @@
         // Adicionar método PUT
         formData.append('_method', 'PUT');
         
-        fetch(`/rh/servidores/${matricula}`, {
+            fetch(`/rh/servidores/${servidorId}`, {
             method: 'POST',
             body: formData,
             headers: {
@@ -1940,7 +1940,7 @@
     function salvarEditarVinculo() {
         const form = document.getElementById('formEditarVinculo');
         const formData = new FormData(form);
-        const matricula = document.getElementById('servidor_matricula').value;
+        const servidorId = document.getElementById('servidor_id').value;
         
         const button = form.querySelector('button[type="submit"]');
         const originalHTML = button.innerHTML;
@@ -1950,7 +1950,7 @@
         // Adicionar método PUT
         formData.append('_method', 'PUT');
         
-        fetch(`/rh/servidores/${matricula}`, {
+            fetch(`/rh/servidores/${servidorId}`, {
             method: 'POST',
             body: formData,
             headers: {
@@ -1991,7 +1991,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form id="formDependente" action="{{ route('servidores.dependentes.store', $servidor->matricula) }}" method="POST">
+        <form id="formDependente" action="{{ route('servidores.dependentes.store', $servidor->id) }}" method="POST">
             @csrf
             <div class="space-y-4">
                 <div>
@@ -2046,7 +2046,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form id="formOcorrencia" action="{{ route('servidores.ocorrencias.store', $servidor->matricula) }}" method="POST">
+        <form id="formOcorrencia" action="{{ route('servidores.ocorrencias.store', $servidor->id) }}" method="POST">
             @csrf
             <div class="space-y-4">
                 <div>
@@ -2095,7 +2095,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form id="formPagamento" action="{{ route('servidores.pagamentos.store', $servidor->matricula) }}" method="POST">
+        <form id="formPagamento" action="{{ route('servidores.pagamentos.store', $servidor->id) }}" method="POST">
             @csrf
             <div class="space-y-4">
                 <div>
@@ -2144,7 +2144,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form id="formFeria" action="{{ route('servidores.ferias.store', $servidor->matricula) }}" method="POST">
+        <form id="formFeria" action="{{ route('servidores.ferias.store', $servidor->id) }}" method="POST">
             @csrf
             <div class="space-y-4">
                 <div>

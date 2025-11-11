@@ -113,10 +113,10 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex space-x-2">
                                         <!-- Botão Visualizar -->
-                                        <a href="{{ route('servidores.show', $servidor->matricula) }}" {{-- class="bg-green-100 hover:bg-green-200 text-green-600 p-2 rounded-lg transition duration-200"
+                                        <a href="{{ route('servidores.show', $servidor->id) }}" {{-- class="bg-green-100 hover:bg-green-200 text-green-600 p-2 rounded-lg transition duration-200"
                                             title="Visualizar">
                                             <i class="fas fa-eye"></i> --}}
-                                            <button onclick="abrirModalServidor({{ $servidor->matricula }})"
+                                            <button onclick="abrirModalServidor({{ $servidor->id }})"
                                             class="bg-green-100 hover:bg-green-200 text-green-600 p-2 rounded-lg transition duration-200">
                                             <i class="fas fa-eye"></i>
                                             </button>
@@ -124,14 +124,14 @@
 
 
                                         <!-- Botão Editar -->
-                                        <a href="{{ route('servidores.edit', $servidor->matricula) }}"
+                                        <a href="{{ route('servidores.edit', $servidor->id) }}"
                                             class="bg-blue-100 hover:bg-blue-200 text-blue-600 p-2 rounded-lg transition duration-200"
                                             title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
 
                                         <!-- Botão Deletar -->
-                                        <form action="{{ route('servidores.destroy', $servidor->matricula) }}" method="POST"
+                                        <form action="{{ route('servidores.destroy', $servidor->id) }}" method="POST"
                                             class="inline">
                                             @csrf
                                             @method('DELETE')

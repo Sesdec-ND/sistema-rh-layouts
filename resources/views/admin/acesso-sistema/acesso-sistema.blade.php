@@ -156,7 +156,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex space-x-2">
                                 @if($servidor->user)
-                                    <a href="{{ route('admin.acesso-sistema.atribuir', $servidor->matricula) }}" 
+                                    <a href="{{ route('admin.acesso-sistema.atribuir', $servidor->id) }}" 
                                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center">
                                         <i class="fas fa-edit mr-2"></i>
                                         Alterar Perfil
@@ -171,7 +171,7 @@
                                         </button>
                                     </form>
                                 @else
-                                    <a href="{{ route('admin.acesso-sistema.atribuir', $servidor->matricula) }}" 
+                                    <a href="{{ route('admin.acesso-sistema.atribuir', $servidor->id) }}" 
                                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center">
                                         <i class="fas fa-user-plus mr-2"></i>
                                         Atribuir Acesso

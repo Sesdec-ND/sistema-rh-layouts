@@ -13,78 +13,96 @@
 
         body {
             font-family: 'Arial', 'Helvetica', sans-serif;
-            font-size: 12px;
-            line-height: 1.6;
+            font-size: 11px;
+            line-height: 1.4;
             color: #333;
             background: #fff;
-            padding: 20px;
+            padding: 0;
+            margin: 0;
         }
 
         .print-container {
             max-width: 210mm;
             margin: 0 auto;
             background: white;
-            padding: 20mm;
+            padding: 10mm;
         }
 
         .header {
             text-align: center;
-            border-bottom: 3px solid #2563eb;
-            padding-bottom: 15px;
-            margin-bottom: 30px;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .header h1 {
-            font-size: 24px;
+            font-size: 20px;
             color: #1e40af;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             font-weight: bold;
         }
 
         .header .subtitle {
-            font-size: 14px;
+            font-size: 11px;
             color: #666;
+            margin: 2px 0;
         }
 
         .section {
-            margin-bottom: 25px;
+            margin-bottom: 12px;
             page-break-inside: avoid;
         }
 
         .section-title {
-            font-size: 16px;
+            font-size: 13px;
             font-weight: bold;
             color: #1e40af;
-            border-bottom: 2px solid #e5e7eb;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 4px;
+            margin-bottom: 8px;
             text-transform: uppercase;
         }
 
         .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 15px;
+            width: 100%;
+            margin-bottom: 8px;
         }
 
         .info-item {
-            margin-bottom: 12px;
+            width: 48%;
+            float: left;
+            margin-right: 2%;
+            margin-bottom: 6px;
+            clear: none;
+        }
+        
+        .info-item.full-width {
+            width: 100%;
+            float: none;
+            clear: both;
+            margin-right: 0;
+        }
+        
+        .info-grid::after {
+            content: "";
+            display: table;
+            clear: both;
         }
 
         .info-label {
             font-weight: bold;
             color: #555;
-            font-size: 11px;
-            margin-bottom: 3px;
+            font-size: 10px;
+            margin-bottom: 2px;
             text-transform: uppercase;
         }
 
         .info-value {
             color: #111;
-            font-size: 12px;
-            padding: 5px 0;
+            font-size: 11px;
+            padding: 2px 0;
             border-bottom: 1px dotted #ddd;
+            min-height: 16px;
         }
 
         .full-width {
@@ -93,15 +111,15 @@
 
         .photo-section {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .photo-box {
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
             border: 2px solid #ddd;
-            border-radius: 8px;
-            margin: 0 auto 10px;
+            border-radius: 6px;
+            margin: 0 auto 6px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -123,22 +141,24 @@
         .table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-            font-size: 11px;
+            margin-top: 6px;
+            font-size: 10px;
         }
 
         .table th {
             background-color: #f3f4f6;
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 5px 4px;
             text-align: left;
             font-weight: bold;
             color: #374151;
+            font-size: 9px;
         }
 
         .table td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 4px;
+            font-size: 10px;
         }
 
         .table tr:nth-child(even) {
@@ -164,11 +184,11 @@
         }
 
         .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 2px solid #e5e7eb;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
             text-align: center;
-            font-size: 10px;
+            font-size: 9px;
             color: #666;
         }
 
@@ -176,7 +196,8 @@
             text-align: center;
             color: #9ca3af;
             font-style: italic;
-            padding: 20px;
+            padding: 10px;
+            font-size: 10px;
         }
 
         @media print {
@@ -202,7 +223,7 @@
 
             @page {
                 size: A4;
-                margin: 15mm;
+                margin: 10mm;
             }
         }
 
@@ -265,11 +286,15 @@
                 <div class="photo-box">
                     @if($servidor->foto)
                         @php
-                            $fotoPath = strpos($servidor->foto, 'http') === 0 
-                                ? $servidor->foto 
-                                : asset('storage/' . $servidor->foto);
+                            // Para DomPDF, usar URL absoluta
+                            if (strpos($servidor->foto, 'http') === 0) {
+                                $fotoPath = $servidor->foto;
+                            } else {
+                                // Converter para URL absoluta
+                                $fotoPath = url('storage/' . $servidor->foto);
+                            }
                         @endphp
-                        <img src="{{ $fotoPath }}" alt="{{ $servidor->nome_completo }}">
+                        <img src="{{ $fotoPath }}" alt="{{ $servidor->nome_completo }}" style="max-width: 100%; height: auto;">
                     @else
                         <div class="photo-placeholder">👤</div>
                     @endif
@@ -546,6 +571,74 @@
                 </table>
             @else
                 <div class="no-data">Nenhuma ocorrência registrada</div>
+            @endif
+        </div>
+
+        <!-- Formações -->
+        <div class="section page-break">
+            <h3 class="section-title">Formações Acadêmicas</h3>
+            @if($servidor->formacoes && $servidor->formacoes->count() > 0)
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nível</th>
+                            <th>Curso</th>
+                            <th>Instituição</th>
+                            <th>Ano Conclusão</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($servidor->formacoes as $formacao)
+                        <tr>
+                            <td>{{ $formacao->nivel ?? 'Não informado' }}</td>
+                            <td>{{ $formacao->curso ?? 'Não informado' }}</td>
+                            <td>{{ $formacao->instituicao ?? 'Não informado' }}</td>
+                            <td>{{ $formacao->ano_conclusao ?? 'Não informado' }}</td>
+                            <td>{{ $formacao->status ?? 'Não informado' }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @else
+                <div class="no-data">Nenhuma formação registrada</div>
+            @endif
+        </div>
+
+        <!-- Cursos -->
+        <div class="section page-break">
+            <h3 class="section-title">Cursos e Capacitações</h3>
+            @if($servidor->cursos && $servidor->cursos->count() > 0)
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nome do Curso</th>
+                            <th>Instituição</th>
+                            <th>Carga Horária</th>
+                            <th>Data Início</th>
+                            <th>Data Conclusão</th>
+                            <th>Certificado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($servidor->cursos as $curso)
+                        <tr>
+                            <td>{{ $curso->nome_curso ?? 'Não informado' }}</td>
+                            <td>{{ $curso->instituicao ?? 'Não informado' }}</td>
+                            <td>{{ $curso->carga_horaria ?? 'Não informado' }}h</td>
+                            <td>
+                                {{ $curso->data_inicio ? \Carbon\Carbon::parse($curso->data_inicio)->format('d/m/Y') : 'Não informado' }}
+                            </td>
+                            <td>
+                                {{ $curso->data_conclusao ? \Carbon\Carbon::parse($curso->data_conclusao)->format('d/m/Y') : 'Não informado' }}
+                            </td>
+                            <td>{{ $curso->certificado ? 'Sim' : 'Não' }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @else
+                <div class="no-data">Nenhum curso registrado</div>
             @endif
         </div>
 

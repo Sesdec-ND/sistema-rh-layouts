@@ -118,7 +118,7 @@
         </div>
     @else
         <!-- Criar Novo Usuário -->
-        <form action="{{ route('admin.acesso-sistema.criar-usuario', $servidor->matricula) }}" method="POST" class="bg-white rounded-xl shadow-md p-6">
+        <form action="{{ route('admin.acesso-sistema.criar-usuario', $servidor->id) }}" method="POST" class="bg-white rounded-xl shadow-md p-6">
             @csrf
             
             <h2 class="text-xl font-bold text-gray-800 mb-6">Criar Acesso ao Sistema</h2>

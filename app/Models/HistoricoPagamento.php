@@ -29,7 +29,11 @@ class HistoricoPagamento extends Model
     // Relacionamentos
     public function servidor()
     {
+<<<<<<< HEAD
 		return $this->belongsTo(Servidor::class, 'id_servidor', 'id');
+=======
+        return $this->belongsTo(Servidor::class, 'id_servidor', 'id');
+>>>>>>> 0abed94 (mostrando servidor por id e config de pdf)
     }
 
     // Accessors

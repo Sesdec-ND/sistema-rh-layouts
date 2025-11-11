@@ -14,10 +14,22 @@ class Servidor extends Model
 
     protected $table = 'servidores';
 
-    protected $primaryKey = 'matricula';
-    public $incrementing = false;
-    protected $keyType = 'string';
+    // Usando id como chave primária padrão do Laravel
+    // protected $primaryKey = 'id';
+    // public $incrementing = true;
+    // protected $keyType = 'int';
 
+<<<<<<< HEAD
+=======
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'id';
+    }
+
+>>>>>>> 0abed94 (mostrando servidor por id e config de pdf)
     protected $fillable = [
         'nome_completo',
         'email',
@@ -67,12 +79,12 @@ class Servidor extends Model
 
     public function dependentes()
     {
-        return $this->hasMany(Dependente::class, 'id_servidor', 'matricula');
+        return $this->hasMany(Dependente::class, 'id_servidor', 'id');
     }
 
     public function ocorrencias()
     {
-        return $this->hasMany(Ocorrencia::class, 'id_servidor', 'matricula');
+        return $this->hasMany(Ocorrencia::class, 'id_servidor', 'id');
     }
 
     public function historicoPagamentos()
@@ -82,10 +94,23 @@ class Servidor extends Model
 
     public function ferias()
     {
-        return $this->hasMany(Ferias::class, 'id_servidor', 'matricula');
+        return $this->hasMany(Ferias::class, 'id_servidor', 'id');
     }
 
+<<<<<<< HEAD
     // 🔴 RELACIONAMENTO CORRIGIDO - Busca flexível por CPF
+=======
+    public function formacoes()
+    {
+        return $this->hasMany(Formacao::class, 'id_servidor', 'id');
+    }
+
+    public function cursos()
+    {
+        return $this->hasMany(Curso::class, 'id_servidor', 'id');
+    }
+
+>>>>>>> 0abed94 (mostrando servidor por id e config de pdf)
     public function user()
     {
         // Busca o usuário comparando CPF sem formatação

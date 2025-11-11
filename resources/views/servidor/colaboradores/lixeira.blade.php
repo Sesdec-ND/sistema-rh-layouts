@@ -122,7 +122,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex space-x-2">
                                 <!-- Botão Restaurar -->
-                                <form action="{{ route('servidores.restore', $servidor->matricula) }}" method="POST" class="inline">
+                                <form action="{{ route('servidores.restore', $servidor->id) }}" method="POST" class="inline">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" 
@@ -133,7 +133,7 @@
                                 </form>
 
                                 <!-- Botão Excluir Permanentemente -->
-                                <form action="{{ route('servidores.force-delete', $servidor->matricula) }}" method="POST" class="inline">
+                                <form action="{{ route('servidores.force-delete', $servidor->id) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" 
